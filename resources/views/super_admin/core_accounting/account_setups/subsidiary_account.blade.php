@@ -19,7 +19,8 @@
                   <div class="form-floating">
                     <select class="form-select" id="accounts_group_input" name="accounts_group_input">
                       <option selected="selected" value="Assets">Assets</option>
-                      <option value="Libility">Libility</option>
+                      <option value="Expenses">Expenses</option>
+                      <option value="Liabilities">Liabilities</option>
                       <option value="Income">Income</option>
                     </select><label for="accounts_group_input">Accounts Group</label></div>
                 </div>
