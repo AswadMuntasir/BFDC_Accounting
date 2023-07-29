@@ -638,7 +638,7 @@ class CoreAccountingController extends Controller
 
             $voucher = new voucher_entry;
             $voucher->voucher_type = "Receipt Voucher";
-            $voucher->voucher_no = $nextVoucherNo;
+            $voucher->voucher_no = "r_" . $nextVoucherNo;
             $voucher->type = "Cash";
             $voucher->type_name = "N/A";
             $voucher->type_cheque = "N/A";
