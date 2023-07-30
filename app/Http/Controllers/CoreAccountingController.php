@@ -753,38 +753,46 @@ class CoreAccountingController extends Controller
         $updatedDrAmount = [];
         $updatedCrAmount = [];
 
+        // dd($data);
+
+        $dr_arr = [];
+        $cr_arr = [];
+        $v_date = "";
+
         foreach ($data as &$item) {
             $item['cr_amount'] = json_decode($item['cr_amount'], true);
             $item['dr_amount'] = json_decode($item['dr_amount'], true);
+            $v_date = $item['voucher_date'];
+            array_push($dr_arr, $item['dr_amount']);
+            array_push($cr_arr, $item['cr_amount']);
+        }
 
-            // Process dr_amount
-            foreach ($item['dr_amount'] as $drItem) {
-                if (!is_array($updatedDrAmount)) {
-                    $updatedDrAmount = [];
-                }
-                $key = array_search($drItem['name'], array_column($updatedDrAmount, 'name'));
-
-                if ($key !== false) {
-                    $updatedDrAmount[$key]['amount'] += intval($drItem['amount']);
-                } else {
-                    $updatedDrAmount[] = $drItem;
-                }
-            }
-
-            // Process cr_amount
-            foreach ($item['cr_amount'] as $crItem) {
-                if (!is_array($updatedCrAmount)) {
-                    $updatedCrAmount = [];
-                }
-                $key = array_search($crItem['name'], array_column($updatedCrAmount, 'name'));
-
-                if ($key !== false) {
-                    $updatedCrAmount[$key]['amount'] += intval($crItem['amount']);
-                } else {
-                    $updatedCrAmount[] = $crItem;
-                }
+        // Flattening the data
+        $newDRData = [];
+        foreach ($dr_arr as $innerArray) {
+            foreach ($innerArray as $item) {
+                $newDRData[] = $item;
             }
         }
+        $newCRData = [];
+        foreach ($cr_arr as $innerArray) {
+            foreach ($innerArray as $item) {
+                $newCRData[] = $item;
+            }
+        }
+
+        $newdrId = 1;
+        foreach ($newDRData as $item) {
+            $item["id"] = $newdrId++;
+            $newDR[] = $item;
+        }
+        $newcrId = 1;
+        foreach ($newCRData as $item) {
+            $item["id"] = $newcrId++;
+            $newCR[] = $item;
+        }
+
+        dd(json_encode($newCR), $newDR);
 
         $description = 'Multiple Journal vouchers added: ' . implode(', ', $data->pluck('voucher_no')->map(function($id) {
             return 'memo-' . $id;
@@ -799,12 +807,12 @@ class CoreAccountingController extends Controller
         $voucher->type_name = "N/A";
         $voucher->type_cheque = "N/A";
         $voucher->type_date = "N/A";
-        $voucher->voucher_date = $item['voucher_date'];
+        $voucher->voucher_date = $v_date;
         $voucher->party = "N/A";
         $voucher->receiver = "N/A";
         $voucher->description = $description;
-        $voucher->dr_amount = json_encode($item['dr_amount']); // Convert to JSON string
-        $voucher->cr_amount = json_encode($item['cr_amount']); // Convert to JSON string
+        $voucher->dr_amount = json_encode($newCR); // Convert to JSON string
+        $voucher->cr_amount = json_encode($newDR); // Convert to JSON string
         $voucher->total_dr_amount = $totalDrAmount;
         $voucher->total_cr_amount = $totalCrAmount;
         $voucher->vat = 0;
