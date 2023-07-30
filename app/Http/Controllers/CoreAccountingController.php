@@ -583,6 +583,8 @@ class CoreAccountingController extends Controller
             $nextVoucherNo = $number;
         }
 
+        dd($nextVoucherNo);
+
         if ($data->count() > 1) {
             // Multiple data selected
             $updatedDrAmount = [];
