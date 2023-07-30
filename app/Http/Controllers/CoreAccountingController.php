@@ -573,7 +573,12 @@ class CoreAccountingController extends Controller
         $number = 0;
 
         foreach ($data2 as $row) {
-            $lastVoucherNo = $row->last_voucher_no;
+            if($row->last_voucher_no) {
+                $lastVoucherNo = $row->last_voucher_no;
+            }
+            else {
+                $lastVoucherNo = "r_0";
+            }
             $prefix = substr($lastVoucherNo, 0, 1);
             $number = intval(substr($lastVoucherNo, 2)) + 1;
 
@@ -583,7 +588,7 @@ class CoreAccountingController extends Controller
             $nextVoucherNo = $number;
         }
 
-        dd($nextVoucherNo);
+        // return response()->json(['data' => $nextVoucherNo]);
 
         if ($data->count() > 1) {
             // Multiple data selected
