@@ -792,7 +792,7 @@ class CoreAccountingController extends Controller
             $newCR[] = $item;
         }
 
-        dd(json_encode($newCR), $newDR);
+        // dd(json_encode($newCR), $newDR);
 
         $description = 'Multiple Journal vouchers added: ' . implode(', ', $data->pluck('voucher_no')->map(function($id) {
             return 'memo-' . $id;
