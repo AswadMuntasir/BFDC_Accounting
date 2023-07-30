@@ -152,7 +152,7 @@
                                     <br><br><br>
                                 </div>
                                 <div class="col-3" style="text-align: center;">
-                                    Asstt Accountant
+                                    Asst Accountant
                                     <br><br>
                                 </div>
                                 <div class="col-3" style="text-align: center;">
@@ -160,7 +160,7 @@
                                     <br><br>
                                 </div>
                                 <div class="col-3" style="text-align: center;">
-                                    Asstt Chief Accountant
+                                    Asst Chief Accountant
                                     <br><br>
                                 </div>
                                 <div class="col-3" style="text-align: center;">

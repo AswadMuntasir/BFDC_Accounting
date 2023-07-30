@@ -141,9 +141,24 @@
                                         @endforeach
                                     </table>
                                     @endif
+                                    <br><br><br>
+                                </div>
+                                <div class="col-3" style="text-align: center;">
+                                    Asst Accountant
                                     <br><br>
                                 </div>
-                                
+                                <div class="col-3" style="text-align: center;">
+                                    Accountant
+                                    <br><br>
+                                </div>
+                                <div class="col-3" style="text-align: center;">
+                                    Asst Chief Accountant
+                                    <br><br>
+                                </div>
+                                <div class="col-3" style="text-align: center;">
+                                    Chief Accountant
+                                    <br><br>
+                                </div>
                             </div>
                         </div>
                     </div>
