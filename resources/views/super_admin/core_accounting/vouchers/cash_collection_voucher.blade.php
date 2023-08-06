@@ -124,7 +124,7 @@
                     },
                     success: function(response) {
                         // Handle the response from the controller
-                        console.log(response);
+                        // console.log(response);
                         location.reload(true);
                     },
                     error: function(xhr) {

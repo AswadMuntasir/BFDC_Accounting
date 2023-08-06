@@ -476,6 +476,41 @@ class CoreAccountingController extends Controller
             "cr_amount_table_ta" => "required",
         ]);
 
+        $drAmountJson = $request->input('dr_amount_table_ta');
+        $crAmountJson = $request->input('cr_amount_table_ta');
+
+        $drAmountData = json_decode($drAmountJson, true);
+        $crAmountData = json_decode($crAmountJson, true);
+
+        // Transform data to final_data format
+        $finalDataArray = [];
+
+        if ($drAmountData && !empty($drAmountData)) {
+            foreach ($drAmountData as $drItem) {
+                $finalDataArray[] = [
+                    'name' => $drItem['name'],
+                    'amount' => $drItem['amount'],
+                    'party_name' => $request->input('party_input'),
+                    'type' => 'dr_amount',
+                ];
+            }
+        }
+
+        if ($crAmountData && !empty($crAmountData)) {
+            foreach ($crAmountData as $crItem) {
+                $finalDataArray[] = [
+                    'name' => $crItem['name'],
+                    'amount' => $crItem['amount'],
+                    'party_name' => $request->input('party_input'),
+                    'type' => 'cr_amount',
+                ];
+            }
+        }
+
+        $finalDataJson = json_encode($finalDataArray);
+
+        // dd($finalDataJson);
+
         $voucher = new voucher_entry;
         $voucher->voucher_type = $request->get('voucher_type_input');
         if($request->get('voucher_type_input') == "Journal"){
@@ -499,6 +534,7 @@ class CoreAccountingController extends Controller
         $voucher->description = $request->get('description_input');
         $voucher->dr_amount = $request->get('dr_amount_table_ta');
         $voucher->cr_amount = $request->get('cr_amount_table_ta');
+        $voucher->cr_dr = $finalDataJson;
         $voucher->total_dr_amount = $request->get('collection_dr_amount_input');
         $voucher->total_cr_amount = $request->get('collection_cr_amount_input');
         $voucher->vat = $request->get('total_vat_input');
@@ -559,6 +595,42 @@ class CoreAccountingController extends Controller
         $checkboxes = $request->input('checkboxes');
         $data = collection_entry::whereIn('id', $checkboxes)->get();
 
+
+        $oldDataArray = json_decode($data, true);
+
+        // Transform old_data to final_data format
+        $finalDataArray = [];
+        foreach ($oldDataArray as $item) {
+            $drAmountData = json_decode($item['dr_amount'], true);
+            $crAmountData = json_decode($item['cr_amount'], true);
+
+            if ($drAmountData && !empty($drAmountData)) {
+                foreach ($drAmountData as $drItem) {
+                    $finalDataArray[] = [
+                        // 'id' => $drItem['id'],
+                        'name' => $drItem['name'],
+                        'amount' => $drItem['amount'],
+                        'party_name' => $item['customer_name'],
+                        'type' => 'dr_amount',
+                    ];
+                }
+            }
+
+            if ($crAmountData && !empty($crAmountData)) {
+                foreach ($crAmountData as $crItem) {
+                    $finalDataArray[] = [
+                        // 'id' => $crItem['id'],
+                        'name' => $crItem['name'],
+                        'amount' => $crItem['amount'],
+                        'party_name' => $item['customer_name'],
+                        'type' => 'cr_amount',
+                    ];
+                }
+            }
+        }
+
+        $finalDataJson = json_encode($finalDataArray); //cr_dr output
+
         $updatedDrAmount = []; // Initialize as empty array
         $updatedCrAmount = []; // Initialize as empty array
 
@@ -592,7 +664,47 @@ class CoreAccountingController extends Controller
         $cr_arr = [];
         $v_date = "";
 
-        // return response()->json(['data' => $data]);
+        // Step 1: Parse the JSON data
+        $data2 = json_decode($data, true);
+
+        // return response()->json(['data' => $data2[0]]);
+        // Step 2: Transform the data
+        $result2 = [];
+        foreach ($data2 as $item) {
+            // Decode the dr_amount and cr_amount JSON strings
+            $drAmounts = json_decode($item['dr_amount'], true);
+            $crAmounts = json_decode($item['cr_amount'], true);
+
+            // Append the decoded amounts to the result array
+            $result2 = array_merge($result2, $drAmounts, $crAmounts);
+            // return response()->json(['data' => $data2]);
+        }
+
+        // return response()->json(['data' => $result2, 'data2' => $data2]);
+
+        // Step 3: Group the amounts by name and calculate the dr_amount and cr_amount
+        $groupedData = [];
+        foreach ($result2 as $item) {
+            $name = $item['name'];
+
+            if (!isset($groupedData[$name])) {
+                $groupedData[$name] = [
+                    'name' => $name,
+                    'dr_amount' => 0,
+                    'cr_amount' => 0,
+                ];
+            }
+
+            $groupedData[$name]['dr_amount'] += isset($item['amount']) ? $item['amount'] : 0;
+            $groupedData[$name]['cr_amount'] += isset($item['cr_amount']) ? $item['cr_amount'] : 0;
+        }
+        $output = [
+            'data' => [
+                [
+                    'dr_amount' => json_encode(array_values($groupedData)),
+                ],
+            ],
+        ];
 
         if ($data->count() > 1) {
             // Multiple data selected
@@ -606,33 +718,6 @@ class CoreAccountingController extends Controller
                 $v_date = $item['collection_date'];
                 array_push($dr_arr, $item['dr_amount']);
                 array_push($cr_arr, $item['cr_amount']);
-                // // Process dr_amount
-                // foreach ($item['dr_amount'] as $drItem) {
-                //     if (!is_array($updatedDrAmount)) {
-                //         $updatedDrAmount = [];
-                //     }
-                //     $key = array_search($drItem['name'], array_column($updatedDrAmount, 'name'));
-
-                //     if ($key !== false) {
-                //         $updatedDrAmount[$key]['amount'] += intval($drItem['amount']);
-                //     } else {
-                //         $updatedDrAmount[] = $drItem;
-                //     }
-                // }
-
-                // // Process cr_amount
-                // foreach ($item['cr_amount'] as $crItem) {
-                //     if (!is_array($updatedCrAmount)) {
-                //         $updatedCrAmount = [];
-                //     }
-                //     $key = array_search($crItem['name'], array_column($updatedCrAmount, 'name'));
-
-                //     if ($key !== false) {
-                //         $updatedCrAmount[$key]['amount'] += intval($crItem['amount']);
-                //     } else {
-                //         $updatedCrAmount[] = $crItem;
-                //     }
-                // }
             }
 
             // Flattening the data
@@ -673,9 +758,12 @@ class CoreAccountingController extends Controller
                 'collection_type' => 'Cash',
                 'collection_amount' => $totalDrAmount,
                 'description' => $description,
-                'dr_amount' => $updatedDrAmount,
-                'cr_amount' => $updatedCrAmount,
+                'dr_amount' => json_encode($newDR),
+                'cr_amount' => json_encode($newCR),
+                'cr_dr' => $finalDataJson
             ];
+
+            // return response()->json(['data' => $newEntry]);
 
             $voucher = new voucher_entry;
             $voucher->voucher_type = "Receipt Voucher";
@@ -687,9 +775,10 @@ class CoreAccountingController extends Controller
             $voucher->voucher_date = $v_date;
             $voucher->party = "N/A";
             $voucher->receiver = "N/A";
-            $voucher->description = $newEntry['description'];
+            $voucher->description = $description;
             $voucher->dr_amount = json_encode($newDR);
             $voucher->cr_amount = json_encode($newCR);
+            $voucher->cr_dr = $finalDataJson;
             $voucher->total_dr_amount = $totalDrAmount;
             $voucher->total_cr_amount = $totalCrAmount;
             $voucher->vat = 0;
@@ -710,7 +799,7 @@ class CoreAccountingController extends Controller
             $totalDrAmount = array_sum(array_column($item['dr_amount'], 'amount'));
             $totalCrAmount = array_sum(array_column($item['cr_amount'], 'amount'));
 
-            // return response()->json(['data' => $totalCrAmount]);
+            // return response()->json(['data' => json_encode($item['dr_amount'])]);
 
             $voucher = new voucher_entry;
             $voucher->voucher_type = "Receipt Voucher";
@@ -725,6 +814,7 @@ class CoreAccountingController extends Controller
             $voucher->description = $description;
             $voucher->dr_amount = json_encode($item['dr_amount']); // Convert to JSON string
             $voucher->cr_amount = json_encode($item['cr_amount']); // Convert to JSON string
+            $voucher->cr_dr = $finalDataJson;
             $voucher->total_dr_amount = $totalDrAmount;
             $voucher->total_cr_amount = $totalCrAmount;
             $voucher->vat = 0;

@@ -11,7 +11,7 @@ class voucher_entry extends Model
 
     protected $table = 'voucher_entry';
     protected $fillable = [
-        'voucher_type', 'voucher_no', 'type', 'branch', 'voucher_date', 'party', 'receiver', 'description', 'dr_amount', 'cr_amount', 'total_dr_amount', 'total_cr_amount', 'vat', 'tax'
+        'voucher_type', 'voucher_no', 'type', 'branch', 'voucher_date', 'party', 'receiver', 'description', 'dr_amount', 'cr_amount', 'cr_dr', 'total_dr_amount', 'total_cr_amount', 'vat', 'tax'
     ];
 
     public function subsidiaryAc()

@@ -61,7 +61,7 @@
     		<button id="download-button" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
         </div>
         <br> <br>
-        <div style="border: 2px solid #000000; background-color:#ffffff; width: 60%; margin-left: auto; margin-right: auto;">
+        <div style="border: 2px solid #000000; background-color:#ffffff; width: 60%; margin-left: auto; margin-right: auto; color: #000000;">
             <div id="invoice" style="width: 100%; margin-left: auto; margin-right: auto;">
                 <div style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
                     <br><br>
@@ -75,19 +75,100 @@
                             <br><br>
                         </div>
                         <div class="col-2"></div>
-                    </div>    
+                    </div>
+                    <?php 
+                        $dr_table_amount = json_decode($voucher_entry->dr_amount); 
+                    ?>
+                    @php
+                        $crDrData = json_decode($voucher_entry->cr_dr, true);
+                        $groupedData = collect($crDrData)->groupBy('party_name');
+                        $totalDrAmount = 0;
+                        $totalCrAmount = 0;
+                    @endphp
+
+                    @if ($voucher_entry->voucher_type === 'Journal')
                     <div class="row">
                         <div class="col-12">
                             <div class="row">
+                                <div class="col-12" style="text-align: center;">
+                                    <span style="font-size: 35px; border: 3px solid; padding: 7px; border-radius: 25px; color: #000000;">{{$voucher_entry->voucher_type}} Voucher</span>
+                                    <br><br>
+                                </div>
                                 <div class="col-6">
                                     <b>ID No:</b> {{$voucher_entry->voucher_no}}
                                 </div>
                                 <div class="col-6" style="text-align: right;">
                                     <b>Voucher Date:</b> {{$voucher_entry->voucher_date}}
                                 </div>
-                                <div class="col-12">
-                                    <b>Voucher Type:</b> {{$voucher_entry->voucher_type}}
-                                    <br>
+                                <div class="col-12">  
+                                    <table border="1" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th style="text-align: center; border: 1px solid;">Debit</th>
+                                                <th style="text-align: center; border: 1px solid;">Credit</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach($groupedData as $partyName => $partyData)
+                                            @foreach($partyData as $entry)
+                                                <tr style="border: 1px solid;">
+                                                    <td>{{ $entry['name'] }}</td>
+                                                    <td style="text-align: center; border: 1px solid;">
+                                                        @if ($entry['type'] === 'dr_amount')
+                                                            {{ $entry['amount'] }}.00
+                                                            @php
+                                                                $totalDrAmount += $entry['amount'];
+                                                            @endphp
+                                                        @else
+                                                            
+                                                        @endif
+                                                    </td>
+                                                    <td style="text-align: center; border: 1px solid;">
+                                                        @if ($entry['type'] === 'cr_amount')
+                                                            {{ $entry['amount'] }}.00
+                                                            @php
+                                                                $totalCrAmount += $entry['amount'];
+                                                            @endphp
+                                                        @else
+                                                            
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            <tr style="border: 1px solid;">
+                                                <td style="text-align: center;">
+                                                    <b>({{ $partyName }})</b>
+                                                </td>
+                                                <td style="text-align: center; border: 1px solid;"></td>
+                                                <td style="text-align: center; border: 1px solid;"></td>
+                                            </tr>
+                                            <tr style="border: 1px solid;">
+                                                <td><br></td>
+                                                <td style="text-align: center; border: 1px solid;"> </td>
+                                                <td style="text-align: center; border: 1px solid;"> </td>
+                                            </tr>
+                                            @endforeach
+                                            <tr style="border: 1px solid;">
+                                                <td><b>Total</b></td>
+                                                <td style="text-align: center; border: 1px solid;"><b>{{ $totalDrAmount }}.00</b></td>
+                                                <td style="text-align: center; border: 1px solid;"><b>{{ $totalCrAmount }}.00</b></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    @else
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="row">
+                                <div class="col-12" style="text-align: center;">
+                                    <span style="font-size: 35px; border: 3px solid; padding: 7px; border-radius: 25px; color: #000000;">{{$voucher_entry->voucher_type}}</span>
+                                    <br><br>
+                                </div>
+                                <div class="col-6">
+                                    <b>ID No:</b> {{$voucher_entry->voucher_no}}
+                                </div>
+                                <div class="col-6" style="text-align: right;">
+                                    <b>Voucher Date:</b> {{$voucher_entry->voucher_date}}
                                 </div>
                                 <div class="col-12">
                                     <b>Payment Type:</b> {{$voucher_entry->type}}
@@ -98,50 +179,55 @@
                                     <br><br>
                                 </div>
                                 <div class="col-12">
-                                    <?php 
-                                        $dr_table_amount = json_decode($voucher_entry->dr_amount); 
-                                    ?>
-                                    <b>Dr. Amount:</b>
-                                    @if($dr_table_amount != "" || $dr_table_amount != null)
-                                    <table border="1" style="width: 100%">
-                                        <tr>
-                                            <th style="width: 10%; border: 1px solid #000000;">ID</th>
-                                            <th style="width: 50%; border: 1px solid #000000;">Name</th>
-                                            <th style="width: 40%; border: 1px solid #000000;">Amount</th>
-                                        </tr>
-                                        @foreach($dr_table_amount as $dr_table)
-                                        <tr>
-                                            <td style="width: 10%; border: 1px solid #000000;">{{$dr_table->id}}</td>
-                                            <td style="width: 50%; border: 1px solid #000000;">{{$dr_table->name}}</td>
-                                            <td style="width: 40%; border: 1px solid #000000;">{{$dr_table->amount}}</td>
-                                        </tr>
-                                        @endforeach
+                                    <table border="1" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th style="text-align: center; border: 1px solid;">Debit</th>
+                                                <th style="text-align: center; border: 1px solid;">Credit</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach($groupedData as $partyName => $partyData)
+                                            @foreach($partyData as $entry)
+                                                <tr style="border: 1px solid;">
+                                                    <td>{{ $entry['name'] }}</td>
+                                                    <td style="text-align: center; border: 1px solid;">
+                                                        @if ($entry['type'] === 'dr_amount')
+                                                            {{ $entry['amount'] }}.00
+                                                            @php
+                                                                $totalDrAmount += $entry['amount'];
+                                                            @endphp
+                                                        @else
+                                                            0.00
+                                                        @endif
+                                                    </td>
+                                                    <td style="text-align: center; border: 1px solid;">
+                                                        @if ($entry['type'] === 'cr_amount')
+                                                            {{ $entry['amount'] }}.00
+                                                            @php
+                                                                $totalCrAmount += $entry['amount'];
+                                                            @endphp
+                                                        @else
+                                                            0.00
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            @endforeach
+                                            <tr style="border: 1px solid;">
+                                                <td><b>Total</b></td>
+                                                <td style="text-align: center; border: 1px solid;"><b>{{ $totalDrAmount }}.00</b></td>
+                                                <td style="text-align: center; border: 1px solid;"><b>{{ $totalCrAmount }}.00</b></td>
+                                            </tr>
+                                        </tbody>
                                     </table>
+                                    <br><br><br>
+                                    <span style="padding: 20px; border: 3px solid;"><b>Stapm</b></span><br>
                                     @endif
                                     <br><br>
-                                </div>
-                                <div class="col-12">
-                                <?php 
-                                        $cr_table_amount = json_decode($voucher_entry->cr_amount); 
-                                    ?>
-                                    <b>Cr. Amount:</b>
-                                    @if($cr_table_amount != "" || $cr_table_amount != null)
-                                    <table border="1" style="width: 100%">
-                                        <tr>
-                                            <th style="width: 10%; border: 1px solid #000000;">ID</th>
-                                            <th style="width: 50%; border: 1px solid #000000;">Name</th>
-                                            <th style="width: 40%; border: 1px solid #000000;">Amount</th>
-                                        </tr>
-                                        @foreach($cr_table_amount as $cr_table)
-                                        <tr>
-                                            <td style="width: 10%; border: 1px solid #000000;">{{$cr_table->id}}</td>
-                                            <td style="width: 50%; border: 1px solid #000000;">{{$cr_table->name}}</td>
-                                            <td style="width: 40%; border: 1px solid #000000;">{{$cr_table->amount}}</td>
-                                        </tr>
-                                        @endforeach
-                                    </table>
-                                    @endif
-                                    <br><br><br>
+                                    Signeture
+                                    <br><br><br><br>
                                 </div>
                                 <div class="col-3" style="text-align: center;">
                                     Asst Accountant
