@@ -865,6 +865,41 @@ class CoreAccountingController extends Controller
         $checkboxes = $request->selector;
         $data = voucher_entry::whereIn('id', $checkboxes)->get();
 
+        $oldDataArray = json_decode($data, true);
+
+        // Transform old_data to final_data format
+        $finalDataArray = [];
+        foreach ($oldDataArray as $item) {
+            $drAmountData = json_decode($item['dr_amount'], true);
+            $crAmountData = json_decode($item['cr_amount'], true);
+
+            if ($drAmountData && !empty($drAmountData)) {
+                foreach ($drAmountData as $drItem) {
+                    $finalDataArray[] = [
+                        // 'id' => $drItem['id'],
+                        'name' => $drItem['name'],
+                        'amount' => $drItem['amount'],
+                        'party_name' => $item['customer_name'],
+                        'type' => 'dr_amount',
+                    ];
+                }
+            }
+
+            if ($crAmountData && !empty($crAmountData)) {
+                foreach ($crAmountData as $crItem) {
+                    $finalDataArray[] = [
+                        // 'id' => $crItem['id'],
+                        'name' => $crItem['name'],
+                        'amount' => $crItem['amount'],
+                        'party_name' => $item['customer_name'],
+                        'type' => 'cr_amount',
+                    ];
+                }
+            }
+        }
+
+        $finalDataJson = json_encode($finalDataArray); //cr_dr output
+
         // Find the position of the underscore character
         $underscorePosition = strpos($data[0]->voucher_no, "_");
 
@@ -937,6 +972,7 @@ class CoreAccountingController extends Controller
         $voucher->description = $description;
         $voucher->dr_amount = json_encode($newCR); // Convert to JSON string
         $voucher->cr_amount = json_encode($newDR); // Convert to JSON string
+        $voucher->cr_dr = $finalDataJson;
         $voucher->total_dr_amount = $totalDrAmount;
         $voucher->total_cr_amount = $totalCrAmount;
         $voucher->vat = 0;
