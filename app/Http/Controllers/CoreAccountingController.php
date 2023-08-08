@@ -706,10 +706,15 @@ class CoreAccountingController extends Controller
             ],
         ];
 
+        $totalDrAmount = 0;
+        $totalCrAmount = 0;
+
         if ($data->count() > 1) {
             // Multiple data selected
             $updatedDrAmount = [];
             $updatedCrAmount = [];
+            $totalDrAmount = 0;
+            $totalCrAmount = 0;
 
             foreach ($data as &$item) {
                 $item['cr_amount'] = json_decode($item['cr_amount'], true);
@@ -745,13 +750,26 @@ class CoreAccountingController extends Controller
                 $newCR[] = $item;
             }
 
-            // return response()->json(['data' => $v_date]);
+            foreach ($dr_arr as $subArray) {
+                foreach ($subArray as $item) {
+                    $totalDrAmount += (int)$item["amount"];
+                }
+            }
+    
+            foreach ($cr_arr as $subArray) {
+                foreach ($subArray as $item) {
+                    $totalCrAmount += (int)$item["amount"];
+                }
+            }
+
+            // dd($totalDrAmount, $totalCrAmount);
+            // return response()->json(['data' => $totalDrAmount, 'data2' => $totalCrAmount]);
 
             $description = 'Multiple vouchers added: ' . implode(', ', $data->pluck('id')->map(function($id) {
                 return 'memo-' . $id;
             })->toArray());
-            $totalDrAmount = array_sum(array_column($updatedDrAmount, 'amount'));
-            $totalCrAmount = array_sum(array_column($updatedCrAmount, 'amount'));
+            // $totalDrAmount = array_sum(array_column($updatedDrAmount, 'collection_amount'));
+            // $totalCrAmount = array_sum(array_column($updatedCrAmount, 'collection_amount'));
 
             $newEntry = [
                 'collection_date' => $data[0]['collection_date'],
@@ -796,8 +814,20 @@ class CoreAccountingController extends Controller
             $item['dr_amount'] = json_decode($item['dr_amount'], true);
 
             $description = 'Voucher ID: memo-' . $item['id'];
-            $totalDrAmount = array_sum(array_column($item['dr_amount'], 'amount'));
-            $totalCrAmount = array_sum(array_column($item['cr_amount'], 'amount'));
+            // dd($item['dr_amount']);
+            // return response()->json(['data' => $item['dr_amount']]);
+
+            foreach ($item['dr_amount'] as $items) {
+                $totalDrAmount += (int)$items['amount'];
+            }
+
+            foreach ($item['cr_amount'] as $items) {
+                $totalCrAmount += (int)$items['amount'];
+            }
+
+            // return response()->json(['data' => $totalDrAmount]);
+            // $totalDrAmount = array_sum(array_column($item['dr_amount'], 'collection_amount'));
+            // $totalCrAmount = array_sum(array_column($item['cr_amount'], 'collection_amount'));
 
             // return response()->json(['data' => json_encode($item['dr_amount'])]);
 
@@ -879,7 +909,7 @@ class CoreAccountingController extends Controller
                         // 'id' => $drItem['id'],
                         'name' => $drItem['name'],
                         'amount' => $drItem['amount'],
-                        'party_name' => $item['customer_name'],
+                        'party_name' => $item['party'],
                         'type' => 'dr_amount',
                     ];
                 }
@@ -891,7 +921,7 @@ class CoreAccountingController extends Controller
                         // 'id' => $crItem['id'],
                         'name' => $crItem['name'],
                         'amount' => $crItem['amount'],
-                        'party_name' => $item['customer_name'],
+                        'party_name' => $item['party'],
                         'type' => 'cr_amount',
                     ];
                 }
@@ -909,14 +939,13 @@ class CoreAccountingController extends Controller
         $updatedDrAmount = []; // Initialize as empty array
         $updatedCrAmount = []; // Initialize as empty array
 
-        $updatedDrAmount = [];
-        $updatedCrAmount = [];
-
         // dd($data);
 
         $dr_arr = [];
         $cr_arr = [];
         $v_date = "";
+        $totalDrAmount = 0;
+        $totalCrAmount = 0;
 
         foreach ($data as &$item) {
             $item['cr_amount'] = json_decode($item['cr_amount'], true);
@@ -924,7 +953,23 @@ class CoreAccountingController extends Controller
             $v_date = $item['voucher_date'];
             array_push($dr_arr, $item['dr_amount']);
             array_push($cr_arr, $item['cr_amount']);
+            // $totalDrAmount = $totalDrAmount + intval(array_column($dr_arr, 'amount'));
+            // $totalCrAmount = $totalCrAmount + intval(array_column($cr_arr, 'amount'));
         }
+
+        foreach ($dr_arr as $subArray) {
+            foreach ($subArray as $item) {
+                $totalDrAmount += (int)$item["amount"];
+            }
+        }
+
+        foreach ($cr_arr as $subArray) {
+            foreach ($subArray as $item) {
+                $totalCrAmount += (int)$item["amount"];
+            }
+        }
+
+        // dd($totalDrAmount, $totalCrAmount);
 
         // Flattening the data
         $newDRData = [];
@@ -956,8 +1001,8 @@ class CoreAccountingController extends Controller
         $description = 'Multiple Journal vouchers added: ' . implode(', ', $data->pluck('voucher_no')->map(function($id) {
             return 'memo-' . $id;
         })->toArray());
-        $totalDrAmount = array_sum(array_column($updatedDrAmount, 'amount'));
-        $totalCrAmount = array_sum(array_column($updatedCrAmount, 'amount'));
+        // $totalDrAmount = array_sum(array_column($updatedDrAmount, 'amount'));
+        // $totalCrAmount = array_sum(array_column($updatedCrAmount, 'amount'));
 
         $voucher = new voucher_entry;
         $voucher->voucher_type = "Journal";
