@@ -175,8 +175,8 @@
                                         <path fill="currentColor" d="M120 256C120 286.9 94.93 312 64 312C33.07 312 8 286.9 8 256C8 225.1 33.07 200 64 200C94.93 200 120 225.1 120 256zM280 256C280 286.9 254.9 312 224 312C193.1 312 168 286.9 168 256C168 225.1 193.1 200 224 200C254.9 200 280 225.1 280 256zM328 256C328 225.1 353.1 200 384 200C414.9 200 440 225.1 440 256C440 286.9 414.9 312 384 312C353.1 312 328 286.9 328 256z"></path>
                                       </svg>
                                     </button>
-                                    <div class="dropdown-menu dropdown-menu-end py-2"><a class="dropdown-item" data-bs-toggle="modal"role="button" href="#edit_subsidiary_account_modal">Edit</a>
-                                      <div class="dropdown-divider"></div><a class="dropdown-item text-danger"  data-bs-toggle="modal"role="button" href="#delete_subsidiary_account_modal">Remove</a>
+                                    <div class="dropdown-menu dropdown-menu-end py-2"><a class="dropdown-item" data-bs-toggle="modal"role="button" href="#edit_voucher_modal">Edit</a>
+                                      <div class="dropdown-divider"></div><a class="dropdown-item text-danger" onclick="delete_voucher_function('{{ $vouchers->id }}', '{{ $vouchers->voucher_no }}', '{{ $vouchers->description }}')">Remove</a>
                                     </div>
                                   </div>
                                 </td>
@@ -219,6 +219,30 @@
                       </center>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal fade" id="delete_voucher_modal" aria-hidden="true" aria-labelledby="delete_voucher_modal_label" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-2" id="delete_voucher_modal_label">Delete This Voucher</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <span id="voucher_no_delete"></span>
+                  <!-- <h1 class="modal-title fs-2" id="delete_voucher_modal_label">Are you sure?</h1> -->
+                  <form class="row g-3" action="{{ route('vouchers_entry_delete') }}" method="POST" enctype="multipart/form-data" id="ModalForm">
+                    {{csrf_field()}}
+
+                    <input type="hidden" id="id_delete" name="id_delete" readonly>
+                    <input type="hidden" id="description_delete" name="description_delete" readonly>
+                    <div class="modal-footer">
+                        <a  class="btn btn-secondary" data-dismiss="modal">Close</a>
+                        <button type="submit" id="deleteModalButton" class="btn btn-primary" data-dismiss="modal">Delete Account</button>
+                    </div>
+                  </form>
                 </div>
               </div>
             </div>
@@ -338,6 +362,14 @@
                 console.log("Error in voucher_type_input");
               }
             });
+
+            function delete_voucher_function(vouchers_id, voucher_no, description_delete) {
+              console.log(vouchers_id);
+              document.getElementById("id_delete").value = vouchers_id;
+              document.getElementById("description_delete").value = description_delete;
+              $("#voucher_no_delete").html("<h2 class='modal-title fs-1'>Are you sure you want to delete " + voucher_no + " ?</h2>");
+              $('#delete_voucher_modal').modal('show');
+            }
 
             function getNextVoucherNo(jsonData, voucherType) {
                 var matchingItem = jsonData.find(function(item) {

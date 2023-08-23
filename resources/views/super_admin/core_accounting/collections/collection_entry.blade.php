@@ -121,7 +121,7 @@
                     <div class="col-sm-12 col-md-12">
                         <h4>Collection Entry List</h4>
                     </div>
-                    <div id="tableExample2" data-list="{&quot;valueNames&quot;:[&quot;head_id&quot;,&quot;group_name&quot;,&quot;accounts_name&quot;],&quot;page&quot;:5,&quot;pagination&quot;:true}">
+                    <div id="tableExample2" data-list="{&quot;valueNames&quot;:[&quot;head_id&quot;,&quot;group_name&quot;,&quot;accounts_name&quot;],&quot;page&quot;:25,&quot;pagination&quot;:true}">
                         <div class="table-responsive">
                             <table class="table table-striped table-sm fs--1 mb-0">
                             <thead>
@@ -154,7 +154,7 @@
                                         </svg><!-- <span class="fas fa-ellipsis-h fs--2"></span> Font Awesome fontawesome.com -->
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-end py-2"><a class="dropdown-item" data-bs-toggle="modal"role="button" href="#edit_collection_entry_modal">Edit</a>
-                                      <div class="dropdown-divider"></div><a class="dropdown-item text-danger"  data-bs-toggle="modal"role="button" href="#delete_collection_entry_modal">Remove</a>
+                                      <div class="dropdown-divider"></div><a class="dropdown-item text-danger" onclick="delete_voucher_function('{{ $coll_entry->id }}', '{{ $coll_entry->description }}')">Remove</a>
                                     </div>
                                   </div>
                                 </td>
@@ -197,6 +197,30 @@
                       </center>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal fade" id="delete_collection_modal" aria-hidden="true" aria-labelledby="delete_collection_modal_label" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-2" id="delete_collection_modal_label">Delete This Collection Voucher</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <span id="voucher_no_delete"></span>
+                  <!-- <h1 class="modal-title fs-2" id="delete_collection_modal_label">Are you sure?</h1> -->
+                  <form class="row g-3" action="{{ route('collection_entry_delete') }}" method="POST" enctype="multipart/form-data" id="ModalForm">
+                    {{csrf_field()}}
+
+                    <input type="hidden" id="id_delete" name="id_delete" readonly>
+                    <input type="hidden" id="description_delete" name="description_delete" readonly>
+                    <div class="modal-footer">
+                        <a  class="btn btn-secondary" data-dismiss="modal">Close</a>
+                        <button type="submit" id="deleteModalButton" class="btn btn-primary" data-dismiss="modal">Delete Account</button>
+                    </div>
+                  </form>
                 </div>
               </div>
             </div>
@@ -333,6 +357,14 @@
               else {
                 $("#create_collection_btn").prop("disabled", true);
               }
+            }
+
+            function delete_voucher_function(vouchers_id, description_delete) {
+              console.log(vouchers_id);
+              document.getElementById("id_delete").value = vouchers_id;
+              document.getElementById("description_delete").value = description_delete;
+              $("#voucher_no_delete").html("<h2 class='modal-title fs-1'>Are you sure you want to delete " + vouchers_id + " ?</h2>");
+              $('#delete_collection_modal').modal('show');
             }
 
             function deletefunction(list_num, id) {
