@@ -126,7 +126,7 @@
                             <table class="table table-striped table-sm fs--1 mb-0">
                             <thead>
                                 <tr align="center">
-                                    <th class="sort border-top ps-3" style="display: none;" data-sort="id">ID</th>
+                                    <th class="sort border-top ps-3" data-sort="id">ID</th>
                                     <th class="sort border-top ps-3" data-sort="date">Collection Date</th>
                                     <th class="sort border-top ps-3" data-sort="pdf">PDF</th>
                                     <th class="sort border-top" data-sort="bill_receivable_section">Bill Receivable<br>Section</th>
@@ -139,7 +139,7 @@
                             <tbody class="list">
                               @foreach($collection_entries as $coll_entry)
                               <tr align="center">
-                                <td class="align-middle ps-3 id" style="display: none;">{{$coll_entry->id}}</td>
+                                <td class="align-middle ps-3 id">{{$coll_entry->id}}</td>
                                 <td class="align-middle ps-3 date">{{$coll_entry->collection_date}}</td>
                                 <td class="align-middle pdf"><a href="{{ route('view_details_page', ['id' => $coll_entry->id]) }}" target="_blank">Show</a></td>
                                 <td class="align-middle bill_receivable_section">{{$coll_entry->bill_section}}</td>
