@@ -68,12 +68,12 @@
                                   <div class="dropdown-menu dropdown-menu-end py-2">
                                     <a class="dropdown-item" href="#!">Edit</a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger" href="#!">Remove</a>
+                                    <a class="dropdown-item text-danger" onclick="delete_voucher_function('{{ $vouchers->id }}', '{{ $vouchers->voucher_no }}')">Remove</a>
                                   </div>
                                 </div>
                               </td>
                             </tr>
-                            @endforeach
+                          @endforeach
                         </tbody>
                       </table>
                     </div>
@@ -127,7 +127,7 @@
                                     <div class="dropdown-menu dropdown-menu-end py-2">
                                       <a class="dropdown-item" href="#!">Edit</a>
                                       <div class="dropdown-divider"></div>
-                                      <a class="dropdown-item text-danger" href="#!">Remove</a>
+                                      <a class="dropdown-item text-danger" href="#">Remove</a>
                                     </div>
                                   </div>
                                 </td>
@@ -145,8 +145,38 @@
               </div>
             </div>
           </div>
+          <div class="modal fade" id="delete_voucher_modal" aria-hidden="true" aria-labelledby="delete_voucher_modal_label" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-2" id="delete_voucher_modal_label">Delete This Voucher</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <span id="voucher_no_delete"></span>
+                  <!-- <h1 class="modal-title fs-2" id="delete_voucher_modal_label">Are you sure?</h1> -->
+                  <form class="row g-3" action="{{ route('journal_voucher_delete') }}" method="POST" enctype="multipart/form-data" id="ModalForm">
+                    {{csrf_field()}}
+
+                    <input type="hidden" id="id_delete" name="id_delete" readonly>
+                    <div class="modal-footer">
+                        <a  class="btn btn-secondary" data-dismiss="modal">Close</a>
+                        <button type="submit" id="deleteModalButton" class="btn btn-primary" data-dismiss="modal">Delete Account</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
           <script src="{{ asset('assets/js/he.js') }}"></script>
-          
+          <script>
+            function delete_voucher_function(vouchers_id, voucher_no) {
+              console.log(vouchers_id);
+              document.getElementById("id_delete").value = voucher_no;
+              $("#voucher_no_delete").html("<h2 class='modal-title fs-1'>Are you sure you want to delete " + voucher_no + " ?</h2>");
+              $('#delete_voucher_modal').modal('show');
+            }
+          </script>
           @include('layout.footer')
         </div>
       </div>

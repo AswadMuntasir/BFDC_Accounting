@@ -89,6 +89,7 @@ Route::get('journal-voucher', [CoreAccountingController::class, 'journalVoucherV
 Route::get('journal-details-page/{id}', [CoreAccountingController::class, 'voucher_details_page'])->name('journal_details_page');
 Route::get('journal-voucher-filter', [CoreAccountingController::class, 'journalVoucherFilter'])->name('journalVoucherFilter');
 Route::post('journal-voucher-merge', [CoreAccountingController::class, 'journal_voucher_merge'])->name('journal_voucher_merge');
+Route::post('journal-voucher-delete', [CoreAccountingController::class, 'journal_voucher_delete'])->name('journal_voucher_delete');
 Route::get('cheque-approved', [CoreAccountingController::class, 'chequeApprovedView']);
 
 // Core Accounting - Account Reports

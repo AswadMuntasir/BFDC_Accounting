@@ -1061,6 +1061,30 @@ class CoreAccountingController extends Controller
         return redirect('journal-voucher');
     }
 
+    public function journal_voucher_delete(Request $request) {
+        $voucher_data = voucher_entry::where('voucher_no', $request->get('id_delete'))->get();
+
+        preg_match_all('/\bmemo-([a-zA-Z0-9._-]+)\b/', $voucher_data[0]["description"], $matches);
+        $numbers = $matches[1];
+
+        $output = $numbers;
+        $size = count($output);
+
+        // dd($output);
+        $voucher_type = $voucher_data[0]["voucher_type"];
+
+        if($size > 0) {
+            if($voucher_type == "Receipt Voucher") {
+                collection_entry::whereIn('id', $output)->update(['status' => 'visible']);
+            } else if($voucher_type == "Journal") {
+                voucher_entry::whereIn('voucher_no', $output)->update(['status' => 'Pending']);
+            }
+        }
+        voucher_entry::where('voucher_no', $request->get('id_delete'))->delete();
+        
+        return redirect('journal-voucher');
+    } 
+
     public function chequeApprovedView()
     {
         if(Auth::check()){
