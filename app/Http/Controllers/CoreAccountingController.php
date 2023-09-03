@@ -1402,29 +1402,36 @@ class CoreAccountingController extends Controller
             if ($request->isMethod('post')) {
                 $ledgerData = DB::table('voucher_entry')
                     ->whereBetween('voucher_date', [$startDate, $endDate])
-                    ->select('voucher_date', 'dr_amount', 'cr_amount')
+                    ->select('voucher_no', 'description', 'voucher_date', 'dr_amount', 'cr_amount')
+                    ->whereIn('status', ['pending', 'Done'])
                     ->get();
     
-                // Filter the ledger data based on the selected AC Head name
                 $filteredLedgerData = $ledgerData->map(function ($item) use ($selectedAccountName) {
                     $item->dr_amount = collect(json_decode($item->dr_amount))->filter(function ($amount) use ($selectedAccountName) {
                         return $amount->name === $selectedAccountName;
                     })->values();
-    
+                
                     $item->cr_amount = collect(json_decode($item->cr_amount))->filter(function ($amount) use ($selectedAccountName) {
                         return $amount->name === $selectedAccountName;
                     })->values();
-    
+                
+                    // Check if both dr_amount and cr_amount are empty, and exclude the row if they are
+                    if (empty($item->dr_amount) && empty($item->cr_amount)) {
+                        return null;
+                    }
+                
                     return $item;
-                });
-    
+                })->filter(); // Remove null values from the resulting collection
+
+                $openningBalance = 0;
+                
                 // Output the filtered ledger data
                 // return view('super_admin.core_accounting.account_reports.ac_head_ledger', ['ledgerData' => $filteredLedgerData, 'accounts' => $accounts, 'selectedAccountName']);
-                return view('super_admin.core_accounting.account_reports.ac_head_ledger', ['ledgerData' => $filteredLedgerData, 'accounts' => $accounts, 'selectedAccountName' => $selectedAccountName]);
+                return view('super_admin.core_accounting.account_reports.ac_head_ledger', ['ledgerData' => $filteredLedgerData, 'accounts' => $accounts, 'selectedAccountName' => $selectedAccountName, 'startDate' => $startDate, 'endDate' => $endDate, 'openningBalance' => $openningBalance]);
                 // return view('super_admin.core_accounting.account_reports.ac_head_ledger', ['ledgerData' => $filteredLedgerData, 'accounts' => $accounts]);
             }
     
-            return view('super_admin.core_accounting.account_reports.ac_head_ledger', ['accounts' => $accounts, 'ledgerData' => null]);
+            return view('super_admin.core_accounting.account_reports.ac_head_ledger', ['accounts' => $accounts, 'ledgerData' => null, 'startDate' => null, 'endDate' => null]);
         }
   
         return redirect("login")->withSuccess('You are not allowed to access');
