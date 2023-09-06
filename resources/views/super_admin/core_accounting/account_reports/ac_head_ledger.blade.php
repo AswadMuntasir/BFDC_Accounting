@@ -103,6 +103,7 @@
                   @php
                     $totalDr = 0;
                     $totalCr = 0;
+                    $total = 0;
                   @endphp
                   <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
                     <thead>
@@ -127,7 +128,7 @@
                       @foreach ($ledgerData as $ledger)
                         @if ($ledger->dr_amount->isNotEmpty() || $ledger->cr_amount->isNotEmpty())
                         <tr>
-                          <td>{{ $ledger->voucher_date }}</td>
+                          <td>&nbsp;{{ $ledger->voucher_date }}</td>
                           <td>{{ $ledger->voucher_no }}</td>
                           <td>{{ $ledger->description }}</td>
                           <td>
@@ -156,7 +157,6 @@
                           </td>
                           <td>
                             @php
-                              $total = 0;
                               foreach ($ledger->dr_amount as $amount) {
                                 $total += $amount->amount;
                               }
@@ -164,7 +164,7 @@
                                 $total -= $amount->amount;
                               }
                             @endphp
-                            {{ $total }}
+                            &nbsp;{{ $total }}
                           </td>
                         </tr>
                         @endif
@@ -172,7 +172,7 @@
                       <tr style="border: 1px solid #ffffff;">
                         <th></th>
                         <th></th>
-                        <th></th>
+                        <th>Total </th>
                         <th>{{ $totalDr }}</th>
                         <th>{{ $totalCr }}</th>
                         <th></th>

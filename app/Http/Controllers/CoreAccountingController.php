@@ -1423,11 +1423,75 @@ class CoreAccountingController extends Controller
                     return $item;
                 })->filter(); // Remove null values from the resulting collection
 
+                $numbers = [];
+
+                foreach ($ledgerData as $key => $item) {
+                    if (strpos($item->voucher_no, 'r_') !== false && strpos($item->description, 'Multiple vouchers added:') !== false) {
+                        $item_voucher_no = $item->voucher_no;
+                        // Extract numbers using regular expression
+                        preg_match_all('/memo-(\d+)/', $item->description, $matches);
+                        $numbers = array_merge($numbers, $matches[1]);
+                        if ($numbers) {
+                            $r_data_table = DB::table('collection_entry')
+                                ->whereIn('id', $numbers)
+                                ->select('id', 'dr_amount', 'cr_amount', 'collection_date')
+                                ->get();
+                
+                            $filtered_r_Data = $r_data_table->map(function ($item) use ($selectedAccountName, $item_voucher_no) {
+                                // Decode the JSON strings in dr_amount and cr_amount columns
+                                $drAmount = json_decode($item->dr_amount);
+                                $crAmount = json_decode($item->cr_amount);
+                
+                                // Check if the search keyword exists in either dr_amount or cr_amount
+                                $drAmount = $this->filterByName($drAmount, $selectedAccountName);
+                                $crAmount = $this->filterByName($crAmount, $selectedAccountName);
+                
+                                // Convert dr_amount and cr_amount to collections
+                                $drAmountCollection = collect($drAmount);
+                                $crAmountCollection = collect($crAmount);
+                
+                                return [
+                                    'voucher_no' => $item_voucher_no,
+                                    'description' => "Memo-" . $item->id,
+                                    'dr_amount' => $drAmountCollection,
+                                    'cr_amount' => $crAmountCollection,
+                                    'voucher_date' => $item->collection_date,
+                                ];
+                            });
+
+                            $filteredCollection = $ledgerData->filter(function ($item) use ($item_voucher_no) {
+                                // Check if $item is an object (assuming objects have a 'voucher_no' property)
+                                if (is_object($item) && property_exists($item, 'voucher_no')) {
+                                    return $item->voucher_no !== $item_voucher_no;
+                                }
+                                
+                                // If $item is not an object or does not have a 'voucher_no' property, keep it
+                                return true;
+                            });
+                
+                            // Add the items from $filtered_r_Data to $ledgerData
+                            $ledgerData = $filteredCollection->concat($filtered_r_Data->all());
+
+                            foreach ($ledgerData as $key => $element) {
+                                if (is_array($element)) {
+                                    // Convert the array to an object
+                                    $object = (object) $element;
+                                    
+                                    // Replace the old array with the new object
+                                    $ledgerData[$key] = $object;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+
+                // dd($ledgerData);
                 $openningBalance = 0;
                 
                 // Output the filtered ledger data
                 // return view('super_admin.core_accounting.account_reports.ac_head_ledger', ['ledgerData' => $filteredLedgerData, 'accounts' => $accounts, 'selectedAccountName']);
-                return view('super_admin.core_accounting.account_reports.ac_head_ledger', ['ledgerData' => $filteredLedgerData, 'accounts' => $accounts, 'selectedAccountName' => $selectedAccountName, 'startDate' => $startDate, 'endDate' => $endDate, 'openningBalance' => $openningBalance]);
+                return view('super_admin.core_accounting.account_reports.ac_head_ledger', ['ledgerData' => $ledgerData, 'accounts' => $accounts, 'selectedAccountName' => $selectedAccountName, 'startDate' => $startDate, 'endDate' => $endDate, 'openningBalance' => $openningBalance]);
                 // return view('super_admin.core_accounting.account_reports.ac_head_ledger', ['ledgerData' => $filteredLedgerData, 'accounts' => $accounts]);
             }
     
@@ -1435,6 +1499,17 @@ class CoreAccountingController extends Controller
         }
   
         return redirect("login")->withSuccess('You are not allowed to access');
+    }
+
+    function filterByName($array, $keyword)
+    {
+        if (!is_array($array)) {
+            return [];
+        }
+
+        return array_filter($array, function ($item) use ($keyword) {
+            return isset($item->name) && $item->name === $keyword;
+        });
     }
 
     public function partyLedgerView(Request $request)
