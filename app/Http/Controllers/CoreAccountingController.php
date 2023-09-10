@@ -1388,9 +1388,6 @@ class CoreAccountingController extends Controller
 
     public function acHeadLedgerView(Request $request)
     {
-        // if(Auth::check()){
-        //     return view('super_admin.core_accounting.account_reports.ac_head_ledger');
-        // }
         if (Auth::check()) {
             // Retrieve AC Head names for the dropdown
             $accounts = account_head::pluck('ac_head_name_eng')->toArray();
@@ -1485,14 +1482,10 @@ class CoreAccountingController extends Controller
                     }
                 }
                 
-
-                // dd($ledgerData);
                 $openningBalance = 0;
                 
                 // Output the filtered ledger data
-                // return view('super_admin.core_accounting.account_reports.ac_head_ledger', ['ledgerData' => $filteredLedgerData, 'accounts' => $accounts, 'selectedAccountName']);
                 return view('super_admin.core_accounting.account_reports.ac_head_ledger', ['ledgerData' => $ledgerData, 'accounts' => $accounts, 'selectedAccountName' => $selectedAccountName, 'startDate' => $startDate, 'endDate' => $endDate, 'openningBalance' => $openningBalance]);
-                // return view('super_admin.core_accounting.account_reports.ac_head_ledger', ['ledgerData' => $filteredLedgerData, 'accounts' => $accounts]);
             }
     
             return view('super_admin.core_accounting.account_reports.ac_head_ledger', ['accounts' => $accounts, 'ledgerData' => null, 'startDate' => null, 'endDate' => null]);
@@ -1522,58 +1515,93 @@ class CoreAccountingController extends Controller
                 $endDate = $request->endDate;
                 $name1 = $request->name1;
 
-                $collectionData = collection_entry::where('customer_name', $name)
-                    ->whereBetween('collection_date', [$startDate, $endDate])
-                    ->where('status', 'Done')->get();
-                
-                $voucherData = voucher_entry::whereNotIn('voucher_type', ['Receipt Voucher'])
+                $ledgerData = DB::table('voucher_entry')
                     ->whereBetween('voucher_date', [$startDate, $endDate])
-                    ->where('party', $name1)
+                    ->select('voucher_no', 'description', 'voucher_date', 'dr_amount', 'cr_amount')
+                    ->whereIn('status', ['pending', 'Done'])
                     ->get();
 
-                $collectionData = $collectionData->toArray();
-                $voucherData = $voucherData->toArray();
-                $mergedArray = array_merge($collectionData, $voucherData);
-                // Group the merged array by date
-                $groupedArray = [];
-                foreach ($mergedArray as $item) {
-                    $date = $item['collection_date'] ?? $item['voucher_date'];
-                    $groupedArray[$date][] = $item;
-                }
+                $numbers = [];
 
-                // Sort the grouped array by date
-                ksort($groupedArray);
+                foreach ($ledgerData as $key => $item) {
+                    if (strpos($item->voucher_no, 'r_') !== false && strpos($item->description, 'Multiple vouchers added:') !== false) {
+                        $item_voucher_no = $item->voucher_no;
+                        // Extract numbers using regular expression
+                        preg_match_all('/memo-(\d+)/', $item->description, $matches);
+                        $numbers = array_merge($numbers, $matches[1]);
+                        if ($numbers) {
+                            $r_data_table = DB::table('collection_entry')
+                                ->whereIn('id', $numbers)
+                                ->select('id', 'dr_amount', 'cr_amount', 'collection_date')
+                                ->where('customer_name', $name1)
+                                ->get();
+                
+                            $filtered_r_Data = $r_data_table->map(function ($item) use ($item_voucher_no) {
+                
+                                return [
+                                    'voucher_no' => $item_voucher_no,
+                                    'description' => "Memo-" . $item->id,
+                                    'dr_amount' => $item->dr_amount,
+                                    'cr_amount' => $item->cr_amount,
+                                    'voucher_date' => $item->collection_date,
+                                ];
+                            });
 
-                // Generate the new JSON array with the required elements
-                foreach ($groupedArray as $date => $items) {
-                    $newItem = [
-                        'date' => $date,
-                        'dr_amount' => [],
-                        'cr_amount' => [],
-                    ];
+                            $filteredCollection = $ledgerData->filter(function ($item) use ($item_voucher_no) {
+                                // Check if $item is an object (assuming objects have a 'voucher_no' property)
+                                if (is_object($item) && property_exists($item, 'voucher_no')) {
+                                    return $item->voucher_no !== $item_voucher_no;
+                                }
+                                
+                                // If $item is not an object or does not have a 'voucher_no' property, keep it
+                                return true;
+                            });
+                
+                            // Add the items from $filtered_r_Data to $ledgerData
+                            $ledgerData = $filteredCollection->concat($filtered_r_Data->all());
 
-                    foreach ($items as $item) {
-                        if (isset($item['dr_amount'])) {
-                            $newItem['dr_amount'] = array_merge($newItem['dr_amount'], json_decode($item['dr_amount'], true));
-                        }
-
-                        if (isset($item['cr_amount'])) {
-                            $newItem['cr_amount'] = array_merge($newItem['cr_amount'], json_decode($item['cr_amount'], true));
+                            foreach ($ledgerData as $key => $element) {
+                                if (is_array($element)) {
+                                    // Convert the array to an object
+                                    $object = (object) $element;
+                                    
+                                    // Replace the old array with the new object
+                                    $ledgerData[$key] = $object;
+                                }
+                            }
                         }
                     }
-
-                    $combinedArray[] = $newItem;
                 }
-
-                //dd($combinedArray);
-                return view('super_admin.core_accounting.account_reports.party_ledger')->with('data', $combinedArray)->with('parties', $parties);
+                foreach ($ledgerData as &$item) {
+                    $item->dr_amount = json_decode($item->dr_amount);
+                    $item->cr_amount = json_decode($item->cr_amount);
+                }
+                // dd($ledgerData);
+                
+                $openningBalance = 0;
+                return view('super_admin.core_accounting.account_reports.party_ledger')->with('ledgerData', $ledgerData)->with('parties', $parties)->with('partyName', $name)->with('startDate', $startDate)->with('endDate', $endDate);
             } else {
                 $parties = party::all();
-                return view('super_admin.core_accounting.account_reports.party_ledger')->with('data', null)->with('data2', null)->with('parties', $parties);
+                return view('super_admin.core_accounting.account_reports.party_ledger')->with('ledgerData', null)->with('data2', null)->with('parties', $parties);
             }
         }
   
         return redirect("login")->withSuccess('You are not allowed to access');
+    }
+
+    public function transformElement($element) {
+        // Remove "id" and "status"
+        unset($element["id"], $element["status"]);
+        
+        // Rename "collection_date" to "voucher_date"
+        $element["voucher_date"] = $element["collection_date"];
+        unset($element["collection_date"]);
+        
+        // Rename "customer_name" to "party"
+        $element["party"] = $element["customer_name"];
+        unset($element["customer_name"]);
+        
+        return $element;
     }
 
     public function controlACSummaryView()
