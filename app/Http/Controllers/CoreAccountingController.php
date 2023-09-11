@@ -1570,6 +1570,52 @@ class CoreAccountingController extends Controller
                                 }
                             }
                         }
+                    } else if (strpos($item->voucher_no, 'r_') !== false && strpos($item->description, 'Voucher ID: ') !== false) {
+                        $item_voucher_no = $item->voucher_no;
+                        // Extract numbers using regular expression
+                        preg_match_all('/memo-(\d+)/', $item->description, $matches);
+                        $numbers = array_merge($numbers, $matches[1]);
+                        if ($numbers) {
+                            $r_data_table = DB::table('collection_entry')
+                                ->whereIn('id', $numbers)
+                                ->select('id', 'dr_amount', 'cr_amount', 'collection_date')
+                                ->where('customer_name', $name1)
+                                ->get();
+                
+                            $filtered_r_Data = $r_data_table->map(function ($item) use ($item_voucher_no) {
+                
+                                return [
+                                    'voucher_no' => $item_voucher_no,
+                                    'description' => "Memo-" . $item->id,
+                                    'dr_amount' => $item->dr_amount,
+                                    'cr_amount' => $item->cr_amount,
+                                    'voucher_date' => $item->collection_date,
+                                ];
+                            });
+
+                            $filteredCollection = $ledgerData->filter(function ($item) use ($item_voucher_no) {
+                                // Check if $item is an object (assuming objects have a 'voucher_no' property)
+                                if (is_object($item) && property_exists($item, 'voucher_no')) {
+                                    return $item->voucher_no !== $item_voucher_no;
+                                }
+                                
+                                // If $item is not an object or does not have a 'voucher_no' property, keep it
+                                return true;
+                            });
+                
+                            // Add the items from $filtered_r_Data to $ledgerData
+                            $ledgerData = $filteredCollection->concat($filtered_r_Data->all());
+
+                            foreach ($ledgerData as $key => $element) {
+                                if (is_array($element)) {
+                                    // Convert the array to an object
+                                    $object = (object) $element;
+                                    
+                                    // Replace the old array with the new object
+                                    $ledgerData[$key] = $object;
+                                }
+                            }
+                        }
                     }
                 }
                 foreach ($ledgerData as &$item) {
