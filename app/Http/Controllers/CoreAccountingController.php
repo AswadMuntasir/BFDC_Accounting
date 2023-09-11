@@ -1519,6 +1519,7 @@ class CoreAccountingController extends Controller
                     ->whereBetween('voucher_date', [$startDate, $endDate])
                     ->select('voucher_no', 'description', 'voucher_date', 'dr_amount', 'cr_amount')
                     ->whereIn('status', ['pending', 'Done'])
+                    ->whereIn('voucher_type', ['Journal', 'Receipt Voucher', 'Advanced Payment', 'Adjustment'])
                     ->get();
 
                 $numbers = [];
@@ -1572,6 +1573,7 @@ class CoreAccountingController extends Controller
                         }
                     } else if (strpos($item->voucher_no, 'r_') !== false && strpos($item->description, 'Voucher ID: ') !== false) {
                         $item_voucher_no = $item->voucher_no;
+                        $numbers = [];
                         // Extract numbers using regular expression
                         preg_match_all('/memo-(\d+)/', $item->description, $matches);
                         $numbers = array_merge($numbers, $matches[1]);
@@ -1616,16 +1618,51 @@ class CoreAccountingController extends Controller
                                 }
                             }
                         }
+                    } else if (strpos($item->voucher_no, 'a_') !== false) {
+                        // dd($item->voucher_no);
+                        $a_data_table = DB::table('voucher_entry')
+                            ->where('voucher_no', $item->voucher_no)
+                            ->select('voucher_no', 'dr_amount', 'cr_amount', 'description', 'voucher_date')
+                            ->where('party', $name1)
+                            ->get();
+
+                        // dd($a_data_table);
+                        $item_voucher_no = $item->voucher_no;
+                        $filteredCollection = $ledgerData->filter(function ($item) use ($item_voucher_no) {
+                            // Check if $item is an object (assuming objects have a 'voucher_no' property)
+                            if (is_object($item) && property_exists($item, 'voucher_no')) {
+                                return $item->voucher_no !== $item_voucher_no;
+                            }
+                            
+                            // If $item is not an object or does not have a 'voucher_no' property, keep it
+                            return true;
+                        });
+            
+                        // Add the items from $filtered_r_Data to $ledgerData
+                        $ledgerData = $filteredCollection->concat($a_data_table->all());
+
+                        foreach ($ledgerData as $key => $element) {
+                            if (is_array($element)) {
+                                // Convert the array to an object
+                                $object = (object) $element;
+                                
+                                // Replace the old array with the new object
+                                $ledgerData[$key] = $object;
+                            }
+                        }
+
+                        // dd($ledgerData);
                     }
                 }
                 foreach ($ledgerData as &$item) {
                     $item->dr_amount = json_decode($item->dr_amount);
                     $item->cr_amount = json_decode($item->cr_amount);
                 }
-                // dd($ledgerData);
+                $sortedLedgerData = $ledgerData->sortBy('voucher_date')->values()->all();
+                // dd($sortedLedgerData);
                 
                 $openningBalance = 0;
-                return view('super_admin.core_accounting.account_reports.party_ledger')->with('ledgerData', $ledgerData)->with('parties', $parties)->with('partyName', $name)->with('startDate', $startDate)->with('endDate', $endDate);
+                return view('super_admin.core_accounting.account_reports.party_ledger')->with('ledgerData', $sortedLedgerData)->with('parties', $parties)->with('partyName', $name)->with('startDate', $startDate)->with('endDate', $endDate);
             } else {
                 $parties = party::all();
                 return view('super_admin.core_accounting.account_reports.party_ledger')->with('ledgerData', null)->with('data2', null)->with('parties', $parties);
