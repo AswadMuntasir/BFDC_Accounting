@@ -1536,14 +1536,24 @@ class CoreAccountingController extends Controller
                                 ->select('id', 'dr_amount', 'cr_amount', 'collection_date')
                                 ->where('customer_name', $name1)
                                 ->get();
+                            $selectedAccountName = "Main Head";
+                            $filtered_r_Data = $r_data_table->map(function ($item) use ($selectedAccountName, $item_voucher_no) {
+                                // Decode the JSON strings in dr_amount and cr_amount columns
+                                $drAmount = json_decode($item->dr_amount);
+                                $crAmount = json_decode($item->cr_amount);
                 
-                            $filtered_r_Data = $r_data_table->map(function ($item) use ($item_voucher_no) {
+                                // Check if the search keyword exists in either dr_amount or cr_amount
+                                $drAmount = $this->filterByName($drAmount, $selectedAccountName);
+                                $crAmount = $this->filterByName($crAmount, $selectedAccountName);
                 
+                                // Convert dr_amount and cr_amount to collections
+                                $drAmountCollection = collect($drAmount);
+                                $crAmountCollection = collect($crAmount);
                                 return [
                                     'voucher_no' => $item_voucher_no,
                                     'description' => "Memo-" . $item->id,
-                                    'dr_amount' => $item->dr_amount,
-                                    'cr_amount' => $item->cr_amount,
+                                    'dr_amount' => $drAmountCollection,
+                                    'cr_amount' => $crAmountCollection,
                                     'voucher_date' => $item->collection_date,
                                 ];
                             });
@@ -1584,13 +1594,24 @@ class CoreAccountingController extends Controller
                                 ->where('customer_name', $name1)
                                 ->get();
                 
-                            $filtered_r_Data = $r_data_table->map(function ($item) use ($item_voucher_no) {
+                            $selectedAccountName = "Main Head";
+                            $filtered_r_Data = $r_data_table->map(function ($item) use ($selectedAccountName, $item_voucher_no) {
+                                // Decode the JSON strings in dr_amount and cr_amount columns
+                                $drAmount = json_decode($item->dr_amount);
+                                $crAmount = json_decode($item->cr_amount);
                 
+                                // Check if the search keyword exists in either dr_amount or cr_amount
+                                $drAmount = $this->filterByName($drAmount, $selectedAccountName);
+                                $crAmount = $this->filterByName($crAmount, $selectedAccountName);
+                
+                                // Convert dr_amount and cr_amount to collections
+                                $drAmountCollection = collect($drAmount);
+                                $crAmountCollection = collect($crAmount);
                                 return [
                                     'voucher_no' => $item_voucher_no,
                                     'description' => "Memo-" . $item->id,
-                                    'dr_amount' => $item->dr_amount,
-                                    'cr_amount' => $item->cr_amount,
+                                    'dr_amount' => $drAmountCollection,
+                                    'cr_amount' => $crAmountCollection,
                                     'voucher_date' => $item->collection_date,
                                 ];
                             });
@@ -1637,6 +1658,8 @@ class CoreAccountingController extends Controller
                             // If $item is not an object or does not have a 'voucher_no' property, keep it
                             return true;
                         });
+
+                        // dd($filteredCollection);
             
                         // Add the items from $filtered_r_Data to $ledgerData
                         $ledgerData = $filteredCollection->concat($a_data_table->all());
@@ -1651,14 +1674,72 @@ class CoreAccountingController extends Controller
                             }
                         }
 
-                        // dd($ledgerData);
+                        foreach ($ledgerData as &$item) {
+                            $item->dr_amount = json_decode($item->dr_amount);
+                            $item->cr_amount = json_decode($item->cr_amount);
+                        }
+
+                        $filteredData = $ledgerData->filter(function ($item) {
+                            $drContainsMainHead = false;
+                            $crContainsMainHead = false;
+                        
+                            if (is_array($item->dr_amount)) {
+                                foreach ($item->dr_amount as $dr) {
+                                    if (isset($dr->name) && $dr->name === 'Libility') {
+                                        $drContainsMainHead = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        
+                            if (is_array($item->cr_amount)) {
+                                foreach ($item->cr_amount as $cr) {
+                                    if (isset($cr->name) && $cr->name === 'Libility') {
+                                        $crContainsMainHead = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if ($drContainsMainHead && $crContainsMainHead) {
+                                // If both dr_amount and cr_amount contain "Libility," remove one of them
+                                $item->dr_amount = [];
+                                $item->cr_amount = [];
+                            }
+                        
+                            // Include the item if either dr_amount or cr_amount contains "Main Head"
+                            return $drContainsMainHead || $crContainsMainHead;
+                        });
+                        
+                        // To reset the keys of the filtered collection if needed
+                        $filteredData = $filteredData->values();
+
+                        
+                        // print_r($ledgerData);
                     }
                 }
-                foreach ($ledgerData as &$item) {
-                    $item->dr_amount = json_decode($item->dr_amount);
-                    $item->cr_amount = json_decode($item->cr_amount);
-                }
-                $sortedLedgerData = $ledgerData->sortBy('voucher_date')->values()->all();
+                $dataArray = $filteredData->toArray();
+                $nameToKeep = "Libility";
+                $dataArray = array_map(function ($item) use ($nameToKeep) {
+                    // Check if dr_amount exists and is an array
+                    if (property_exists($item, "dr_amount") && is_array($item->dr_amount)) {
+                        // Use array_filter to keep items with the specified name
+                        $item->dr_amount = array_filter($item->dr_amount, function ($drItem) use ($nameToKeep) {
+                            return property_exists($drItem, "name") && $drItem->name === $nameToKeep;
+                        });
+                    }
+                    if (property_exists($item, "cr_amount") && is_array($item->cr_amount)) {
+                        // Use array_filter to keep items with the specified name
+                        $item->cr_amount = array_filter($item->cr_amount, function ($crItem) use ($nameToKeep) {
+                            return property_exists($crItem, "name") && $crItem->name === $nameToKeep;
+                        });
+                    }
+                    return $item;
+                }, $dataArray);
+                // dd($dataArray);
+                $dataCollection = collect($dataArray);
+                
+                $sortedLedgerData = $dataCollection->sortBy('voucher_date')->values()->all();
                 // dd($sortedLedgerData);
                 
                 $openningBalance = 0;
