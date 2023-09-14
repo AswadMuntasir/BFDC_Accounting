@@ -1353,7 +1353,7 @@ class CoreAccountingController extends Controller
                     ->where('control_ac.account_name', '=', $selectedAccountName)
                     ->select('ac_head.ac_head_name_eng')
                     ->get();
-
+                dd($ac_head_names);
                 $ledgerData = DB::table('voucher_entry')
                     ->whereBetween('voucher_date', [$startDate, $endDate])
                     ->select('voucher_date', 'dr_amount', 'cr_amount')
@@ -1536,7 +1536,7 @@ class CoreAccountingController extends Controller
                                 ->select('id', 'dr_amount', 'cr_amount', 'collection_date')
                                 ->where('customer_name', $name1)
                                 ->get();
-                            $selectedAccountName = "Main Head";
+                            $selectedAccountName = ["Bills Receivable of Marine Workshop", "Bills Receivable of Multichannel Slipway", "Bills Receivable of T-Head Jetty", "Bills Receivable of Processing", "Bills Receivable of Rent Lease", "Bills Receivable of Electricity", "Bills Receivable of Water", "Bills Receivable of Water (T-Head Jetty)"];
                             $filtered_r_Data = $r_data_table->map(function ($item) use ($selectedAccountName, $item_voucher_no) {
                                 // Decode the JSON strings in dr_amount and cr_amount columns
                                 $drAmount = json_decode($item->dr_amount);
@@ -1594,7 +1594,7 @@ class CoreAccountingController extends Controller
                                 ->where('customer_name', $name1)
                                 ->get();
                 
-                            $selectedAccountName = "Main Head";
+                                $selectedAccountName = ["Bills Receivable of Marine Workshop", "Bills Receivable of Multichannel Slipway", "Bills Receivable of T-Head Jetty", "Bills Receivable of Processing", "Bills Receivable of Rent Lease", "Bills Receivable of Electricity", "Bills Receivable of Water", "Bills Receivable of Water (T-Head Jetty)"];
                             $filtered_r_Data = $r_data_table->map(function ($item) use ($selectedAccountName, $item_voucher_no) {
                                 // Decode the JSON strings in dr_amount and cr_amount columns
                                 $drAmount = json_decode($item->dr_amount);
@@ -1685,18 +1685,37 @@ class CoreAccountingController extends Controller
                         
                             if (is_array($item->dr_amount)) {
                                 foreach ($item->dr_amount as $dr) {
-                                    if (isset($dr->name) && $dr->name === 'Libility') {
-                                        $drContainsMainHead = true;
-                                        break;
+                                    if (isset($dr->name)) {
+                                        if ($dr->name === 'Bills Receivable of Marine Workshop' ||
+                                            $dr->name === 'Bills Receivable of Multichannel Slipway' ||
+                                            $dr->name === 'Bills Receivable of T-Head Jetty'||
+                                            $dr->name === 'Bills Receivable of Processing' ||
+                                            $dr->name === 'Bills Receivable of Rent Lease' ||
+                                            $dr->name === 'Bills Receivable of Electricity' ||
+                                            $dr->name === 'Bills Receivable of Water' ||
+                                            $dr->name === 'Bills Receivable of Water (T-Head Jetty)') {
+                                                $drContainsMainHead = true;
+                                                break;
+                                        }
                                     }
                                 }
                             }
                         
                             if (is_array($item->cr_amount)) {
                                 foreach ($item->cr_amount as $cr) {
-                                    if (isset($cr->name) && $cr->name === 'Libility') {
-                                        $crContainsMainHead = true;
-                                        break;
+                                    if (isset($cr->name)) {
+                                        if ($cr->name === 'Bills Receivable of Marine Workshop' ||
+                                            $cr->name === 'Bills Receivable of Multichannel Slipway' ||
+                                            $cr->name === 'Bills Receivable of T-Head Jetty'||
+                                            $cr->name === 'Bills Receivable of Processing' ||
+                                            $cr->name === 'Bills Receivable of Rent Lease' ||
+                                            $cr->name === 'Bills Receivable of Electricity' ||
+                                            $cr->name === 'Bills Receivable of Water' ||
+                                            $cr->name === 'Bills Receivable of Water (T-Head Jetty)') {
+                                                $crContainsMainHead = true;
+                                                break;
+                                        }
+                                        
                                     }
                                 }
                             }
