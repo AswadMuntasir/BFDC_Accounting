@@ -1249,78 +1249,34 @@ class CoreAccountingController extends Controller
                 $startDate = $request->input('start_date');
                 $endDate = $request->input('end_date');
 
-                // dd("subsidiary_account_name", $subsidiaryAcId);
-                // Validate form input values
-                $validatedData = $request->validate([
-                    'subsidiary_ac_id' => 'required',
-                    'start_date' => 'required|date',
-                    'end_date' => 'required|date|after_or_equal:start_date',
-                ]);
-
-                // Retrieve subsidiary account details
-                $subsidiaryAc = control_ac::where("subsidiary_account_name", "=", $subsidiaryAcId)->pluck('account_id');
-
-                $ac_head = DB::table('ac_head')
-                    ->whereIn('control_ac_id', $subsidiaryAc)
+                // SELECT DISTINCT ac_head.ac_head_name_eng FROM subsidiary_ac JOIN control_ac ON subsidiary_ac.account_name = control_ac.subsidiary_account_name JOIN ac_head ON control_ac.account_id = ac_head.control_ac_id WHERE subsidiary_ac.account_name = 'test 4';
+                $acHeadNames = account_head::distinct()
+                    ->select('ac_head.ac_head_name_eng')
+                    ->join('control_ac', 'ac_head.control_ac_id', '=', 'control_ac.account_id')
+                    ->join('subsidiary_ac', 'control_ac.subsidiary_account_name', '=', 'subsidiary_ac.account_name')
+                    ->where('subsidiary_ac.account_name', '=', $subsidiaryAcId)
+                    ->get()
+                    ->pluck('ac_head_name_eng')
+                    ->toArray();
+                // dd($ac_head_names);
+                $ledgerData = DB::table('voucher_entry')
+                    ->whereBetween('voucher_date', [$startDate, $endDate])
+                    ->select('voucher_no', 'description', 'dr_amount', 'cr_amount', 'voucher_date')
+                    ->whereIn('status', ['pending', 'Done'])
                     ->get();
-                // dd($ac_head);
-
-                // Retrieve voucher entries based on date range
-                $voucherEntries = voucher_entry::whereBetween('voucher_date', [$startDate, $endDate])
-                    ->get();
-
-                    dd($voucherEntries);
-
-                // Perform calculations to generate ledger data
-                $ledgerData = [];
-                $previousTotalAmount = 0;
-
-                // Filter voucher entries by subsidiary account
-                $filteredVoucherEntries = [];
-                foreach ($voucherEntries as $voucherEntry) {
-                    $drAmounts = json_decode($voucherEntry->dr_amount, true);
-                    $crAmounts = json_decode($voucherEntry->cr_amount, true);
-
-                    $totalDrAmount = 0;
-                    $totalCrAmount = 0;
-
-                    foreach ($drAmounts as $drAmount) {
-                        if ($drAmount['id'] == $subsidiaryAcId) {
-                            $totalDrAmount += $drAmount['amount'];
-                        }
-                    }
-
-                    foreach ($crAmounts as $crAmount) {
-                        if ($crAmount['id'] == $subsidiaryAcId) {
-                            $totalCrAmount += $crAmount['amount'];
-                        }
-                    }
-
-                    $totalAmount = $totalDrAmount - $totalCrAmount;
-                    $balance = $previousTotalAmount + $totalAmount;
-                    $name = $drAmounts[0]['name'];
-
-                    $ledgerData[] = [
-                        'voucher_date' => $voucherEntry->voucher_date,
-                        'name' => $name,
-                        'total_dr_amount' => $totalDrAmount,
-                        'total_cr_amount' => $totalCrAmount,
-                        'total_amount' => $totalAmount,
-                        'balance' => $balance,
-                    ];
-
-                    $previousTotalAmount = $balance;
-                }
+                // dd($ledgerData);
+                
+                $filteredLedgerData = $this->ledgerDataManupulation($ledgerData, "", $acHeadNames);
 
                 // dd($ledgerData);
 
                 // Pass the data to the view
                 return view('super_admin.core_accounting.account_reports.sub_ac_ledger', [
                     'subsidiaryAccounts' => $subsidiaryAccounts,
-                    'subsidiaryAc' => $subsidiaryAc,
-                    'ledgerData' => $ledgerData,
+                    'ledgerData' => $filteredLedgerData,
                     'startDate' => $startDate,
                     'endDate' => $endDate,
+                    'subsidiaryAcId' => $subsidiaryAcId
                 ]);
             } else {
                 return view('super_admin.core_accounting.account_reports.sub_ac_ledger', [
@@ -1351,32 +1307,20 @@ class CoreAccountingController extends Controller
                 $ac_head_names = DB::table('control_ac')
                     ->join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
                     ->where('control_ac.account_name', '=', $selectedAccountName)
-                    ->select('ac_head.ac_head_name_eng')
-                    ->get();
+                    ->pluck('ac_head.ac_head_name_eng')
+                    ->toArray();
                 // dd($ac_head_names);
                 $ledgerData = DB::table('voucher_entry')
                     ->whereBetween('voucher_date', [$startDate, $endDate])
                     ->select('voucher_no', 'description', 'dr_amount', 'cr_amount', 'voucher_date')
+                    ->whereIn('status', ['pending', 'Done'])
                     ->get();
-                dd($ledgerData);
-
-                // Filter the dr_amount and cr_amount based on ac_head_names
-                $filteredLedgerData = $ledgerData->map(function ($item) use ($ac_head_names) {
-                    $item->dr_amount = collect(json_decode($item->dr_amount))->filter(function ($amount) use ($ac_head_names) {
-                        return $ac_head_names->contains('ac_head_name_eng', $amount->name);
-                    })->values();
-
-                    $item->cr_amount = collect(json_decode($item->cr_amount))->filter(function ($amount) use ($ac_head_names) {
-                        return $ac_head_names->contains('ac_head_name_eng', $amount->name);
-                    })->values();
-
-                    return $item;
-                });
-
-                // dd($filteredLedgerData  );
+                // dd($ledgerData);
+                
+                $filteredLedgerData = $this->ledgerDataManupulation($ledgerData, "", $ac_head_names);
 
                 // Output the filtered ledger data
-                return view('super_admin.core_accounting.account_reports.control_ac_ledger', ['ledgerData' => $filteredLedgerData, 'accounts' => $accounts]);
+                return view('super_admin.core_accounting.account_reports.control_ac_ledger', ['ledgerData' => $filteredLedgerData, 'accounts' => $accounts, 'controlACName' => $selectedAccountName, 'startDate' => $startDate, 'endDate' => $endDate]);
             }
 
             // Handle GET request
@@ -1562,292 +1506,413 @@ class CoreAccountingController extends Controller
                     ->whereIn('voucher_type', ['Journal', 'Receipt Voucher', 'Advanced Payment', 'Adjustment'])
                     ->get();
 
-                $numbers = [];
-                // $selectedAccountName = ["Assets", "Mobile Bill"];
                 $selectedAccountName = ["Bills Receivable of Marine Workshop", "Bills Receivable of Multichannel Slipway", "Bills Receivable of T-Head Jetty", "Bills Receivable of Processing", "Bills Receivable of Rent Lease", "Bills Receivable of Electricity", "Bills Receivable of Water", "Bills Receivable of Water (T-Head Jetty)"];
-
-                foreach ($ledgerData as $key => $item) {
-                    if (strpos($item->voucher_no, 'r_') !== false && strpos($item->description, 'Multiple vouchers added:') !== false) {
-                        $item_voucher_no = $item->voucher_no;
-                        // Extract numbers using regular expression
-                        preg_match_all('/memo-(\d+)/', $item->description, $matches);
-                        $numbers = array_merge($numbers, $matches[1]);
-                        if ($numbers) {
-                            $r_data_table = DB::table('collection_entry')
-                                ->whereIn('id', $numbers)
-                                ->select('id', 'dr_amount', 'cr_amount', 'collection_date')
-                                ->where('customer_name', $name1)
-                                ->get();
-
-                            $filtered_r_Data = $r_data_table->map(function ($item) use ($selectedAccountName, $item_voucher_no) {
-                                // Decode the JSON strings in dr_amount and cr_amount columns
-                                $drAmount = json_decode($item->dr_amount);
-                                $crAmount = json_decode($item->cr_amount);
-
-                                // Check if any name in $selectedAccountName exists in $drAmount
-                                $dr_hasMatch = false;
-
-                                foreach ($drAmount as $item1) {
-                                    if (in_array($item1->name, $selectedAccountName)) {
-                                        $dr_hasMatch = true;
-                                        break;
-                                    }
-                                }
-
-                                if ($dr_hasMatch) {
-                                    // Filter $drAmount based on $selectedAccountName
-                                    $drAmount = array_filter($drAmount, function ($item1) use ($selectedAccountName) {
-                                        return in_array($item1->name, $selectedAccountName);
-                                    });
-                                } else {
-                                    // If there's no match, set $drAmount to an empty array
-                                    $drAmount = [];
-                                }
-                                // $crAmount = $this->filterByName($crAmount, $selectedAccountName);
-                                $cr_hasMatch = false;
-
-                                foreach ($crAmount as $item1) {
-                                    if (in_array($item1->name, $selectedAccountName)) {
-                                        $cr_hasMatch = true;
-                                        break;
-                                    }
-                                }
-
-                                if ($cr_hasMatch) {
-                                    // Filter $drAmount based on $selectedAccountName
-                                    $crAmount = array_filter($crAmount, function ($item) use ($selectedAccountName) {
-                                        return in_array($item->name, $selectedAccountName);
-                                    });
-                                } else {
-                                    // If there's no match, set $drAmount to an empty array
-                                    $crAmount = [];
-                                }
-                                // dd($drAmount);
-                                // Convert dr_amount and cr_amount to collections
-                                $drAmountCollection = collect($drAmount);
-                                $crAmountCollection = collect($crAmount);
-                                return [
-                                    'voucher_no' => $item_voucher_no,
-                                    'description' => "Memo-" . $item->id,
-                                    'dr_amount' => $drAmountCollection,
-                                    'cr_amount' => $crAmountCollection,
-                                    'voucher_date' => $item->collection_date,
-                                ];
-                            });
-
-                            $filteredCollection = $ledgerData->filter(function ($item) use ($item_voucher_no) {
-                                // Check if $item is an object (assuming objects have a 'voucher_no' property)
-                                if (is_object($item) && property_exists($item, 'voucher_no')) {
-                                    return $item->voucher_no !== $item_voucher_no;
-                                }
-                                
-                                // If $item is not an object or does not have a 'voucher_no' property, keep it
-                                return true;
-                            });
                 
-                            // Add the items from $filtered_r_Data to $ledgerData
-                            $ledgerData = $filteredCollection->concat($filtered_r_Data->all());
-
-                            foreach ($ledgerData as $key => $element) {
-                                if (is_array($element)) {
-                                    // Convert the array to an object
-                                    $object = (object) $element;
-                                    
-                                    // Replace the old array with the new object
-                                    $ledgerData[$key] = $object;
-                                }
-                            }
-                        }
-                        $filteredData = $ledgerData;
-                    } else if (strpos($item->voucher_no, 'r_') !== false && strpos($item->description, 'Voucher ID: ') !== false) {
-                        $item_voucher_no = $item->voucher_no;
-                        $numbers = [];
-                        // Extract numbers using regular expression
-                        preg_match_all('/memo-(\d+)/', $item->description, $matches);
-                        $numbers = array_merge($numbers, $matches[1]);
-                        if ($numbers) {
-                            $r_data_table = DB::table('collection_entry')
-                                ->whereIn('id', $numbers)
-                                ->select('id', 'dr_amount', 'cr_amount', 'collection_date')
-                                ->where('customer_name', $name1)
-                                ->get();
-                                // $selectedAccountName = ["Bills Receivable of Marine Workshop", "Bills Receivable of Multichannel Slipway", "Bills Receivable of T-Head Jetty", "Bills Receivable of Processing", "Bills Receivable of Rent Lease", "Bills Receivable of Electricity", "Bills Receivable of Water", "Bills Receivable of Water (T-Head Jetty)"];
-                            $filtered_r_Data = $r_data_table->map(function ($item) use ($selectedAccountName, $item_voucher_no) {
-                                // Decode the JSON strings in dr_amount and cr_amount columns
-                                $drAmount = json_decode($item->dr_amount);
-                                $crAmount = json_decode($item->cr_amount);
+                $sortedLedgerData = $this->ledgerDataManupulation($ledgerData, $name1, $selectedAccountName);
                 
-                                // Check if the search keyword exists in either dr_amount or cr_amount
-                                // $drAmount = $this->filterByName($drAmount, $selectedAccountName);
-                                // Check if any name in $selectedAccountName exists in $drAmount
-                                $dr_hasMatch = false;
+                return view('super_admin.core_accounting.account_reports.party_ledger')->with('ledgerData', $sortedLedgerData)->with('parties', $parties)->with('partyName', $name)->with('startDate', $startDate)->with('endDate', $endDate);
+            } else {
+                $parties = party::all();
+                return view('super_admin.core_accounting.account_reports.party_ledger')->with('ledgerData', null)->with('data2', null)->with('parties', $parties);
+            }
+        }
+  
+        return redirect("login")->withSuccess('You are not allowed to access');
+    }
 
-                                foreach ($drAmount as $item1) {
-                                    if (in_array($item1->name, $selectedAccountName)) {
-                                        $dr_hasMatch = true;
-                                        break;
-                                    }
-                                }
-
-                                if ($dr_hasMatch) {
-                                    // Filter $drAmount based on $selectedAccountName
-                                    $drAmount = array_filter($drAmount, function ($item1) use ($selectedAccountName) {
-                                        return in_array($item1->name, $selectedAccountName);
-                                    });
-                                } else {
-                                    // If there's no match, set $drAmount to an empty array
-                                    $drAmount = [];
-                                }
-                                // $crAmount = $this->filterByName($crAmount, $selectedAccountName);
-                                $cr_hasMatch = false;
-
-                                foreach ($crAmount as $item1) {
-                                    if (in_array($item1->name, $selectedAccountName)) {
-                                        $cr_hasMatch = true;
-                                        break;
-                                    }
-                                }
-
-                                if ($cr_hasMatch) {
-                                    // Filter $drAmount based on $selectedAccountName
-                                    $crAmount = array_filter($crAmount, function ($item) use ($selectedAccountName) {
-                                        return in_array($item->name, $selectedAccountName);
-                                    });
-                                } else {
-                                    // If there's no match, set $drAmount to an empty array
-                                    $crAmount = [];
-                                }
-                
-                                // Convert dr_amount and cr_amount to collections
-                                $drAmountCollection = collect($drAmount);
-                                $crAmountCollection = collect($crAmount);
-                                return [
-                                    'voucher_no' => $item_voucher_no,
-                                    'description' => "Memo-" . $item->id,
-                                    'dr_amount' => $drAmountCollection,
-                                    'cr_amount' => $crAmountCollection,
-                                    'voucher_date' => $item->collection_date,
-                                ];
-                            });
-
-                            $filteredCollection = $ledgerData->filter(function ($item) use ($item_voucher_no) {
-                                // Check if $item is an object (assuming objects have a 'voucher_no' property)
-                                if (is_object($item) && property_exists($item, 'voucher_no')) {
-                                    return $item->voucher_no !== $item_voucher_no;
-                                }
-                                
-                                // If $item is not an object or does not have a 'voucher_no' property, keep it
-                                return true;
-                            });
-                
-                            // Add the items from $filtered_r_Data to $ledgerData
-                            $ledgerData = $filteredCollection->concat($filtered_r_Data->all());
-
-                            foreach ($ledgerData as $key => $element) {
-                                if (is_array($element)) {
-                                    // Convert the array to an object
-                                    $object = (object) $element;
-                                    
-                                    // Replace the old array with the new object
-                                    $ledgerData[$key] = $object;
-                                }
-                            }
-                        }
-                        $filteredData = $ledgerData;
-                    } else if (strpos($item->voucher_no, 'a_') !== false) {
-                        // dd($item->voucher_no);
-                        $a_data_table = DB::table('voucher_entry')
-                            ->where('voucher_no', $item->voucher_no)
-                            ->select('voucher_no', 'dr_amount', 'cr_amount', 'description', 'voucher_date')
-                            ->where('party', $name1)
+    public function ledgerDataManupulation($ledgerData, $name1, $selectedAccountName){
+        $numbers = [];
+        foreach ($ledgerData as $key => $item) {
+            if (strpos($item->voucher_no, 'r_') !== false && strpos($item->description, 'Multiple vouchers added:') !== false) {
+                $item_voucher_no = $item->voucher_no;
+                // Extract numbers using regular expression
+                preg_match_all('/memo-(\d+)/', $item->description, $matches);
+                $numbers = array_merge($numbers, $matches[1]);
+                if ($numbers) {
+                    if($name1 != "") {
+                        $r_data_table = DB::table('collection_entry')
+                            ->whereIn('id', $numbers)
+                            ->select('id', 'dr_amount', 'cr_amount', 'collection_date')
+                            ->where('customer_name', $name1)
                             ->get();
+                    } else {
+                        $r_data_table = DB::table('collection_entry')
+                            ->whereIn('id', $numbers)
+                            ->select('id', 'dr_amount', 'cr_amount', 'collection_date')
+                            ->get();
+                    }
 
-                        // dd($a_data_table);
-                        $item_voucher_no = $item->voucher_no;
+                    $filtered_r_Data = $r_data_table->map(function ($item) use ($selectedAccountName, $item_voucher_no) {
+                        // Decode the JSON strings in dr_amount and cr_amount columns
+                        $drAmount = json_decode($item->dr_amount);
+                        $crAmount = json_decode($item->cr_amount);
 
-                        // dd($a_data_table);
-                        $filtered_r_Data = $a_data_table->map(function ($item) use ($selectedAccountName, $item_voucher_no) {
-                            // Decode the JSON strings in dr_amount and cr_amount columns
-                            $drAmount = json_decode($item->dr_amount);
-                            $crAmount = json_decode($item->cr_amount);
+                        // Check if any name in $selectedAccountName exists in $drAmount
+                        $dr_hasMatch = false;
 
-                            // Check if any name in $selectedAccountName exists in $drAmount
-                            $dr_hasMatch = false;
-
-                            foreach ($drAmount as $item1) {
-                                if (in_array($item1->name, $selectedAccountName)) {
-                                    $dr_hasMatch = true;
-                                    break;
-                                }
-                            }
-
-                            if ($dr_hasMatch) {
-                                // Filter $drAmount based on $selectedAccountName
-                                $drAmount = array_filter($drAmount, function ($item1) use ($selectedAccountName) {
-                                    return in_array($item1->name, $selectedAccountName);
-                                });
-                            } else {
-                                // If there's no match, set $drAmount to an empty array
-                                $drAmount = [];
-                            }
-                            
-                            $cr_hasMatch = false;
-
-                            foreach ($crAmount as $item1) {
-                                if (in_array($item1->name, $selectedAccountName)) {
-                                    $cr_hasMatch = true;
-                                    break;
-                                }
-                            }
-
-                            if ($cr_hasMatch) {
-                                // Filter $drAmount based on $selectedAccountName
-                                $crAmount = array_filter($crAmount, function ($item) use ($selectedAccountName) {
-                                    return in_array($item->name, $selectedAccountName);
-                                });
-                            } else {
-                                // If there's no match, set $drAmount to an empty array
-                                $crAmount = [];
-                            }
-            
-                            // Convert dr_amount and cr_amount to collections
-                            $drAmountCollection = json_decode(collect($drAmount));
-                            $crAmountCollection = json_decode(collect($crAmount));
-                            return [
-                                'voucher_no' => $item_voucher_no,
-                                'description' => $item->description,
-                                'dr_amount' => $drAmountCollection,
-                                'cr_amount' => $crAmountCollection,
-                                'voucher_date' => $item->voucher_date,
-                            ];
-                        });
-                        // dd($filtered_r_Data);
-
-                        $filteredCollection = $ledgerData->filter(function ($item) use ($item_voucher_no) {
-                            // Check if $item is an object (assuming objects have a 'voucher_no' property)
-                            if (is_object($item) && property_exists($item, 'voucher_no')) {
-                                return $item->voucher_no !== $item_voucher_no;
-                            }
-                            
-                            // If $item is not an object or does not have a 'voucher_no' property, keep it
-                            return true;
-                        });
-            
-                        // Add the items from $filtered_r_Data to $ledgerData
-                        $ledgerData = $filteredCollection->concat($filtered_r_Data->all());
-
-                        foreach ($ledgerData as $key => $element) {
-                            if (is_array($element)) {
-                                // Convert the array to an object
-                                $object = (object) $element;
-                                
-                                // Replace the old array with the new object
-                                $ledgerData[$key] = $object;
+                        foreach ($drAmount as $item1) {
+                            if (in_array($item1->name, $selectedAccountName)) {
+                                $dr_hasMatch = true;
+                                break;
                             }
                         }
-                        $filteredData = $ledgerData;
-                        // dd($ledgerData);
-                    } else if (strpos($item->voucher_no, 'j_') !== false) {
+
+                        if ($dr_hasMatch) {
+                            // Filter $drAmount based on $selectedAccountName
+                            $drAmount = array_filter($drAmount, function ($item1) use ($selectedAccountName) {
+                                return in_array($item1->name, $selectedAccountName);
+                            });
+                        } else {
+                            // If there's no match, set $drAmount to an empty array
+                            $drAmount = [];
+                        }
+                        // $crAmount = $this->filterByName($crAmount, $selectedAccountName);
+                        $cr_hasMatch = false;
+
+                        foreach ($crAmount as $item1) {
+                            if (in_array($item1->name, $selectedAccountName)) {
+                                $cr_hasMatch = true;
+                                break;
+                            }
+                        }
+
+                        if ($cr_hasMatch) {
+                            // Filter $drAmount based on $selectedAccountName
+                            $crAmount = array_filter($crAmount, function ($item) use ($selectedAccountName) {
+                                return in_array($item->name, $selectedAccountName);
+                            });
+                        } else {
+                            // If there's no match, set $drAmount to an empty array
+                            $crAmount = [];
+                        }
+                        // dd($drAmount);
+                        // Convert dr_amount and cr_amount to collections
+                        $drAmountCollection = collect($drAmount);
+                        $crAmountCollection = collect($crAmount);
+                        return [
+                            'voucher_no' => $item_voucher_no,
+                            'description' => "Memo-" . $item->id,
+                            'dr_amount' => $drAmountCollection,
+                            'cr_amount' => $crAmountCollection,
+                            'voucher_date' => $item->collection_date,
+                        ];
+                    });
+
+                    $filteredCollection = $ledgerData->filter(function ($item) use ($item_voucher_no) {
+                        // Check if $item is an object (assuming objects have a 'voucher_no' property)
+                        if (is_object($item) && property_exists($item, 'voucher_no')) {
+                            return $item->voucher_no !== $item_voucher_no;
+                        }
+                        
+                        // If $item is not an object or does not have a 'voucher_no' property, keep it
+                        return true;
+                    });
+        
+                    // Add the items from $filtered_r_Data to $ledgerData
+                    $ledgerData = $filteredCollection->concat($filtered_r_Data->all());
+
+                    foreach ($ledgerData as $key => $element) {
+                        if (is_array($element)) {
+                            // Convert the array to an object
+                            $object = (object) $element;
+                            
+                            // Replace the old array with the new object
+                            $ledgerData[$key] = $object;
+                        }
+                    }
+                }
+                $filteredData = $ledgerData;
+            } else if (strpos($item->voucher_no, 'r_') !== false && strpos($item->description, 'Voucher ID: ') !== false) {
+                $item_voucher_no = $item->voucher_no;
+                $numbers = [];
+                // Extract numbers using regular expression
+                preg_match_all('/memo-(\d+)/', $item->description, $matches);
+                $numbers = array_merge($numbers, $matches[1]);
+                if ($numbers) {
+                    if($name1 != "") {
+                        $r_data_table = DB::table('collection_entry')
+                            ->whereIn('id', $numbers)
+                            ->select('id', 'dr_amount', 'cr_amount', 'collection_date')
+                            ->where('customer_name', $name1)
+                            ->get();
+                    } else {
+                        $r_data_table = DB::table('collection_entry')
+                            ->whereIn('id', $numbers)
+                            ->select('id', 'dr_amount', 'cr_amount', 'collection_date')
+                            ->get();
+                    }
+                        // $selectedAccountName = ["Bills Receivable of Marine Workshop", "Bills Receivable of Multichannel Slipway", "Bills Receivable of T-Head Jetty", "Bills Receivable of Processing", "Bills Receivable of Rent Lease", "Bills Receivable of Electricity", "Bills Receivable of Water", "Bills Receivable of Water (T-Head Jetty)"];
+                    $filtered_r_Data = $r_data_table->map(function ($item) use ($selectedAccountName, $item_voucher_no) {
+                        // Decode the JSON strings in dr_amount and cr_amount columns
+                        $drAmount = json_decode($item->dr_amount);
+                        $crAmount = json_decode($item->cr_amount);
+        
+                        // Check if the search keyword exists in either dr_amount or cr_amount
+                        // $drAmount = $this->filterByName($drAmount, $selectedAccountName);
+                        // Check if any name in $selectedAccountName exists in $drAmount
+                        $dr_hasMatch = false;
+
+                        foreach ($drAmount as $item1) {
+                            if (in_array($item1->name, $selectedAccountName)) {
+                                $dr_hasMatch = true;
+                                break;
+                            }
+                        }
+
+                        if ($dr_hasMatch) {
+                            // Filter $drAmount based on $selectedAccountName
+                            $drAmount = array_filter($drAmount, function ($item1) use ($selectedAccountName) {
+                                return in_array($item1->name, $selectedAccountName);
+                            });
+                        } else {
+                            // If there's no match, set $drAmount to an empty array
+                            $drAmount = [];
+                        }
+                        // $crAmount = $this->filterByName($crAmount, $selectedAccountName);
+                        $cr_hasMatch = false;
+
+                        foreach ($crAmount as $item1) {
+                            if (in_array($item1->name, $selectedAccountName)) {
+                                $cr_hasMatch = true;
+                                break;
+                            }
+                        }
+
+                        if ($cr_hasMatch) {
+                            // Filter $drAmount based on $selectedAccountName
+                            $crAmount = array_filter($crAmount, function ($item) use ($selectedAccountName) {
+                                return in_array($item->name, $selectedAccountName);
+                            });
+                        } else {
+                            // If there's no match, set $drAmount to an empty array
+                            $crAmount = [];
+                        }
+        
+                        // Convert dr_amount and cr_amount to collections
+                        $drAmountCollection = collect($drAmount);
+                        $crAmountCollection = collect($crAmount);
+                        return [
+                            'voucher_no' => $item_voucher_no,
+                            'description' => "Memo-" . $item->id,
+                            'dr_amount' => $drAmountCollection,
+                            'cr_amount' => $crAmountCollection,
+                            'voucher_date' => $item->collection_date,
+                        ];
+                    });
+
+                    $filteredCollection = $ledgerData->filter(function ($item) use ($item_voucher_no) {
+                        // Check if $item is an object (assuming objects have a 'voucher_no' property)
+                        if (is_object($item) && property_exists($item, 'voucher_no')) {
+                            return $item->voucher_no !== $item_voucher_no;
+                        }
+                        
+                        // If $item is not an object or does not have a 'voucher_no' property, keep it
+                        return true;
+                    });
+        
+                    // Add the items from $filtered_r_Data to $ledgerData
+                    $ledgerData = $filteredCollection->concat($filtered_r_Data->all());
+
+                    foreach ($ledgerData as $key => $element) {
+                        if (is_array($element)) {
+                            // Convert the array to an object
+                            $object = (object) $element;
+                            
+                            // Replace the old array with the new object
+                            $ledgerData[$key] = $object;
+                        }
+                    }
+                }
+                $filteredData = $ledgerData;
+            } else if (strpos($item->voucher_no, 'a_') !== false) {
+                // dd($item->voucher_no);
+                if($name1 != "") {
+                    $a_data_table = DB::table('voucher_entry')
+                        ->where('voucher_no', $item->voucher_no)
+                        ->select('voucher_no', 'dr_amount', 'cr_amount', 'description', 'voucher_date')
+                        ->where('party', $name1)
+                        ->get();
+                } else {
+                    $a_data_table = DB::table('voucher_entry')
+                        ->where('voucher_no', $item->voucher_no)
+                        ->select('voucher_no', 'dr_amount', 'cr_amount', 'description', 'voucher_date')
+                        ->get();
+                }
+                
+
+                // dd($a_data_table);
+                $item_voucher_no = $item->voucher_no;
+
+                // dd($a_data_table);
+                $filtered_r_Data = $a_data_table->map(function ($item) use ($selectedAccountName, $item_voucher_no) {
+                    // Decode the JSON strings in dr_amount and cr_amount columns
+                    $drAmount = json_decode($item->dr_amount);
+                    $crAmount = json_decode($item->cr_amount);
+
+                    // Check if any name in $selectedAccountName exists in $drAmount
+                    $dr_hasMatch = false;
+
+                    foreach ($drAmount as $item1) {
+                        if (in_array($item1->name, $selectedAccountName)) {
+                            $dr_hasMatch = true;
+                            break;
+                        }
+                    }
+
+                    if ($dr_hasMatch) {
+                        // Filter $drAmount based on $selectedAccountName
+                        $drAmount = array_filter($drAmount, function ($item1) use ($selectedAccountName) {
+                            return in_array($item1->name, $selectedAccountName);
+                        });
+                    } else {
+                        // If there's no match, set $drAmount to an empty array
+                        $drAmount = [];
+                    }
+                    
+                    $cr_hasMatch = false;
+
+                    foreach ($crAmount as $item1) {
+                        if (in_array($item1->name, $selectedAccountName)) {
+                            $cr_hasMatch = true;
+                            break;
+                        }
+                    }
+
+                    if ($cr_hasMatch) {
+                        // Filter $drAmount based on $selectedAccountName
+                        $crAmount = array_filter($crAmount, function ($item) use ($selectedAccountName) {
+                            return in_array($item->name, $selectedAccountName);
+                        });
+                    } else {
+                        // If there's no match, set $drAmount to an empty array
+                        $crAmount = [];
+                    }
+    
+                    // Convert dr_amount and cr_amount to collections
+                    $drAmountCollection = json_decode(collect($drAmount));
+                    $crAmountCollection = json_decode(collect($crAmount));
+                    return [
+                        'voucher_no' => $item_voucher_no,
+                        'description' => $item->description,
+                        'dr_amount' => $drAmountCollection,
+                        'cr_amount' => $crAmountCollection,
+                        'voucher_date' => $item->voucher_date,
+                    ];
+                });
+                // dd($filtered_r_Data);
+
+                $filteredCollection = $ledgerData->filter(function ($item) use ($item_voucher_no) {
+                    // Check if $item is an object (assuming objects have a 'voucher_no' property)
+                    if (is_object($item) && property_exists($item, 'voucher_no')) {
+                        return $item->voucher_no !== $item_voucher_no;
+                    }
+                    
+                    // If $item is not an object or does not have a 'voucher_no' property, keep it
+                    return true;
+                });
+    
+                // Add the items from $filtered_r_Data to $ledgerData
+                $ledgerData = $filteredCollection->concat($filtered_r_Data->all());
+
+                foreach ($ledgerData as $key => $element) {
+                    if (is_array($element)) {
+                        // Convert the array to an object
+                        $object = (object) $element;
+                        
+                        // Replace the old array with the new object
+                        $ledgerData[$key] = $object;
+                    }
+                }
+                $filteredData = $ledgerData;
+                // dd($ledgerData);
+            } else if (strpos($item->voucher_no, 'j_') !== false) {
+                $item_voucher_no = $item->voucher_no;
+                // $selectedAccountName = ["Bills Receivable of Marine Workshop", "Bills Receivable of Multichannel Slipway", "Bills Receivable of T-Head Jetty", "Bills Receivable of Processing", "Bills Receivable of Rent Lease", "Bills Receivable of Electricity", "Bills Receivable of Water", "Bills Receivable of Water (T-Head Jetty)"];
+
+                    // Decode the JSON strings in dr_amount and cr_amount columns
+                    $drAmount = json_decode($item->dr_amount);
+                    $crAmount = json_decode($item->cr_amount);
+                    
+                    // Check if any name in $selectedAccountName exists in $drAmount
+                    $dr_hasMatch = false;
+
+                    foreach ($drAmount as $item1) {
+                        if (in_array($item1->name, $selectedAccountName)) {
+                            $dr_hasMatch = true;
+                            break;
+                        }
+                    }
+
+                    if ($dr_hasMatch) {
+                        // Filter $drAmount based on $selectedAccountName
+                        $drAmount = array_filter($drAmount, function ($item1) use ($selectedAccountName) {
+                            return in_array($item1->name, $selectedAccountName);
+                        });
+                    } else {
+                        // If there's no match, set $drAmount to an empty array
+                        $drAmount = [];
+                    }
+                    // $crAmount = $this->filterByName($crAmount, $selectedAccountName);
+                    $cr_hasMatch = false;
+
+                    foreach ($crAmount as $item1) {
+                        if (in_array($item1->name, $selectedAccountName)) {
+                            $cr_hasMatch = true;
+                            break;
+                        }
+                    }
+
+                    if ($cr_hasMatch) {
+                        // Filter $drAmount based on $selectedAccountName
+                        $crAmount = array_filter($crAmount, function ($item) use ($selectedAccountName) {
+                            return in_array($item->name, $selectedAccountName);
+                        });
+                    } else {
+                        // If there's no match, set $drAmount to an empty array
+                        $crAmount = [];
+                    }
+                    
+                    // Convert dr_amount and cr_amount to collections
+                    $drAmountCollection = collect($drAmount);
+                    $crAmountCollection = collect($crAmount);
+                    $filtered_r_Data[] = [
+                        'voucher_no' => $item_voucher_no,
+                        'description' => $item->description,
+                        'dr_amount' => $drAmountCollection,
+                        'cr_amount' => $crAmountCollection,
+                        'voucher_date' => $item->voucher_date,
+                    ];
+                // dd($filtered_r_Data);
+
+                $filteredCollection = $ledgerData->filter(function ($item) use ($item_voucher_no) {
+                    // Check if $item is an object (assuming objects have a 'voucher_no' property)
+                    if (is_object($item) && property_exists($item, 'voucher_no')) {
+                        return $item->voucher_no !== $item_voucher_no;
+                    }
+                    
+                    // If $item is not an object or does not have a 'voucher_no' property, keep it
+                    return true;
+                });
+
+                // dd($filteredCollection);
+    
+                // Add the items from $filtered_r_Data to $ledgerData
+                $ledgerData = $filteredCollection->concat($filtered_r_Data);
+
+                foreach ($ledgerData as $key => $element) {
+                    if (is_array($element)) {
+                        // Convert the array to an object
+                        $object = (object) $element;
+                        
+                        // Replace the old array with the new object
+                        $ledgerData[$key] = $object;
+                    }
+                }
+                $filteredData = $ledgerData;
+                // dd($ledgerData);
+            } else if (strpos($item->voucher_no, 'r_') !== false) {
+                if(strpos($item->description, 'Multiple vouchers added:') !== true) {
+                    if(strpos($item->description, 'Voucher ID: ') !== true) {
                         $item_voucher_no = $item->voucher_no;
                         // $selectedAccountName = ["Bills Receivable of Marine Workshop", "Bills Receivable of Multichannel Slipway", "Bills Receivable of T-Head Jetty", "Bills Receivable of Processing", "Bills Receivable of Rent Lease", "Bills Receivable of Electricity", "Bills Receivable of Water", "Bills Receivable of Water (T-Head Jetty)"];
 
@@ -1915,8 +1980,6 @@ class CoreAccountingController extends Controller
                             // If $item is not an object or does not have a 'voucher_no' property, keep it
                             return true;
                         });
-
-                        // dd($filteredCollection);
             
                         // Add the items from $filtered_r_Data to $ledgerData
                         $ledgerData = $filteredCollection->concat($filtered_r_Data);
@@ -1932,143 +1995,49 @@ class CoreAccountingController extends Controller
                         }
                         $filteredData = $ledgerData;
                         // dd($ledgerData);
-                    } else if (strpos($item->voucher_no, 'r_') !== false) {
-                        if(strpos($item->description, 'Multiple vouchers added:') !== true) {
-                            if(strpos($item->description, 'Voucher ID: ') !== true) {
-                                $item_voucher_no = $item->voucher_no;
-                                // $selectedAccountName = ["Bills Receivable of Marine Workshop", "Bills Receivable of Multichannel Slipway", "Bills Receivable of T-Head Jetty", "Bills Receivable of Processing", "Bills Receivable of Rent Lease", "Bills Receivable of Electricity", "Bills Receivable of Water", "Bills Receivable of Water (T-Head Jetty)"];
-
-                                    // Decode the JSON strings in dr_amount and cr_amount columns
-                                    $drAmount = json_decode($item->dr_amount);
-                                    $crAmount = json_decode($item->cr_amount);
-                                    
-                                    // Check if any name in $selectedAccountName exists in $drAmount
-                                    $dr_hasMatch = false;
-
-                                    foreach ($drAmount as $item1) {
-                                        if (in_array($item1->name, $selectedAccountName)) {
-                                            $dr_hasMatch = true;
-                                            break;
-                                        }
-                                    }
-
-                                    if ($dr_hasMatch) {
-                                        // Filter $drAmount based on $selectedAccountName
-                                        $drAmount = array_filter($drAmount, function ($item1) use ($selectedAccountName) {
-                                            return in_array($item1->name, $selectedAccountName);
-                                        });
-                                    } else {
-                                        // If there's no match, set $drAmount to an empty array
-                                        $drAmount = [];
-                                    }
-                                    // $crAmount = $this->filterByName($crAmount, $selectedAccountName);
-                                    $cr_hasMatch = false;
-
-                                    foreach ($crAmount as $item1) {
-                                        if (in_array($item1->name, $selectedAccountName)) {
-                                            $cr_hasMatch = true;
-                                            break;
-                                        }
-                                    }
-
-                                    if ($cr_hasMatch) {
-                                        // Filter $drAmount based on $selectedAccountName
-                                        $crAmount = array_filter($crAmount, function ($item) use ($selectedAccountName) {
-                                            return in_array($item->name, $selectedAccountName);
-                                        });
-                                    } else {
-                                        // If there's no match, set $drAmount to an empty array
-                                        $crAmount = [];
-                                    }
-                                    
-                                    // Convert dr_amount and cr_amount to collections
-                                    $drAmountCollection = collect($drAmount);
-                                    $crAmountCollection = collect($crAmount);
-                                    $filtered_r_Data[] = [
-                                        'voucher_no' => $item_voucher_no,
-                                        'description' => $item->description,
-                                        'dr_amount' => $drAmountCollection,
-                                        'cr_amount' => $crAmountCollection,
-                                        'voucher_date' => $item->voucher_date,
-                                    ];
-                                // dd($filtered_r_Data);
-
-                                $filteredCollection = $ledgerData->filter(function ($item) use ($item_voucher_no) {
-                                    // Check if $item is an object (assuming objects have a 'voucher_no' property)
-                                    if (is_object($item) && property_exists($item, 'voucher_no')) {
-                                        return $item->voucher_no !== $item_voucher_no;
-                                    }
-                                    
-                                    // If $item is not an object or does not have a 'voucher_no' property, keep it
-                                    return true;
-                                });
-                    
-                                // Add the items from $filtered_r_Data to $ledgerData
-                                $ledgerData = $filteredCollection->concat($filtered_r_Data);
-
-                                foreach ($ledgerData as $key => $element) {
-                                    if (is_array($element)) {
-                                        // Convert the array to an object
-                                        $object = (object) $element;
-                                        
-                                        // Replace the old array with the new object
-                                        $ledgerData[$key] = $object;
-                                    }
-                                }
-                                $filteredData = $ledgerData;
-                                // dd($ledgerData);
-                            }
-                        }
                     }
                 }
-                // dd($filteredData, $ledgerData);
-                $uniqueCombinations = []; // To store unique combinations of voucher_no, description, and voucher_date
-                $filteredData5 = []; // To store the filtered data without duplicates
-
-                foreach ($filteredData as $item) {
-                    $combination = $item->voucher_no . $item->description . $item->voucher_date;
-
-                    if (!isset($uniqueCombinations[$combination])) {
-                        $uniqueCombinations[$combination] = true;
-                        $filteredData5[] = $item;
-                    }
-                }
-
-                // dd($filteredData5);
-
-                $dataArray = array_map(function ($item) use ($selectedAccountName) {
-                    // Filter dr_amount if it exists and is an array
-                    if (property_exists($item, "dr_amount") && is_array($item->dr_amount)) {
-                        $item->dr_amount = array_filter($item->dr_amount, function ($drItem) use ($selectedAccountName) {
-                            return property_exists($drItem, "name") && in_array($drItem->name, $selectedAccountName);
-                        });
-                    }
-
-                    // Filter cr_amount if it exists and is an array
-                    if (property_exists($item, "cr_amount") && is_array($item->cr_amount)) {
-                        $item->cr_amount = array_filter($item->cr_amount, function ($crItem) use ($selectedAccountName) {
-                            return property_exists($crItem, "name") && in_array($crItem->name, $selectedAccountName);
-                        });
-                    }
-
-                    return $item;
-                }, $filteredData5);
-                // dd($dataArray);
-                $dataCollection = collect($dataArray);
-                // dd($dataCollection);
-                
-                $sortedLedgerData = $dataCollection->sortBy('voucher_date')->values()->all();
-                // dd($sortedLedgerData);
-                
-                $openningBalance = 0;
-                return view('super_admin.core_accounting.account_reports.party_ledger')->with('ledgerData', $sortedLedgerData)->with('parties', $parties)->with('partyName', $name)->with('startDate', $startDate)->with('endDate', $endDate);
-            } else {
-                $parties = party::all();
-                return view('super_admin.core_accounting.account_reports.party_ledger')->with('ledgerData', null)->with('data2', null)->with('parties', $parties);
             }
         }
-  
-        return redirect("login")->withSuccess('You are not allowed to access');
+        // dd($filteredData, $ledgerData);
+        $uniqueCombinations = []; // To store unique combinations of voucher_no, description, and voucher_date
+        $filteredData5 = []; // To store the filtered data without duplicates
+
+        foreach ($filteredData as $item) {
+            $combination = $item->voucher_no . $item->description . $item->voucher_date;
+
+            if (!isset($uniqueCombinations[$combination])) {
+                $uniqueCombinations[$combination] = true;
+                $filteredData5[] = $item;
+            }
+        }
+
+        // dd($filteredData5);
+
+        $dataArray = array_map(function ($item) use ($selectedAccountName) {
+            // Filter dr_amount if it exists and is an array
+            if (property_exists($item, "dr_amount") && is_array($item->dr_amount)) {
+                $item->dr_amount = array_filter($item->dr_amount, function ($drItem) use ($selectedAccountName) {
+                    return property_exists($drItem, "name") && in_array($drItem->name, $selectedAccountName);
+                });
+            }
+
+            // Filter cr_amount if it exists and is an array
+            if (property_exists($item, "cr_amount") && is_array($item->cr_amount)) {
+                $item->cr_amount = array_filter($item->cr_amount, function ($crItem) use ($selectedAccountName) {
+                    return property_exists($crItem, "name") && in_array($crItem->name, $selectedAccountName);
+                });
+            }
+
+            return $item;
+        }, $filteredData5);
+        // dd($dataArray);
+        $dataCollection = collect($dataArray);
+        // dd($dataCollection);
+        
+        $sortedLedgerData = $dataCollection->sortBy('voucher_date')->values()->all();
+        // dd($sortedLedgerData);
+        return $sortedLedgerData;
     }
 
     public function transformElement($element) {
