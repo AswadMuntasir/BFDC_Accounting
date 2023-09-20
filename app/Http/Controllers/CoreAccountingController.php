@@ -1249,7 +1249,6 @@ class CoreAccountingController extends Controller
                 $startDate = $request->input('start_date');
                 $endDate = $request->input('end_date');
 
-                // SELECT DISTINCT ac_head.ac_head_name_eng FROM subsidiary_ac JOIN control_ac ON subsidiary_ac.account_name = control_ac.subsidiary_account_name JOIN ac_head ON control_ac.account_id = ac_head.control_ac_id WHERE subsidiary_ac.account_name = 'test 4';
                 $acHeadNames = account_head::distinct()
                     ->select('ac_head.ac_head_name_eng')
                     ->join('control_ac', 'ac_head.control_ac_id', '=', 'control_ac.account_id')
@@ -1258,121 +1257,16 @@ class CoreAccountingController extends Controller
                     ->get()
                     ->pluck('ac_head_name_eng')
                     ->toArray();
-                // dd($ac_head_names);
+                    
                 $ledgerData = DB::table('voucher_entry')
                     ->whereBetween('voucher_date', [$startDate, $endDate])
                     ->select('voucher_no', 'description', 'dr_amount', 'cr_amount', 'voucher_date')
                     ->whereIn('status', ['pending', 'Done'])
                     ->get();
-                // dd($ledgerData);
                 
                 $filteredLedgerData = $this->ledgerDataManupulation($ledgerData, "", $acHeadNames);
+
                 // dd($filteredLedgerData);
-                // $filteredLedgerData2 = [];
-
-//                 $fixedData = [];
-
-// foreach ($filteredLedgerData as $index => $item) {
-//     $voucherNo = $item->voucher_no;
-//     $description = $item->description;
-//     $voucherDate = $item->voucher_date;
-
-//     // Initialize arrays for DR and CR data
-//     $drData = [];
-//     $crData = [];
-
-//     foreach ($item->dr_amount as $drItem) {
-//         $drId = $drItem->id;
-//         $drName = $drItem->name;
-//         $drAmount = $drItem->amount;
-
-//         // Add DR data to the DR array
-//         $drData[] = [
-//             'id' => $drId,
-//             'name' => $drName,
-//             'amount' => $drAmount,
-//         ];
-//     }
-
-//     foreach ($item->cr_amount as $crItem) {
-//         $crId = $crItem->id;
-//         $crName = $crItem->name;
-//         $crAmount = $crItem->amount;
-
-//         // Add CR data to the CR array
-//         $crData[] = [
-//             'id' => $crId,
-//             'name' => $crName,
-//             'amount' => $crAmount,
-//         ];
-//     }
-
-//     // Add the extracted data to $fixedData using the index as the key
-//     $fixedData[$index] = [
-//         'voucher_no' => $voucherNo,
-//         'description' => $description,
-//         'voucher_date' => $voucherDate,
-//         'dr_amount' => $drData,
-//         'cr_amount' => $crData,
-//     ];
-// }
-// dd($fixedData);
-
-// foreach ($fixedData as $index => $item) {
-//     $voucherNo = $item['voucher_no'];
-//     $voucherDate = $item['voucher_date'];
-//     $voucherDescription = $item['description'];
-
-//     // Initialize arrays for DR and CR data
-//     $drData = [];
-//     $crData = [];
-
-//     foreach ($item['dr_amount'] as $drItem) {
-//         $drId = $drItem['id'];
-//         $drName = $drItem['name'];
-//         $drAmount = $drItem['amount'];
-
-//         // Add DR data to the DR array
-//         $drData[] = [
-//             'id' => $drId,
-//             'name' => $drName,
-//             'amount' => $drAmount,
-//         ];
-//     }
-
-//     foreach ($item['cr_amount'] as $crItem) {
-//         $crId = $crItem['id'];
-//         $crName = $crItem['name'];
-//         $crAmount = $crItem['amount'];
-
-//         // Add CR data to the CR array
-//         $crData[] = [
-//             'id' => $crId,
-//             'name' => $crName,
-//             'amount' => $crAmount,
-//         ];
-//     }
-
-//     // Check if an entry with the same "voucher_no" and "voucher_date" already exists
-//     $key = $voucherNo . '_' . $voucherDate;
-//     if (!isset($consolidatedData[$key])) {
-//         $consolidatedData[$key] = [
-//             'voucher_no' => $voucherNo,
-//             'voucher_date' => $voucherDate,
-//             'description' => $voucherDescription,
-//             'dr_amount' => $drData,
-//             'cr_amount' => $crData,
-//         ];
-//     } else {
-//         // Merge DR and CR data for the same "voucher_no" and "voucher_date"
-//         $consolidatedData[$key]['dr_amount'] = array_merge($consolidatedData[$key]['dr_amount'], $drData);
-//         $consolidatedData[$key]['cr_amount'] = array_merge($consolidatedData[$key]['cr_amount'], $crData);
-//     }
-// }
-
-// // Convert the associative array to a simple indexed array
-// $consolidatedData = array_values($consolidatedData);
-                // dd($consolidatedData);
 
                 // Pass the data to the view
                 return view('super_admin.core_accounting.account_reports.sub_ac_ledger', [
@@ -1390,10 +1284,7 @@ class CoreAccountingController extends Controller
                     'endDate' => null,
                 ]);
             }
-
-            // return view('super_admin.core_accounting.account_reports.sub_ac_ledger');
         }
-  
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
@@ -1468,9 +1359,55 @@ class CoreAccountingController extends Controller
                         'cr_amount' => $crData,
                     ];
                 }
-                // dd($filteredLedgerData2);
+
+                $totals = [];
+                foreach ($filteredLedgerData2 as $entry) {
+                    $voucherDate = $entry["voucher_date"];
+                    foreach ($entry["dr_amount"] as $dr) {
+                        $name = $dr["name"];
+                        $amount = floatval($dr["amount"]);
+                
+                        // Combine name and voucher_date as the key
+                        $key = "$voucherDate - $name";
+                
+                        // Initialize the total if it doesn't exist
+                        if (!isset($totals[$key])) {
+                            $totals[$key] = [
+                                "name" => $name,
+                                "voucher_date" => $voucherDate,
+                                "amount" => 0.0
+                            ];
+                        }
+                
+                        // Update the total amount
+                        $totals[$key]["amount"] += $amount;
+                    }
+                
+                    foreach ($entry["cr_amount"] as $cr) {
+                        $name = $cr["name"];
+                        $amount = floatval($cr["amount"]);
+                
+                        // Combine name and voucher_date as the key
+                        $key = "$voucherDate - $name";
+                
+                        // Initialize the total if it doesn't exist
+                        if (!isset($totals[$key])) {
+                            $totals[$key] = [
+                                "name" => $name,
+                                "voucher_date" => $voucherDate,
+                                "amount" => 0.0
+                            ];
+                        }
+                
+                        // Update the total amount (subtract for credit)
+                        $totals[$key]["amount"] -= $amount;
+                    }
+                }
+                
+                // Convert the result into a list of associative arrays
+                $result = array_values($totals);
                 // Output the filtered ledger data
-                return view('super_admin.core_accounting.account_reports.control_ac_ledger', ['ledgerData' => $filteredLedgerData, 'accounts' => $accounts, 'controlACName' => $selectedAccountName, 'startDate' => $startDate, 'endDate' => $endDate]);
+                return view('super_admin.core_accounting.account_reports.control_ac_ledger', ['ledgerData' => $result, 'accounts' => $accounts, 'controlACName' => $selectedAccountName, 'startDate' => $startDate, 'endDate' => $endDate]);
             }
 
             // Handle GET request

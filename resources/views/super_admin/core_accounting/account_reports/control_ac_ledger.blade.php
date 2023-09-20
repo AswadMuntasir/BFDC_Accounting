@@ -75,77 +75,61 @@
                   <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
                     <thead>
                       <tr style="width: 100%;">
-                        <th style="text-align: center; width: 12%;">Date</th>
-                        <th style="text-align: center; width: 10%;">Voucher No</th>
-                        <th style="text-align: center; width: 21%;">Description</th>
-                        <th style="text-align: center; width: 27%;">Head Name</th>
-                        <th style="text-align: center; width: 10%;">DR (TK.)</th>
-                        <th style="text-align: center; width: 10%;">CR (TK.)</th>
-                        <th style="text-align: center; width: 10%;">Balance (TK.)</th>
+                        <th style="text-align: center; width: 15%;">Date</th>
+                        <th style="text-align: center; width: 40%;">Head Name</th>
+                        <th style="text-align: center; width: 15%;">DR (TK.)</th>
+                        <th style="text-align: center; width: 15%;">CR (TK.)</th>
+                        <th style="text-align: center; width: 15%;">Balance (TK.)</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
                         <td>&nbsp;2023-07-01</td>
-                        <td></td>
                         <td>Openning Balance</td>
-                        <td></td>
                         <td>0.00</td>
                         <td>0.00</td>
                         <td>0.00</td>
                       </tr>
                       @foreach ($ledgerData as $ledger)
-                            @foreach ($ledger->dr_amount as $drItem)
+                        @php
+                          if($ledger['amount'] != 0) {
+                        @endphp
                             <tr>
-                                <td>&nbsp;{{ $ledger->voucher_date }}</td>
-                                <td>{{ $ledger->voucher_no }}</td>
-                                <td>{{ $ledger->description }}</td>
-                                <td>{{ $drItem->name }}</td>
-                                <td>{{ $drItem->amount }}</td>
+                                <td>&nbsp;{{ $ledger['voucher_date'] }}</td>
+                                <td>{{ $ledger['name'] }}</td>
+                                @php
+                                if($ledger['amount'] > 0) {
+                                  $totalDr = $totalDr + $ledger['amount'];
+                                  $total = $total + $ledger['amount'];
+                                @endphp
+                                <td>{{ $ledger['amount'] }}</td>
                                 <td>0</td>
+                                @php
+                                } else if($ledger['amount'] < 0) {
+                                  $totalCr = $totalCr + abs($ledger['amount']);
+                                  $total = $total + $ledger['amount'];
+                                @endphp
+                                <td>0</td>
+                                <td>{{ abs($ledger['amount']) }}</td>
+                                @php
+                                }
+                                @endphp
                                 <td>
-                                    @php
-                                    $total = $total + $drItem->amount;
-                                    $totalDr = $totalDr + $drItem->amount;
-                                    @endphp
                                     &nbsp;{{ $total }}
                                 </td>
                             </tr>
-                            @endforeach
-                            @foreach ($ledger->cr_amount as $crItem)
-                            <tr>
-                                <td>&nbsp;{{ $ledger->voucher_date }}</td>
-                                <td>{{ $ledger->voucher_no }}</td>
-                                <td>{{ $ledger->description }}</td>
-                                <td>{{ $crItem->name }}</td>
-                                <td>
-                                    0
-                                </td>
-                                <td>
-                                    {{ $crItem->amount }}
-                                </td>
-                                <td>
-                                    @php
-                                        $total = $total - $crItem->amount;
-                                        $totalCr = $totalCr + $crItem->amount;
-                                    @endphp
-                                    &nbsp;{{ $total }}
-                                </td>
-                            </tr>
-                            @endforeach
+                        @php
+                          }
+                        @endphp
                       @endforeach
                       <tr>
                         <td>2023-07-31</td>
-                        <td></td>
                         <td>Closing Balance</td>
-                        <td></td>
                         <td>0</td>
                         <td>0</td>
                         <td>{{ $total }}</td>
                       </tr>
                       <tr style="border: 1px solid #ffffff;">
-                        <th></th>
-                        <th></th>
                         <th></th>
                         <th>Total </th>
                         <th>{{ $totalDr }}</th>
