@@ -75,28 +75,19 @@
                   <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
                     <thead>
                       <tr style="width: 100%;">
-                        <th style="text-align: center; width: 15%;">Date</th>
                         <th style="text-align: center; width: 40%;">Head Name</th>
-                        <th style="text-align: center; width: 15%;">DR (TK.)</th>
-                        <th style="text-align: center; width: 15%;">CR (TK.)</th>
-                        <th style="text-align: center; width: 15%;">Balance (TK.)</th>
+                        <th style="text-align: center; width: 20%;">DR (TK.)</th>
+                        <th style="text-align: center; width: 20%;">CR (TK.)</th>
+                        <th style="text-align: center; width: 20%;">Balance (TK.)</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>&nbsp;2023-07-01</td>
-                        <td>Openning Balance</td>
-                        <td>0.00</td>
-                        <td>0.00</td>
-                        <td>0.00</td>
-                      </tr>
                       @foreach ($ledgerData as $ledger)
                         @php
                           if($ledger['amount'] != 0) {
                         @endphp
                             <tr>
-                                <td>&nbsp;{{ $ledger['voucher_date'] }}</td>
-                                <td>{{ $ledger['name'] }}</td>
+                                <td>&nbsp;{{ $ledger['name'] }}</td>
                                 @php
                                 if($ledger['amount'] > 0) {
                                   $totalDr = $totalDr + $ledger['amount'];
@@ -122,19 +113,11 @@
                           }
                         @endphp
                       @endforeach
-                      <tr>
-                        <td>2023-07-31</td>
-                        <td>Closing Balance</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>{{ $total }}</td>
-                      </tr>
                       <tr style="border: 1px solid #ffffff;">
-                        <th></th>
                         <th>Total </th>
                         <th>{{ $totalDr }}</th>
                         <th>{{ $totalCr }}</th>
-                        <th></th>
+                        <th>{{ $total }}</th>
                       </tr>
                     </tbody>
                   </table>

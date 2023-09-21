@@ -1257,6 +1257,15 @@ class CoreAccountingController extends Controller
                     ->get()
                     ->pluck('ac_head_name_eng')
                     ->toArray();
+                
+                $controlACNames = account_head::distinct()
+                    ->select('ac_head.ac_head_name_eng', 'control_ac.account_name')
+                    ->join('control_ac', 'ac_head.control_ac_id', '=', 'control_ac.account_id')
+                    ->join('subsidiary_ac', 'control_ac.subsidiary_account_name', '=', 'subsidiary_ac.account_name')
+                    ->where('subsidiary_ac.account_name', '=', $subsidiaryAcId)
+                    ->get()
+                    ->toArray();
+                    // dd($controlACNames);
                     
                 $ledgerData = DB::table('voucher_entry')
                     ->whereBetween('voucher_date', [$startDate, $endDate])
@@ -1266,12 +1275,81 @@ class CoreAccountingController extends Controller
                 
                 $filteredLedgerData = $this->ledgerDataManupulation($ledgerData, "", $acHeadNames);
 
-                // dd($filteredLedgerData);
+                $totals = [];
+                foreach ($acHeadNames as $name) {
+                    $total = 0;
+                
+                    foreach ($filteredLedgerData as $entry) {
+                        foreach ($entry->dr_amount as $dr) {
+                            if ($dr->name === $name) {
+                                $total += floatval($dr->amount);
+                            }
+                        }
+                
+                        foreach ($entry->cr_amount as $cr) {
+                            if ($cr->name === $name) {
+                                $total -= floatval($cr->amount);
+                            }
+                        }
+                    }
+                
+                    $totals[] = [
+                        "name" => $name,
+                        "amount" => $total
+                    ];
+                }
+                
+                // Remove entries with zero amounts
+                $totals = array_filter($totals, function ($item) {
+                    return floatval($item["amount"]) != 0;
+                });
+
+                // dd($totals);
+
+                $accumulatedAmounts = [];
+
+// Loop through data2 to accumulate amounts
+foreach ($totals as $item2) {
+    $name2 = $item2['name'];
+    $amount2 = $item2['amount'];
+
+    // Find the corresponding "ac_head_name_eng" in data1
+    $matchingItem1 = null;
+    foreach ($controlACNames as $item1) {
+        if ($item1['ac_head_name_eng'] === $name2) {
+            $matchingItem1 = $item1;
+            break;
+        }
+    }
+
+    if ($matchingItem1) {
+        $accountName = $matchingItem1['account_name'];
+        // Accumulate the amount based on "account_name"
+        if (!isset($accumulatedAmounts[$accountName])) {
+            $accumulatedAmounts[$accountName] = 0;
+        }
+        $accumulatedAmounts[$accountName] += $amount2;
+    }
+}
+
+// Create the final output array
+$output = [];
+foreach ($accumulatedAmounts as $accountName => $amount) {
+    $output[] = [
+        'name' => $accountName,
+        'amount' => $amount,
+    ];
+}
+
+// Convert the associative array to indexed array
+$output = array_values($output);
+
+                // dd($output);
 
                 // Pass the data to the view
                 return view('super_admin.core_accounting.account_reports.sub_ac_ledger', [
                     'subsidiaryAccounts' => $subsidiaryAccounts,
-                    'ledgerData' => $filteredLedgerData,
+                    'ledgerData' => $output,
                     'startDate' => $startDate,
                     'endDate' => $endDate,
                     'subsidiaryAcId' => $subsidiaryAcId
@@ -1361,60 +1439,45 @@ class CoreAccountingController extends Controller
                 }
 
                 $totals = [];
-                foreach ($filteredLedgerData2 as $entry) {
-                    $voucherDate = $entry["voucher_date"];
-                    foreach ($entry["dr_amount"] as $dr) {
-                        $name = $dr["name"];
-                        $amount = floatval($dr["amount"]);
+                foreach ($ac_head_names as $name) {
+                    $total = 0;
                 
-                        // Combine name and voucher_date as the key
-                        $key = "$voucherDate - $name";
-                
-                        // Initialize the total if it doesn't exist
-                        if (!isset($totals[$key])) {
-                            $totals[$key] = [
-                                "name" => $name,
-                                "voucher_date" => $voucherDate,
-                                "amount" => 0.0
-                            ];
+                    foreach ($filteredLedgerData2 as $entry) {
+                        foreach ($entry["dr_amount"] as $dr) {
+                            if ($dr["name"] === $name) {
+                                $total += floatval($dr["amount"]);
+                            }
                         }
                 
-                        // Update the total amount
-                        $totals[$key]["amount"] += $amount;
-                    }
-                
-                    foreach ($entry["cr_amount"] as $cr) {
-                        $name = $cr["name"];
-                        $amount = floatval($cr["amount"]);
-                
-                        // Combine name and voucher_date as the key
-                        $key = "$voucherDate - $name";
-                
-                        // Initialize the total if it doesn't exist
-                        if (!isset($totals[$key])) {
-                            $totals[$key] = [
-                                "name" => $name,
-                                "voucher_date" => $voucherDate,
-                                "amount" => 0.0
-                            ];
+                        foreach ($entry["cr_amount"] as $cr) {
+                            if ($cr["name"] === $name) {
+                                $total -= floatval($cr["amount"]);
+                            }
                         }
-                
-                        // Update the total amount (subtract for credit)
-                        $totals[$key]["amount"] -= $amount;
                     }
+                
+                    $totals[] = [
+                        "name" => $name,
+                        "amount" => $total
+                    ];
                 }
                 
+                // Remove entries with zero amounts
+                $totals = array_filter($totals, function ($item) {
+                    return floatval($item["amount"]) != 0;
+                });
+                
                 // Convert the result into a list of associative arrays
-                $result = array_values($totals);
+                // $result = array_values($totals);
+                // dd($totals);
                 // Output the filtered ledger data
-                return view('super_admin.core_accounting.account_reports.control_ac_ledger', ['ledgerData' => $result, 'accounts' => $accounts, 'controlACName' => $selectedAccountName, 'startDate' => $startDate, 'endDate' => $endDate]);
+                return view('super_admin.core_accounting.account_reports.control_ac_ledger', ['ledgerData' => $totals, 'accounts' => $accounts, 'controlACName' => $selectedAccountName, 'startDate' => $startDate, 'endDate' => $endDate]);
             }
 
             // Handle GET request
             return view('super_admin.core_accounting.account_reports.control_ac_ledger', ['accounts' => $accounts, 'ledgerData' => null]);
             // return view('super_admin.core_accounting.account_reports.control_ac_ledger');
         }
-  
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
