@@ -433,9 +433,9 @@ class CoreAccountingController extends Controller
             $voucher_entries = voucher_entry::where('status', '!=', 'Multiple')->orderByDesc('id')->get();
             $account_heads = account_head::all();
             $data = DB::table('voucher_entry')
-                                ->select('voucher_type', DB::raw('MAX(voucher_no) as last_voucher_no'))
-                                ->groupBy('voucher_type')
-                                ->get();
+                ->select('voucher_type', DB::raw('MAX(voucher_no) as last_voucher_no'))
+                ->groupBy('voucher_type')
+                ->get();
 
             foreach ($data as $row) {
                 $lastVoucherNo = $row->last_voucher_no;
@@ -668,16 +668,17 @@ class CoreAccountingController extends Controller
         // $lastVoucherNo = voucher_entry::max('voucher_no');
         // $nextVoucherNo = $lastVoucherNo ? $lastVoucherNo + 1 : 1;
         $data2 = DB::table('voucher_entry')
-            ->select(DB::raw('MAX(voucher_no) as last_voucher_no'))
-            ->where('voucher_type', 'Receipt Voucher') // Add this line to filter by voucher type
-            ->groupBy('voucher_type')
+            ->select('voucher_no')
+            ->where('voucher_no', 'like', 'r_%')
+            ->orderBy('voucher_date', 'desc')
+            ->limit(1)
             ->get();
 
         $number = 0;
 
         foreach ($data2 as $row) {
-            if($row->last_voucher_no) {
-                $lastVoucherNo = $row->last_voucher_no;
+            if($row->voucher_no) {
+                $lastVoucherNo = $row->voucher_no;
             }
             else {
                 $lastVoucherNo = "r_0";
@@ -690,6 +691,8 @@ class CoreAccountingController extends Controller
 
             $nextVoucherNo = $number;
         }
+
+        // return response()->json(['data' => $nextVoucherNo]);
 
         $dr_arr = [];
         $cr_arr = [];
