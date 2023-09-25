@@ -30,6 +30,7 @@
           </form>
           <br>
           <div class="row">
+             @if($data)
               <div class="col-12">
                   <div id="result-container">
                       <div style="float:right; margin-right:20%;">
@@ -89,8 +90,8 @@
                                                         @endphp
                                                         @foreach ($data as $item)
                                                             @php
-                                                                $accounts_group_data = $item->accounts_group;
-                                                                $subsidiary_account_name_data = $item->subsidiary_account_name;
+                                                                $accounts_group_data = $item['account_group'];
+                                                                $subsidiary_account_name_data = $item['subsidiary_account_name'];
                                                             @endphp
                                                             @if ($accounts_group_data != $previous_accounts_group)
                                                                 @if($previous_accounts_group != "")
@@ -103,8 +104,8 @@
                                                                     <tr style="border-bottom: 1px solid #000000;">
                                                                         <td><br><br></td>
                                                                         <td>Total &nbsp;&nbsp; {{ $previous_accounts_group }}<br><br></td>
-                                                                        <td style="text-align: right;">{{ $previousDrTotal }}<br><br></td>
-                                                                        <td style="text-align: right;">{{ $previousCrTotal }}<br><br></td>
+                                                                        <td style="text-align: right;">{{ $drTotal }}<br><br></td>
+                                                                        <td style="text-align: right;">{{ abs($crTotal) }}<br><br></td>
                                                                     </tr>
                                                                 @endif
                                                                 @php
@@ -112,7 +113,7 @@
                                                                     $crTotal = 0;
                                                                 @endphp
                                                                 <tr>
-                                                                    <td><b>{{ $item->accounts_group }}</b></td>
+                                                                    <td><b>{{ $item['name'] }}</b></td>
                                                                     <td></td>
                                                                     <td></td>
                                                                     <td></td>
@@ -120,12 +121,12 @@
                                                             @endif
 
                                                             @php
-                                                                $previous_accounts_group = $item->accounts_group;
+                                                                $previous_accounts_group = $item['account_group'];
                                                             @endphp
 
                                                             @if ($subsidiary_account_name_data != $previous_subsidiary_account_name)
                                                                 <tr>
-                                                                    <td><strong>{{ $item->subsidiary_account_name }}</strong></td>
+                                                                    <td><strong>{{ $item['subsidiary_account_name'] }}</strong></td>
                                                                     <td></td>
                                                                     <td></td>
                                                                     <td></td>
@@ -133,39 +134,32 @@
                                                             @endif
 
                                                             @php
-                                                                $previous_subsidiary_account_name = $item->subsidiary_account_name;
+                                                                $previous_subsidiary_account_name = $item['subsidiary_account_name'];
                                                             @endphp
 
                                                             <tr>
-                                                                <td>{{ $item->account_name }}</td>
+                                                                <td>{{ $item['name'] }}</td>
                                                                 <td></td>
-                                                                <td style="text-align: right;">{{ $item->drAmount }}</td>
-                                                                <td style="text-align: right;">{{ $item->crAmount }}</td>
+                                                                @php
+                                                                    if($item['amount'] > 0) {
+                                                                    $drTotal = $drTotal + $item['amount'];
+                                                                    $grandTotaldr = $grandTotaldr + $item['amount'];
+                                                                @endphp
+                                                                <td style="text-align: right;">{{ $item['amount'] }}</td>
+                                                                <td style="text-align: right;"> 0 </td>
+                                                                @php
+                                                                    } else {
+                                                                        $crTotal = $crTotal + $item['amount'];
+                                                                        $grandTotalcr = $grandTotalcr + $item['amount'];
+                                                                @endphp
+                                                                <td style="text-align: right;"> 0 </td>
+                                                                <td style="text-align: right;">{{ abs($item['amount']) }}</td>
+                                                                @php
+                                                                    }
+                                                                @endphp
                                                             </tr>
 
-                                                            @php
-                                                                $drTotal += $item->drAmount;
-                                                                $crTotal += $item->crAmount;
-                                                                $previousDrTotal = $drTotal;
-                                                                $previousCrTotal = $crTotal;
-                                                                $grandTotaldr = $grandTotaldr + $item->drAmount;
-                                                                $grandTotalcr = $grandTotalcr + $item->crAmount;
-                                                            @endphp
-
-                                                            @if ($loop->last)
-                                                                <tr>
-                                                                    <td></td>
-                                                                    <td></td>
-                                                                    <td><hr></td>
-                                                                    <td><hr></td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td><br><br></td>
-                                                                    <td>Total &nbsp;&nbsp; {{ $previous_accounts_group }}<br><br></td>
-                                                                    <td style="text-align: right;">{{ $previousDrTotal }}<br><br></td>
-                                                                    <td style="text-align: right;">{{ $previousCrTotal }}<br><br></td>
-                                                                </tr>
-                                                            @endif
+                                                            
                                                         @endforeach
                                                     </tbody>
                                                 </table>
@@ -177,7 +171,7 @@
                                                             <td style="width: 40%;"></td>
                                                             <td style="width: 20%; font-size: 10pt;"><b>Grand Total</b></td>
                                                             <td style="width: 20%; font-size: 10pt; text-align: right;"><b>{{ $grandTotaldr }}</b></td>
-                                                            <td style="width: 20%; font-size: 10pt; text-align: right;"><b>{{ $grandTotalcr }}</b></td>
+                                                            <td style="width: 20%; font-size: 10pt; text-align: right;"><b>{{ abs($grandTotalcr) }}</b></td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
@@ -208,6 +202,11 @@
                       </div>
                   </div>
               </div>
+              @else
+                <div class="col-12">
+                  <div id="result-container"> Now Data Found</div>
+                </div>
+              @endif
           </div>
         @include('layout.footer')
       </div>
