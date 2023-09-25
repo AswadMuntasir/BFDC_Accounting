@@ -667,30 +667,26 @@ class CoreAccountingController extends Controller
 
         // $lastVoucherNo = voucher_entry::max('voucher_no');
         // $nextVoucherNo = $lastVoucherNo ? $lastVoucherNo + 1 : 1;
-        $data2 = DB::table('voucher_entry')
-            ->select('voucher_no')
-            ->where('voucher_no', 'like', 'r_%')
-            ->orderBy('voucher_date', 'desc')
-            ->limit(1)
-            ->get();
-
+        $data2 = voucher_entry:: where('voucher_no', 'LIKE', 'r_%')
+            ->orderByRaw('CAST(SUBSTRING(voucher_no, 3) AS UNSIGNED) DESC')
+            ->first();
+        $highestVoucherNo = $data2->voucher_no;
+            // return response()->json(['data' => $highestVoucherNo]);
         $number = 0;
 
-        foreach ($data2 as $row) {
-            if($row->voucher_no) {
-                $lastVoucherNo = $row->voucher_no;
-            }
-            else {
-                $lastVoucherNo = "r_0";
-            }
-            $prefix = substr($lastVoucherNo, 0, 1);
-            $number = intval(substr($lastVoucherNo, 2)) + 1;
-
-            $nextVoucherNo1 = $prefix . '_' . $number;
-            $row->next_voucher_no = $number;
-
-            $nextVoucherNo = $number;
+        if($highestVoucherNo) {
+            $lastVoucherNo = $highestVoucherNo;
         }
+        else {
+            $lastVoucherNo = "r_0";
+        }
+        $prefix = substr($lastVoucherNo, 0, 1);
+        $number = intval(substr($lastVoucherNo, 2)) + 1;
+
+        $nextVoucherNo1 = $prefix . '_' . $number;
+        // $row->next_voucher_no = $number;
+
+        $nextVoucherNo = $number;
 
         // return response()->json(['data' => $nextVoucherNo]);
 
