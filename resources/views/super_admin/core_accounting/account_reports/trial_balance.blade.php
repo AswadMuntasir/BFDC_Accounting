@@ -146,14 +146,21 @@
                                                                     $grandTotaldr = $grandTotaldr + $item['amount'];
                                                                 @endphp
                                                                 <td style="text-align: right;">{{ $item['amount'] }}</td>
-                                                                <td style="text-align: right;"> 0 </td>
+                                                                <td style="text-align: right;"> - </td>
                                                                 @php
-                                                                    } else {
+                                                                    } else if($item['amount'] < 0) {
                                                                         $crTotal = $crTotal + $item['amount'];
                                                                         $grandTotalcr = $grandTotalcr + $item['amount'];
                                                                 @endphp
-                                                                <td style="text-align: right;"> 0 </td>
+                                                                <td style="text-align: right;"> - </td>
                                                                 <td style="text-align: right;">{{ abs($item['amount']) }}</td>
+                                                                @php
+                                                                    }else {
+                                                                        $crTotal = $crTotal + $item['amount'];
+                                                                        $grandTotalcr = $grandTotalcr + $item['amount'];
+                                                                @endphp
+                                                                <td style="text-align: right;"> - </td>
+                                                                <td style="text-align: right;"> - </td>
                                                                 @php
                                                                     }
                                                                 @endphp
