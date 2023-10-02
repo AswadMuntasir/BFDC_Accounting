@@ -113,7 +113,7 @@
                                                                     $crTotal = 0;
                                                                 @endphp
                                                                 <tr>
-                                                                    <td><b>{{ $item['name'] }}</b></td>
+                                                                    <td><b>{{ $item['account_group'] }}</b></td>
                                                                     <td></td>
                                                                     <td></td>
                                                                     <td></td>

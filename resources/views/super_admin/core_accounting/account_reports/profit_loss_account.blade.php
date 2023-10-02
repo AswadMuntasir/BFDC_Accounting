@@ -75,79 +75,79 @@
                                                     </thead>
                                                     <tbody>
                                                         @php
-                                                            $total = 0;
-                                                            $previousTotal = 0;
-                                                            $previous_accounts_group = "";
-                                                            $previous_subsidiary_account_name = "";
+                                                            $incomeData = collect($data)->where('account_group', 'Income');
+                                                            $otherIncomeData = $incomeData->where('subsidiary_account_name', 'Others Income');
                                                         @endphp
-                                                        @foreach ($data as $item)
-                                                            @php
-                                                                $accounts_group_data = $item['account_group'];
-                                                                $subsidiary_account_name_data = $item['subsidiary_account_name'];
-                                                            @endphp
-                                                            @if ($accounts_group_data != $previous_accounts_group)
-                                                                @if($previous_accounts_group != "")
-                                                                    <tr>
-                                                                        <td></td>
-                                                                        <td></td>
-                                                                        <td><hr></td>
-                                                                    </tr>
-                                                                    <tr style="border-bottom: 1px solid #000000;">
-                                                                        <td><br><br></td>
-                                                                        <td>Total &nbsp;&nbsp; {{ $previous_accounts_group }}<br><br></td>
-                                                                        <td style="text-align: right;">{{ total }}<br><br></td>
-                                                                    </tr>
-                                                                @endif
-                                                                @php
-                                                                    $total = 0;
-                                                                @endphp
-                                                                <tr>
-                                                                    <td><b>{{ $item['name'] }}</b></td>
-                                                                    <td></td>
-                                                                    <td></td>
-                                                                </tr>
-                                                            @endif
-
-                                                            @php
-                                                                $previous_accounts_group = $item['account_group'];
-                                                            @endphp
-
-                                                            @if ($subsidiary_account_name_data != $previous_subsidiary_account_name)
-                                                                <tr>
-                                                                    <td><strong>{{ $item['subsidiary_account_name'] }}</strong></td>
-                                                                    <td></td>
-                                                                    <td></td>
-                                                                </tr>
-                                                            @endif
-
-                                                            @php
-                                                                $previous_subsidiary_account_name = $item['subsidiary_account_name'];
-                                                            @endphp
-
-                                                            <tr>
-                                                                <td>{{ $item['name'] }}</td>
-                                                                <td></td>
-                                                                @php
-                                                                    $total = $total + $item['amount'];
-                                                                @endphp
-                                                                <td style="text-align: right;">{{ $item['amount'] }}</td>
-                                                            </tr>
-
-                                                            
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
-                                              </div>
-                                              <div class="col-12">
-                                                <table style="width: 100%;">
-                                                    <tbody>
                                                         <tr>
-                                                            <td style="width: 40%;"></td>
-                                                            <td style="width: 20%; font-size: 10pt;"><b>Grand Total</b></td>
-                                                            <td style="width: 20%; font-size: 10pt; text-align: right;"><b>{{ $total }}</b></td>
+                                                            <td style="font-size: 14px;"><b>Income</b></td>
+                                                            <td></td>
+                                                            <td></td>
+                                                        </tr>
+                                                        @foreach ($otherIncomeData as $item)
+                                                        <tr>
+                                                            <td>{{ $item['name'] }}</td>
+                                                            <td></td>
+                                                            <td style="text-align: right;">{{ number_format($item['amount'], 2) }}</td>
+                                                        </tr>
+                                                        @endforeach
+                                                        <tr>
+                                                            <td></td>
+                                                            <td style="text-align: right; padding-top: 10px;"><b>Total</b></td>
+                                                            <td style="text-align: right; padding-top: 10px; border-top: 1px solid #000000;">{{ number_format($otherIncomeData->sum('amount'), 2) }}</td>
+                                                        </tr>
+
+                                                        @php
+                                                            $expensesData = collect($data)->where('account_group', 'Expenses');
+                                                            $administrativeExpenditureData = $expensesData->where('subsidiary_account_name', 'Administrative Expenditure');
+                                                            $nonOperatingExpenditureData = $expensesData->where('subsidiary_account_name', 'Non-operating Expenses');
+                                                        @endphp
+                                                        <tr>
+                                                            <td style="font-size: 14px;"><b>Less: Expenditure</b></td>
+                                                            <td></td>
+                                                            <td></td>
+                                                        </tr>
+                                                        @foreach ($administrativeExpenditureData as $item)
+                                                        <tr>
+                                                            <td>{{ $item['name'] }}</td>
+                                                            <td></td>
+                                                            <td style="text-align: right;">{{ number_format($item['amount'], 2) }}</td>
+                                                        </tr>
+                                                        @endforeach
+                                                        <tr>
+                                                            <td></td>
+                                                            <td style="text-align: right; padding-top: 10px; padding-bottom: 10px;"><b>Total</b></td>
+                                                            <td style="text-align: right; padding-top: 10px; padding-bottom: 10px; border-top: 2px solid #000000;">{{ number_format($administrativeExpenditureData->sum('amount'), 2) }}</td>
+                                                        </tr>
+
+                                                        @foreach ($nonOperatingExpenditureData as $item)
+                                                        <tr>
+                                                            <td>{{ $item['name'] }}</td>
+                                                            <td></td>
+                                                            <td style="text-align: right;">{{ number_format($item['amount'], 2) }}</td>
+                                                        </tr>
+                                                        @endforeach
+                                                        @php
+                                                            if(sizeof($nonOperatingExpenditureData) > 0) {
+                                                        @endphp
+                                                        <tr>
+                                                            <td></td>
+                                                            <td style="text-align: right; padding-top: 10px; padding-bottom: 10px;"><b>Total</b></td>
+                                                            <td style="text-align: right; padding-top: 10px; padding-bottom: 10px; border-top: 2px solid #000000;">{{ number_format($nonOperatingExpenditureData->sum('amount'), 2) }}</td>
+                                                        </tr>
+                                                        @php
+                                                            }
+                                                        @endphp
+                                                        
+                                                        <tr>
+                                                            <td style="width: 50%; font-size: 9pt; padding-top: 18px;"><b>Balance Transferred to Balance Sheet</b></td>
+                                                            <td style="width: 20%; font-size: 9pt;"></td>
+                                                            <td style="width: 30%; font-size: 9pt; text-align: right; padding-top: 3px; border-top: 1px solid #000000;"><hr style="color: #000000; margin-top: 0px;"><b>{{ number_format(($otherIncomeData->sum('amount') - $administrativeExpenditureData->sum('amount') - $nonOperatingExpenditureData->sum('amount')), 2) }}</b></td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
+                                                <br>
+                                              </div>
+                                              <div class="col-12">
                                                 <br><br><br>
                                               </div>
                                             <div class="col-3" style="text-align: center; font-size: 8pt;">

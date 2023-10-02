@@ -2492,10 +2492,284 @@ class CoreAccountingController extends Controller
     public function profitLossCalculation($startDate, $endDate) {
         $all_contol_names = control_ac::distinct()
             ->select('accounts_group', 'subsidiary_account_name', 'account_name')
-            ->where('accounts_group', 'Income')
+            ->whereIn('subsidiary_account_name', ['Sales and Services', 'Services', 'Operational Expenditure'])
             ->get()
             ->toArray();
+        
+        $leftover_contol_names = control_ac::distinct()
+            ->select('accounts_group', 'subsidiary_account_name', 'account_name')
+            ->whereIn('subsidiary_account_name', ['Others Income', 'Non-operating Expenses', 'Administrative Expenditure'])
+            ->get()
+            ->toArray();
+        // dd($all_contol_names);
+        $ledgerData = DB::table('voucher_entry')
+            ->whereBetween('voucher_date', [$startDate, $endDate])
+            ->select('voucher_no', 'description', 'dr_amount', 'cr_amount', 'voucher_date')
+            ->whereIn('status', ['pending', 'Done'])
+            ->get();
+
+        $tradingProfit[] = [
+            'account_group' => 'Income',
+            'subsidiary_account_name' => 'Others Income',
+            'name' => 'Trading Profit',
+            'amount' => $this->tradingAccountReutrnForProfitAndLoss($all_contol_names, $ledgerData)
+        ];
+
+        $final_data = [];
+        foreach ($leftover_contol_names as $all_contol_name) {
+            $acHeadNames = account_head::distinct()
+                ->select('ac_head.ac_head_name_eng')
+                ->join('control_ac', 'ac_head.control_ac_id', '=', 'control_ac.account_id')
+                ->join('subsidiary_ac', 'control_ac.subsidiary_account_name', '=', 'subsidiary_ac.account_name')
+                ->where('subsidiary_ac.account_name', '=', $all_contol_name['subsidiary_account_name'])
+                ->get()
+                ->pluck('ac_head_name_eng')
+                ->toArray();
+
+            $controlACNames = account_head::distinct()
+                ->select('ac_head.ac_head_name_eng', 'control_ac.account_name')
+                ->join('control_ac', 'ac_head.control_ac_id', '=', 'control_ac.account_id')
+                ->join('subsidiary_ac', 'control_ac.subsidiary_account_name', '=', 'subsidiary_ac.account_name')
+                ->where('subsidiary_ac.account_name', '=', $all_contol_name['subsidiary_account_name'])
+                ->get()
+                ->toArray();
             
+            $filteredLedgerData = $this->ledgerDataManupulation($ledgerData, "", $acHeadNames);
+
+            $totals = [];
+            foreach ($acHeadNames as $name) {
+                $total = 0;
+            
+                foreach ($filteredLedgerData as $entry) {
+                    foreach ($entry->dr_amount as $dr) {
+                        if ($dr->name === $name) {
+                            $total += floatval($dr->amount);
+                        }
+                    }
+            
+                    foreach ($entry->cr_amount as $cr) {
+                        if ($cr->name === $name) {
+                            $total -= floatval($cr->amount);
+                        }
+                    }
+                }
+            
+                $totals[] = [
+                    "name" => $name,
+                    "amount" => $total
+                ];
+            }
+            
+            // Remove entries with zero amounts
+            $totals = array_filter($totals, function ($item) {
+                return floatval($item["amount"]) != 0;
+            });
+
+            $accumulatedAmounts = [];
+
+            // Loop through data2 to accumulate amounts
+            foreach ($totals as $item2) {
+                $name2 = $item2['name'];
+                $amount2 = $item2['amount'];
+
+                // Find the corresponding "ac_head_name_eng" in data1
+                $matchingItem1 = null;
+                foreach ($controlACNames as $item1) {
+                    if ($item1['ac_head_name_eng'] === $name2) {
+                        $matchingItem1 = $item1;
+                        break;
+                    }
+                }
+
+                if ($matchingItem1) {
+                    $accountName = $matchingItem1['account_name'];
+                    // Accumulate the amount based on "account_name"
+                    if (!isset($accumulatedAmounts[$accountName])) {
+                        $accumulatedAmounts[$accountName] = 0;
+                    }
+                    $accumulatedAmounts[$accountName] += $amount2;
+                }
+            }
+
+            // Create the final output array
+            $output = [];
+            foreach ($accumulatedAmounts as $accountName => $amount) {
+                $output[] = [
+                    'account_group' => $all_contol_name['accounts_group'],
+                    'subsidiary_account_name' => $all_contol_name['subsidiary_account_name'],
+                    'name' => $accountName,
+                    'amount' => $amount,
+                ];
+            }
+
+            // Convert the associative array to indexed array
+            $output = array_values($output);
+            $final_data = array_merge($final_data, $output);
+            // dd($output);
+        }
+
+        $uniqueData = [];
+        foreach ($final_data as $item) {
+            $key = $item['account_group'] . $item['subsidiary_account_name'] . $item['name'] . $item['amount'];
+            if (!isset($uniqueData[$key])) {
+                $uniqueData[$key] = $item;
+            }
+        }
+
+        $final_data = array_values($uniqueData);
+        $consolidatedData = array_merge($tradingProfit, $final_data);
+        // dd($consolidatedData);
+        return $consolidatedData;
+    }
+
+    public function tradingAccountReutrnForProfitAndLoss($all_contol_names, $ledgerData) {
+        $final_data = [];
+
+        foreach ($all_contol_names as $all_contol_name) {
+            $acHeadNames = account_head::distinct()
+                ->select('ac_head.ac_head_name_eng')
+                ->join('control_ac', 'ac_head.control_ac_id', '=', 'control_ac.account_id')
+                ->join('subsidiary_ac', 'control_ac.subsidiary_account_name', '=', 'subsidiary_ac.account_name')
+                ->where('subsidiary_ac.account_name', '=', $all_contol_name['subsidiary_account_name'])
+                ->get()
+                ->pluck('ac_head_name_eng')
+                ->toArray();
+
+            $controlACNames = account_head::distinct()
+                ->select('ac_head.ac_head_name_eng', 'control_ac.account_name')
+                ->join('control_ac', 'ac_head.control_ac_id', '=', 'control_ac.account_id')
+                ->join('subsidiary_ac', 'control_ac.subsidiary_account_name', '=', 'subsidiary_ac.account_name')
+                ->where('subsidiary_ac.account_name', '=', $all_contol_name['subsidiary_account_name'])
+                ->get()
+                ->toArray();
+            
+            $filteredLedgerData = $this->ledgerDataManupulation($ledgerData, "", $acHeadNames);
+
+            $totals = [];
+            foreach ($acHeadNames as $name) {
+                $total = 0;
+            
+                foreach ($filteredLedgerData as $entry) {
+                    foreach ($entry->dr_amount as $dr) {
+                        if ($dr->name === $name) {
+                            $total += floatval($dr->amount);
+                        }
+                    }
+            
+                    foreach ($entry->cr_amount as $cr) {
+                        if ($cr->name === $name) {
+                            $total -= floatval($cr->amount);
+                        }
+                    }
+                }
+            
+                $totals[] = [
+                    "name" => $name,
+                    "amount" => $total
+                ];
+            }
+            
+            // Remove entries with zero amounts
+            $totals = array_filter($totals, function ($item) {
+                return floatval($item["amount"]) != 0;
+            });
+
+            $accumulatedAmounts = [];
+
+            // Loop through data2 to accumulate amounts
+            foreach ($totals as $item2) {
+                $name2 = $item2['name'];
+                $amount2 = $item2['amount'];
+
+                // Find the corresponding "ac_head_name_eng" in data1
+                $matchingItem1 = null;
+                foreach ($controlACNames as $item1) {
+                    if ($item1['ac_head_name_eng'] === $name2) {
+                        $matchingItem1 = $item1;
+                        break;
+                    }
+                }
+
+                if ($matchingItem1) {
+                    $accountName = $matchingItem1['account_name'];
+                    // Accumulate the amount based on "account_name"
+                    if (!isset($accumulatedAmounts[$accountName])) {
+                        $accumulatedAmounts[$accountName] = 0;
+                    }
+                    $accumulatedAmounts[$accountName] += $amount2;
+                }
+            }
+
+            // Create the final output array
+            $output = [];
+            foreach ($accumulatedAmounts as $accountName => $amount) {
+                $output[] = [
+                    'account_group' => $all_contol_name['accounts_group'],
+                    'subsidiary_account_name' => $all_contol_name['subsidiary_account_name'],
+                    'name' => $accountName,
+                    'amount' => $amount,
+                ];
+            }
+
+            // Convert the associative array to indexed array
+            $output = array_values($output);
+            $final_data = array_merge($final_data, $output);
+            // dd($output);
+        }
+
+        $uniqueData = [];
+        $total_amount = 0;
+        foreach ($final_data as $item) {
+            $key = $item['account_group'] . $item['subsidiary_account_name'] . $item['name'] . $item['amount'];
+            if (!isset($uniqueData[$key])) {
+                $uniqueData[$key] = $item;
+            }
+        }
+
+        foreach ($uniqueData as $item) {
+            $total_amount = $total_amount + $item['amount'];
+        }
+
+        return $total_amount;
+    }
+
+    public function trandingAccountView(Request $request)
+    {
+        if (Auth::check()) {
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+    
+            if ($request->isMethod('post')) {
+                // Retrieve form input values
+                $startDate = $request->input('start_date');
+                $endDate = $request->input('end_date');
+
+                $final_data = $this->tradingAccountCalculation($startDate, $endDate);
+                // dd($final_data);
+                return view('super_admin.core_accounting.account_reports.tranding_account', [
+                        'data' => $final_data,
+                        'startDate' => $startDate,
+                        'endtDate' => $endDate
+                ]);
+            } else {
+                return view('super_admin.core_accounting.account_reports.tranding_account', [
+                    'data' => [],
+                    'startDate' => $startDate,
+                    'endtDate' => $endDate
+                ]);
+            }
+        }
+  
+        return redirect("login")->withSuccess('You are not allowed to access');
+    }
+
+    public function tradingAccountCalculation($startDate, $endDate) {
+        $all_contol_names = control_ac::distinct()
+            ->select('accounts_group', 'subsidiary_account_name', 'account_name')
+            ->whereIn('subsidiary_account_name', ['Sales and Services', 'Services', 'Operational Expenditure'])
+            ->get()
+            ->toArray();
+        // dd($all_contol_names);
         $ledgerData = DB::table('voucher_entry')
             ->whereBetween('voucher_date', [$startDate, $endDate])
             ->select('voucher_no', 'description', 'dr_amount', 'cr_amount', 'voucher_date')
@@ -2612,129 +2886,6 @@ class CoreAccountingController extends Controller
         $final_data = array_values($uniqueData);
 
         return $final_data;
-    }
-
-    public function trandingAccountView(Request $request)
-    {
-        if (Auth::check()) {
-            $startDate = $request->input('start_date');
-            $endDate = $request->input('end_date');
-    
-            $records = ($request->isMethod('post'))
-                ? voucher_entry::whereBetween('voucher_date', [$startDate, $endDate])->get()
-                : voucher_entry::all();
-
-            //Control Account and Account Head hable Marged and get data
-            $combine_data = DB::table('control_ac')
-                ->join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
-                ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name', 'ac_head.ac_head_name_eng')
-                ->whereIn('control_ac.subsidiary_account_name', ['Sales and Services', 'Others Income','Services', 'Operational Expendeture', 'Administrative Expendeture'])
-                ->get();
-
-            // dd($combine_data);
-    
-            $drAmountSum = [];
-            $crAmountSum = [];
-            $totalDrAmount = 0;
-            $totalCrAmount = 0;
-            $result = [];
-    
-            foreach ($records as $record) {
-                $drAmount = json_decode($record->dr_amount, true);
-                $crAmount = json_decode($record->cr_amount, true);
-    
-                foreach ($drAmount as $item) {
-                    $name = $item['name'];
-                    $amount = intval($item['amount']);
-    
-                    if (isset($drAmountSum[$name])) {
-                        $drAmountSum[$name] += $amount;
-                    } else {
-                        $drAmountSum[$name] = $amount;
-                    }
-    
-                    $totalDrAmount += $amount;
-                }
-    
-                foreach ($crAmount as $item) {
-                    $name = $item['name'];
-                    $amount = intval($item['amount']);
-    
-                    if (isset($crAmountSum[$name])) {
-                        $crAmountSum[$name] += $amount;
-                    } else {
-                        $crAmountSum[$name] = $amount;
-                    }
-    
-                    $totalCrAmount += $amount;
-                }
-            }
-    
-            foreach ($drAmountSum as $name => $drAmount) {
-                $crAmount = isset($crAmountSum[$name]) ? $crAmountSum[$name] : 0;
-                $result[] = ['name' => $name, 'drAmount' => $drAmount, 'crAmount' => $crAmount];
-            }
-    
-            // Add the remaining crAmount entries that do not have a corresponding drAmount entry
-            foreach ($crAmountSum as $name => $crAmount) {
-                if (!isset($drAmountSum[$name])) {
-                    $result[] = ['name' => $name, 'drAmount' => 0, 'crAmount' => $crAmount];
-                }
-            }
-
-            foreach ($combine_data as &$item) {
-                $found = false;
-                foreach ($result as $entry) {
-                    if ($entry['name'] === $item->ac_head_name_eng) {
-                        $item->drAmount = $entry['drAmount'];
-                        $item->crAmount = $entry['crAmount'];
-                        $found = true;
-                        break;
-                    }
-                }
-                if (!$found) {
-                    $item->drAmount = 0;
-                    $item->crAmount = 0;
-                }
-            }
-            
-            $final_data = [];
-            
-            foreach ($combine_data as $item) {
-                $accountName = $item->account_name;
-            
-                if (isset($final_data[$accountName])) {
-                    // dd($final_data[$accountName], $item->drAmount);
-                    // If account_name already exists in final_data, add the values
-                    $final_data[$accountName]->totalAmount = $final_data[$accountName]->totalAmount + $item->drAmount - $item->crAmount;
-                } else {
-                    // If account_name doesn't exist, create a new entry
-                    $final_data[$accountName] = (object) [
-                        "accounts_group" => $item->accounts_group,
-                        "subsidiary_account_name" => $item->subsidiary_account_name,
-                        "account_name" => $item->account_name,
-                        "totalAmount" => intval($item->drAmount) - intval($item->crAmount)
-                    ];
-                }
-            }
-            
-            $combinedItems = array_values($final_data);
-
-            // dd($combinedItems);
-
-            $sortedData = collect($combinedItems)->sortBy([
-                ["accounts_group", "asc"],
-                ["subsidiary_account_name", "asc"],
-            ]);
-    
-            return view('super_admin.core_accounting.account_reports.tranding_account', [
-                'data' => $sortedData,
-                'startDate' => $startDate,
-                'endtDate' => $endDate
-            ]);
-        }
-  
-        return redirect("login")->withSuccess('You are not allowed to access');
     }
 
     public function balanceSheetView(Request $request)
