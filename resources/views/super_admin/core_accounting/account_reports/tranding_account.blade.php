@@ -28,8 +28,9 @@
                   </div>
               </div>
           </form>
-          <br>
+          <br>      
           <div class="row">
+              @if($data)
               <div class="col-12">
                   <div id="result-container">
                       <div style="float:right; margin-right:20%;">
@@ -175,6 +176,11 @@
                       </div>
                   </div>
               </div>
+              @else
+                <div class="col-12">
+                  <div id="result-container"> Now Data Found</div>
+                </div>
+              @endif
           </div>
         @include('layout.footer')
       </div>
