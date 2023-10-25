@@ -1828,7 +1828,7 @@ class CoreAccountingController extends Controller
                 //     ->get();
                 $ledgerData = DB::table('voucher_entry')
                     ->select('voucher_no', 'description', 'voucher_date', 'dr_amount', 'cr_amount')
-                    ->whereBetween('voucher_date', ['2023-07-01', '2023-07-31'])
+                    ->whereBetween('voucher_date', [$startDate, $endDate])
                     ->whereIn('status', ['pending', 'Done', 'Pending'])
                     ->where(function ($query) use ($name) {
                         $query->where(function ($query) use ($name) {
