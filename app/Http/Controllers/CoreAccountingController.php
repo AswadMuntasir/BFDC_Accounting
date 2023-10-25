@@ -1818,11 +1818,24 @@ class CoreAccountingController extends Controller
                 $endDate = $request->endDate;
                 $name1 = $request->name1;
 
+                // dd($name);
+
+                // $ledgerData = DB::table('voucher_entry')
+                //     ->whereBetween('voucher_date', [$startDate, $endDate])
+                //     ->select('voucher_no', 'description', 'voucher_date', 'dr_amount', 'cr_amount')
+                //     ->whereIn('status', ['pending', 'Done'])
+                //     ->whereIn('voucher_type', ['Journal', 'Receipt Voucher', 'Advanced Payment', 'Adjustment'])
+                //     ->get();
                 $ledgerData = DB::table('voucher_entry')
-                    ->whereBetween('voucher_date', [$startDate, $endDate])
                     ->select('voucher_no', 'description', 'voucher_date', 'dr_amount', 'cr_amount')
+                    ->whereBetween('voucher_date', ['2023-07-01', '2023-07-31'])
                     ->whereIn('status', ['pending', 'Done'])
-                    ->whereIn('voucher_type', ['Journal', 'Receipt Voucher', 'Advanced Payment', 'Adjustment'])
+                    ->where(function ($query) use ($name) {
+                        $query->where(function ($query) use ($name) {
+                            $query->where('voucher_type', 'Journal')
+                                ->where('party', $name);
+                        })->orWhereIn('voucher_type', ['Receipt Voucher', 'Advanced Payment', 'Adjustment']);
+                    })
                     ->get();
 
                 $selectedAccountName = [
@@ -1835,8 +1848,8 @@ class CoreAccountingController extends Controller
                     "Bills Receivable Of Multichannel Slipway",
                     "Bills Receivable Of Water  ( T-head Jetty)"
                 ];
-
-                $sortedLedgerData = $this->ledgerDataManupulation($ledgerData, $name1, $selectedAccountName);
+                // dd($ledgerData);
+                $sortedLedgerData = $this->ledgerDataManupulation($ledgerData, $name, $selectedAccountName);
                 // dd($sortedLedgerData);
                 return view('super_admin.core_accounting.account_reports.party_ledger')->with('ledgerData', $sortedLedgerData)->with('parties', $parties)->with('partyName', $name)->with('startDate', $startDate)->with('endDate', $endDate);
             } else {
