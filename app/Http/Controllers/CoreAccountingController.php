@@ -1826,6 +1826,18 @@ class CoreAccountingController extends Controller
                 //     ->whereIn('status', ['pending', 'Done'])
                 //     ->whereIn('voucher_type', ['Journal', 'Receipt Voucher', 'Advanced Payment', 'Adjustment'])
                 //     ->get();
+
+                // $ledgerData = DB::table('voucher_entry')
+                //     ->select('voucher_no', 'description', 'voucher_date', 'dr_amount', 'cr_amount')
+                //     ->whereBetween('voucher_date', [$startDate, $endDate])
+                //     ->whereIn('status', ['pending', 'Done', 'Pending'])
+                //     ->where(function ($query) use ($name) {
+                //         $query->where(function ($query) use ($name) {
+                //             $query->where('voucher_type', 'Journal')
+                //                 ->where('party', $name);
+                //         })->orWhereIn('voucher_type', ['Receipt Voucher', 'Advanced Payment', 'Adjustment']);
+                //     })
+                //     ->get();
                 $ledgerData = DB::table('voucher_entry')
                     ->select('voucher_no', 'description', 'voucher_date', 'dr_amount', 'cr_amount')
                     ->whereBetween('voucher_date', [$startDate, $endDate])
@@ -1834,7 +1846,25 @@ class CoreAccountingController extends Controller
                         $query->where(function ($query) use ($name) {
                             $query->where('voucher_type', 'Journal')
                                 ->where('party', $name);
-                        })->orWhereIn('voucher_type', ['Receipt Voucher', 'Advanced Payment', 'Adjustment']);
+                        })->orWhere(function ($query) use ($name) {
+                            $query->where('voucher_type', 'Receipt Voucher')
+                                ->where(function ($query) use ($name) {
+                                    $query->where(function ($query) use ($name) {
+                                        $query->where(function ($query) use ($name) {
+                                            $query->where('description', 'not like', 'Multiple vouchers added:%')
+                                                ->where('description', 'not like', 'Voucher ID:%')
+                                                ->where('party', $name);
+                                        })->orWhere(function ($query) {
+                                            $query->where(function ($query) {
+                                                $query->where('description', 'like', 'Multiple vouchers added:%')
+                                                    ->orWhere('description', 'like', 'Voucher ID:%');
+                                            });
+                                        });
+                                    });
+                                });
+                        })->orWhere(function ($query) {
+                            $query->whereIn('voucher_type', ['Advanced Payment', 'Adjustment']);
+                        });
                     })
                     ->get();
 
