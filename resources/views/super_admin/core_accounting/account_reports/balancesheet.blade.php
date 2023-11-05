@@ -31,6 +31,7 @@
       <br>
 
       <div class="row">
+        @if($data)
         <div class="col-12">
             <div id="result-container">
                 <div style="float:right; margin-right:20%;">
@@ -172,6 +173,32 @@
                                                           </tr>
                                                       @endif
                                                   @endforeach
+                                                  @foreach($profit_loss_formattedData as $profit_loss_Data)
+                                                    <tr>
+                                                        <td><strong>Provision For Adiustiment</strong></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Profit & Loss</td>
+                                                        <td></td>
+                                                        <td style="text-align: right;">{{ $profit_loss_Data['totalAmount'] }}<br><br></td>
+                                                    </tr>
+                                                    @php
+                                                        $previousDrTotal = $previousDrTotal + $profit_loss_Data['totalAmount'];
+                                                        $grandTotaldr = $grandTotaldr + $profit_loss_Data['totalAmount'];
+                                                    @endphp
+                                                  @endforeach
+                                                    <tr>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td><hr></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><br><br></td>
+                                                        <td>Total<br><br></td>
+                                                        <td style="text-align: right;">{{ $previousDrTotal }}<br><br></td>
+                                                    </tr>
                                               </tbody>
                                           </table>
                                         </div>
@@ -211,6 +238,11 @@
                 </div>
             </div>
         </div>
+        @else
+        <div class="col-12">
+            <div id="result-container"> Now Data Found</div>
+        </div>
+        @endif
       </div>
       @include('layout.footer')
     </div>

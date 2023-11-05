@@ -138,6 +138,27 @@
                                                         @php
                                                             }
                                                         @endphp
+                                                        <tr>
+                                                            <td>Add. Non Operating lncome</td>
+                                                            <td></td>
+                                                            <td style="text-align: right;">0.00</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Less. Depreciation</td>
+                                                            <td></td>
+                                                            <td style="text-align: right;">0.00</td>
+                                                        </tr>
+                                                        @php
+                                                            if(sizeof($nonOperatingExpenditureData) > 0) {
+                                                        @endphp
+                                                        <tr>
+                                                            <td></td>
+                                                            <td style="text-align: right; padding-top: 10px; padding-bottom: 10px;"><b>Total</b></td>
+                                                            <td style="text-align: right; padding-top: 10px; padding-bottom: 10px; border-top: 2px solid #000000;">{{ number_format($nonOperatingExpenditureData->sum('amount'), 2) }}</td>
+                                                        </tr>
+                                                        @php
+                                                            }
+                                                        @endphp
                                                         
                                                         <tr>
                                                             <td style="width: 50%; font-size: 9pt; padding-top: 18px;"><b>Balance Transferred to Balance Sheet</b></td>

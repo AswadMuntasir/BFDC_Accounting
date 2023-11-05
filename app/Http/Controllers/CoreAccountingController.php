@@ -1891,6 +1891,7 @@ class CoreAccountingController extends Controller
     }
 
     public function ledgerDataManupulation($ledgerData, $name1, $selectedAccountName){
+        $filteredData = [];
         foreach ($ledgerData as $key => $item) {
             $numbers = [];
             // dd($ledgerData);
@@ -2934,160 +2935,192 @@ class CoreAccountingController extends Controller
     public function balanceSheetView(Request $request)
     {
         if(Auth::check()){
-            $startDate = $request->input('start_date');
-            $endDate = $request->input('end_date');
-    
-            $records = ($request->isMethod('post'))
-                ? voucher_entry::whereBetween('voucher_date', [$startDate, $endDate])->get()
-                : voucher_entry::all();
+            if ($request->isMethod('post')) {
+                $startDate = $request->input('start_date');
+                $endDate = $request->input('end_date');
 
-            //Control Account and Account Head hable Marged and get data
-            $combine_data = DB::table('control_ac')
-                ->join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
-                ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name', 'ac_head.ac_head_name_eng')
-                ->whereIn('control_ac.subsidiary_account_name', ['Current Assets', 'Other Investments', 'Capital & Liabilities','Grant in Aid', 'Current Libilities', 'Provision For Adjustment'])
-                ->get();
+                // $profit_loss_data = $this->profitLossCalculation($startDate, $endDate);
+                $profit_loss_data = $this->profitLossCalculation($startDate, $endDate);
 
-            $fixed_assets_data = DB::table('control_ac')
-                ->join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
-                ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name', 'ac_head.ac_head_name_eng')
-                ->whereIn('control_ac.subsidiary_account_name', ['Fixed Assets'])
-                ->get();
+                // Create an array to store the totals
+                $profit_loss_totals = 0;
 
-            // dd($fixed_assets_data);
-    
-            $drAmountSum = [];
-            $crAmountSum = [];
-            $totalDrAmount = 0;
-            $totalCrAmount = 0;
-            $result = [];
-    
-            foreach ($records as $record) {
-                $drAmount = json_decode($record->dr_amount, true);
-                $crAmount = json_decode($record->cr_amount, true);
-    
-                foreach ($drAmount as $item) {
-                    $name = $item['name'];
-                    $amount = intval($item['amount']);
-    
-                    if (isset($drAmountSum[$name])) {
-                        $drAmountSum[$name] += $amount;
+                foreach ($profit_loss_data as $pl_data) {
+                    $profit_loss_totals += $pl_data["amount"];
+                }
+
+                // Create a single entry for "Profit & Loss" with the total amount
+                $profit_loss_formattedData = [
+                    [
+                        "account_group" => "Provision For Adiustiment",
+                        "subsidiary_account_name" => "Profit & Loss",
+                        "name" => "Profit & Loss",
+                        "totalAmount" => $profit_loss_totals,
+                    ],
+                ];
+        
+                $records = ($request->isMethod('post'))
+                    ? voucher_entry::whereBetween('voucher_date', [$startDate, $endDate])->get()
+                    : voucher_entry::all();
+
+                //Control Account and Account Head hable Marged and get data
+                $combine_data = DB::table('control_ac')
+                    ->join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
+                    ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name', 'ac_head.ac_head_name_eng')
+                    ->whereIn('control_ac.subsidiary_account_name', ['Current Assets', 'Other Investments', 'Capital & Liabilities','Grant in Aid', 'Current Libilities', 'Provision For Adjustment'])
+                    ->get();
+
+                $fixed_assets_data = DB::table('control_ac')
+                    ->join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
+                    ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name', 'ac_head.ac_head_name_eng')
+                    ->whereIn('control_ac.subsidiary_account_name', ['Fixed Assets'])
+                    ->get();
+
+                // dd($fixed_assets_data);
+        
+                $drAmountSum = [];
+                $crAmountSum = [];
+                $totalDrAmount = 0;
+                $totalCrAmount = 0;
+                $result = [];
+        
+                foreach ($records as $record) {
+                    $drAmount = json_decode($record->dr_amount, true);
+                    $crAmount = json_decode($record->cr_amount, true);
+        
+                    foreach ($drAmount as $item) {
+                        $name = $item['name'];
+                        $amount = intval($item['amount']);
+        
+                        if (isset($drAmountSum[$name])) {
+                            $drAmountSum[$name] += $amount;
+                        } else {
+                            $drAmountSum[$name] = $amount;
+                        }
+        
+                        $totalDrAmount += $amount;
+                    }
+        
+                    foreach ($crAmount as $item) {
+                        $name = $item['name'];
+                        $amount = intval($item['amount']);
+        
+                        if (isset($crAmountSum[$name])) {
+                            $crAmountSum[$name] += $amount;
+                        } else {
+                            $crAmountSum[$name] = $amount;
+                        }
+        
+                        $totalCrAmount += $amount;
+                    }
+                }
+        
+                foreach ($drAmountSum as $name => $drAmount) {
+                    $crAmount = isset($crAmountSum[$name]) ? $crAmountSum[$name] : 0;
+                    $result[] = ['name' => $name, 'drAmount' => $drAmount, 'crAmount' => $crAmount];
+                }
+        
+                // Add the remaining crAmount entries that do not have a corresponding drAmount entry
+                foreach ($crAmountSum as $name => $crAmount) {
+                    if (!isset($drAmountSum[$name])) {
+                        $result[] = ['name' => $name, 'drAmount' => 0, 'crAmount' => $crAmount];
+                    }
+                }
+
+                foreach ($combine_data as &$item) {
+                    $found = false;
+                    foreach ($result as $entry) {
+                        if ($entry['name'] === $item->ac_head_name_eng) {
+                            $item->drAmount = $entry['drAmount'];
+                            $item->crAmount = $entry['crAmount'];
+                            $found = true;
+                            break;
+                        }
+                    }
+                    if (!$found) {
+                        $item->drAmount = 0;
+                        $item->crAmount = 0;
+                    }
+                }
+
+                foreach ($fixed_assets_data as &$item) {
+                    $found = false;
+                    foreach ($result as $entry) {
+                        if ($entry['name'] === $item->ac_head_name_eng) {
+                            $item->drAmount = $entry['drAmount'];
+                            $item->crAmount = $entry['crAmount'];
+                            $found = true;
+                            break;
+                        }
+                    }
+                    if (!$found) {
+                        $item->drAmount = 0;
+                        $item->crAmount = 0;
+                    }
+                }
+
+                // dd($fixed_assets_data);
+                $totalDrAmount2 = 0;
+                $totalCrAmount2 = 0;
+
+                foreach ($fixed_assets_data as $item2) {
+                    $totalDrAmount2 += $item2->drAmount;
+                    $totalCrAmount2 += $item2->crAmount;
+                }
+
+                $fixed_assets_output = [
+                    "drAmount" => $totalDrAmount2,
+                    "crAmount" => $totalCrAmount2,
+                ];
+
+                // dd($fixed_assets_output);
+                
+                $final_data = [];
+                
+                foreach ($combine_data as $item) {
+                    $accountName = $item->account_name;
+                
+                    if (isset($final_data[$accountName])) {
+                        // dd($final_data[$accountName], $item->drAmount);
+                        // If account_name already exists in final_data, add the values
+                        $final_data[$accountName]->totalAmount = $final_data[$accountName]->totalAmount + $item->drAmount - $item->crAmount;
                     } else {
-                        $drAmountSum[$name] = $amount;
-                    }
-    
-                    $totalDrAmount += $amount;
-                }
-    
-                foreach ($crAmount as $item) {
-                    $name = $item['name'];
-                    $amount = intval($item['amount']);
-    
-                    if (isset($crAmountSum[$name])) {
-                        $crAmountSum[$name] += $amount;
-                    } else {
-                        $crAmountSum[$name] = $amount;
-                    }
-    
-                    $totalCrAmount += $amount;
-                }
-            }
-    
-            foreach ($drAmountSum as $name => $drAmount) {
-                $crAmount = isset($crAmountSum[$name]) ? $crAmountSum[$name] : 0;
-                $result[] = ['name' => $name, 'drAmount' => $drAmount, 'crAmount' => $crAmount];
-            }
-    
-            // Add the remaining crAmount entries that do not have a corresponding drAmount entry
-            foreach ($crAmountSum as $name => $crAmount) {
-                if (!isset($drAmountSum[$name])) {
-                    $result[] = ['name' => $name, 'drAmount' => 0, 'crAmount' => $crAmount];
-                }
-            }
-
-            foreach ($combine_data as &$item) {
-                $found = false;
-                foreach ($result as $entry) {
-                    if ($entry['name'] === $item->ac_head_name_eng) {
-                        $item->drAmount = $entry['drAmount'];
-                        $item->crAmount = $entry['crAmount'];
-                        $found = true;
-                        break;
+                        // If account_name doesn't exist, create a new entry
+                        $final_data[$accountName] = (object) [
+                            "accounts_group" => $item->accounts_group,
+                            "subsidiary_account_name" => $item->subsidiary_account_name,
+                            "account_name" => $item->account_name,
+                            "totalAmount" => intval($item->drAmount) - intval($item->crAmount)
+                        ];
                     }
                 }
-                if (!$found) {
-                    $item->drAmount = 0;
-                    $item->crAmount = 0;
-                }
-            }
+                
+                $combinedItems = array_values($final_data);
 
-            foreach ($fixed_assets_data as &$item) {
-                $found = false;
-                foreach ($result as $entry) {
-                    if ($entry['name'] === $item->ac_head_name_eng) {
-                        $item->drAmount = $entry['drAmount'];
-                        $item->crAmount = $entry['crAmount'];
-                        $found = true;
-                        break;
-                    }
-                }
-                if (!$found) {
-                    $item->drAmount = 0;
-                    $item->crAmount = 0;
-                }
-            }
+                // dd($combinedItems);
 
-            // dd($fixed_assets_data);
-            $totalDrAmount2 = 0;
-            $totalCrAmount2 = 0;
+                $sortedData = collect($combinedItems)->sortBy([
+                    ["accounts_group", "asc"],
+                    ["subsidiary_account_name", "asc"],
+                ]);
 
-            foreach ($fixed_assets_data as $item2) {
-                $totalDrAmount2 += $item2->drAmount;
-                $totalCrAmount2 += $item2->crAmount;
-            }
-
-            $fixed_assets_output = [
-                "drAmount" => $totalDrAmount2,
-                "crAmount" => $totalCrAmount2,
-            ];
-
-            // dd($fixed_assets_output);
-            
-            $final_data = [];
-            
-            foreach ($combine_data as $item) {
-                $accountName = $item->account_name;
-            
-                if (isset($final_data[$accountName])) {
-                    // dd($final_data[$accountName], $item->drAmount);
-                    // If account_name already exists in final_data, add the values
-                    $final_data[$accountName]->totalAmount = $final_data[$accountName]->totalAmount + $item->drAmount - $item->crAmount;
-                } else {
-                    // If account_name doesn't exist, create a new entry
-                    $final_data[$accountName] = (object) [
-                        "accounts_group" => $item->accounts_group,
-                        "subsidiary_account_name" => $item->subsidiary_account_name,
-                        "account_name" => $item->account_name,
-                        "totalAmount" => intval($item->drAmount) - intval($item->crAmount)
-                    ];
-                }
-            }
-            
-            $combinedItems = array_values($final_data);
-
-            // dd($combinedItems);
-
-            $sortedData = collect($combinedItems)->sortBy([
-                ["accounts_group", "asc"],
-                ["subsidiary_account_name", "asc"],
-            ]);
+                return view('super_admin.core_accounting.account_reports.balancesheet', [
+                    'data' => $sortedData,
+                    'fixed_assets_data' => $fixed_assets_output,
+                    'profit_loss_formattedData' => $profit_loss_formattedData,
+                    'startDate' => $startDate,
+                    'endtDate' => $endDate
+                ]);
+            } else {
     
-            return view('super_admin.core_accounting.account_reports.balancesheet', [
-                'data' => $sortedData,
-                'fixed_assets_data' => $fixed_assets_output,
-                'startDate' => $startDate,
-                'endtDate' => $endDate
-            ]);
+                return view('super_admin.core_accounting.account_reports.balancesheet', [
+                    'data' => '',
+                    'fixed_assets_data' => '',
+                    'profit_loss_formattedData' => '',
+                    'startDate' => '',
+                    'endtDate' => ''
+                ]);
+            }
         }
   
         return redirect("login")->withSuccess('You are not allowed to access');

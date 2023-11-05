@@ -141,7 +141,7 @@
                                                             <td style="text-align: right; padding-top: 10px; padding-bottom: 10px; border-top: 2px solid #000000;">{{ number_format($expensesData->sum('amount'), 2) }}</td>
                                                         </tr>
                                                         <tr>
-                                                            <td style="width: 50%; font-size: 9pt; padding-top: 18px;"><b>Trading ProfiUloss(Transferred to P/L-A/C)</b></td>
+                                                            <td style="width: 50%; font-size: 9pt; padding-top: 18px;"><b>Trading Profitloss(Transferred to P/L-A/C)</b></td>
                                                             <td style="width: 20%; font-size: 9pt;"></td>
                                                             <td style="width: 30%; font-size: 9pt; text-align: right; padding-top: 3px; border-top: 1px solid #000000;"><hr style="color: #000000; margin-top: 0px;"><b>{{ number_format(-(abs($incomeData->sum('amount')) - $expensesData->sum('amount')), 2) }}</b></td>
                                                         </tr>
