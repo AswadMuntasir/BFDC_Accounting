@@ -2939,15 +2939,28 @@ class CoreAccountingController extends Controller
                 $startDate = $request->input('start_date');
                 $endDate = $request->input('end_date');
 
-                // $profit_loss_data = $this->profitLossCalculation($startDate, $endDate);
                 $profit_loss_data = $this->profitLossCalculation($startDate, $endDate);
 
                 // Create an array to store the totals
-                $profit_loss_totals = 0;
+                // $profit_loss_totals = 0;
 
-                foreach ($profit_loss_data as $pl_data) {
-                    $profit_loss_totals += $pl_data["amount"];
+                // foreach ($profit_loss_data as $pl_data) {
+                //     $profit_loss_totals += abs($pl_data["amount"]);
+                // }
+
+                $incomeTotal = 0;
+                $expensesTotal = 0;
+
+                foreach ($profit_loss_data as $item) {
+                    if ($item['account_group'] === 'Income') {
+                        $incomeTotal += $item['amount'];
+                    } elseif ($item['account_group'] === 'Expenses') {
+                        $expensesTotal += $item['amount'];
+                    }
                 }
+
+                // Calculate the final result
+                $profit_loss_totals = $incomeTotal - $expensesTotal;
 
                 // Create a single entry for "Profit & Loss" with the total amount
                 $profit_loss_formattedData = [
@@ -2958,6 +2971,7 @@ class CoreAccountingController extends Controller
                         "totalAmount" => $profit_loss_totals,
                     ],
                 ];
+                // dd($profit_loss_data, $profit_loss_formattedData);
         
                 $records = ($request->isMethod('post'))
                     ? voucher_entry::whereBetween('voucher_date', [$startDate, $endDate])->get()
