@@ -77,7 +77,7 @@
                 <div class="col-sm-12 col-md-12">
                   <h4>Party List</h4>
                 </div>
-                <div id="tableExample2" data-list="{&quot;valueNames&quot;:[&quot;head_id&quot;,&quot;group_name&quot;,&quot;accounts_name&quot;],&quot;page&quot;:5,&quot;pagination&quot;:true}">
+                <div id="tableExample2" data-list="{&quot;valueNames&quot;:[&quot;name&quot;,&quot;email&quot;,&quot;contact_person&quot;,&quot;contact_number&quot;,&quot;vat_number&quot;,&quot;party_type&quot;,&quot;address&quot;,&quot;opening_balance_date&quot;,&quot;opening_balance_type&quot;,&quot;opening_balance&quot;,&quot;description&quot;],&quot;page&quot;:25,&quot;pagination&quot;:true}">
                   <div class="table-responsive">
                       <table class="table table-striped table-sm fs--1 mb-0">
                       <thead>
@@ -87,8 +87,8 @@
                               <th class="sort border-top" data-sort="email">Email</th>
                               <th class="sort border-top" data-sort="contact_person">Contact<br>Person</th>
                               <th class="sort border-top" data-sort="contact_number">Contact<br>Number</th>
-                              <th class="sort border-top" data-sort="vat">VAT</th>
-                              <th class="sort border-top" data-sort="type">Type</th>
+                              <th class="sort border-top" data-sort="vat_number">VAT</th>
+                              <th class="sort border-top" data-sort="party_type">Type</th>
                               <th class="sort border-top" data-sort="address">Address</th>
                               <th class="sort border-top" data-sort="opening_balance_date">Opening<br>Balance<br>Date</th>
                               <th class="sort border-top" data-sort="opening_balance_type">Opening<br>Balance<br>Type</th>
@@ -106,7 +106,7 @@
                               <td class="align-middle contact_person">{{$party->contact_person}}</td>
                               <td class="align-middle contact_number">{{$party->contact_number}}</td>
                               <td class="align-middle vat">{{$party->vat_number}}</td>
-                              <td class="align-middle type">{{$party->party_type}}</td>
+                              <td class="align-middle party_type">{{$party->party_type}}</td>
                               <td class="align-middle address">{{$party->address}}</td>
                               <td class="align-middle opening_balance_date">{{$party->opening_balance_date}}</td>
                               <td class="align-middle opening_balance_type">{{$party->opening_balance_type}}</td>
@@ -133,7 +133,48 @@
               </div>
             </div>
           </div>
-          
+          <script>
+            $(document).ready(function() {
+                // Function to filter table data
+                function filterTable() {
+                    var searchTextName = $('#name_input').val().toLowerCase();
+                    var searchTextEmail = $('#email_input').val().toLowerCase();
+                    var searchTextContactName = $('#contact_person_input').val().toLowerCase();
+                    var searchTextContactNumber = $('#contact_number_input').val().toLowerCase();
+                    var searchTextVat = $('#vat_number_input').val().toLowerCase();
+                    var searchTextType = $('#party_type_input').val().toLowerCase();
+
+                    $('.list tr').each(function() {
+                        var partyName = $(this).find('.name').text().toLowerCase();
+                        var partyEmail = $(this).find('.email').text().toLowerCase();
+                        var partyContactName = $(this).find('.contact_person').text().toLowerCase();
+                        var partyContactNumber = $(this).find('.contact_number').text().toLowerCase();
+                        var partyVat = $(this).find('.vat_number').text().toLowerCase();
+                        var partyType = $(this).find('.party_type').text().toLowerCase();
+                        var row = $(this);
+
+                        if ((searchTextName === '' || partyName.includes(searchTextName)) &&
+                            (searchTextEmail === '' || partyEmail.includes(searchTextEmail)) &&
+                            (searchTextContactName === '' || partyContactName.includes(searchTextContactName)) &&
+                            (searchTextContactNumber === '' || partyContactNumber.includes(searchTextContactNumber)) &&
+                            (searchTextVat === '' || partyVat.includes(searchTextVat)) &&
+                            (searchTextType === 'Customer' || partyType.includes(searchTextType))) {
+                            row.show();
+                        } else {
+                            row.hide();
+                        }
+                    });
+                }
+
+                // Event listeners for input changes
+                $('#name_input, #email_input, #contact_person_input, #contact_number_input, #vat_number_input, #party_type_input').on('input', function() {
+                    filterTable();
+                });
+
+                // Initial filtering on page load
+                filterTable();
+            });
+          </script>
           @include('layout.footer')
         </div>
       </div>
