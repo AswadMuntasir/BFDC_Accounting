@@ -17,7 +17,7 @@
                 </div>
                 <div class="col-sm-12 col-md-6">
                   <div class="form-floating">
-                    <select class="form-select" id="department_input" name="department_input">
+                    <select class="select2 form-select" id="department_input" name="department_input">
                       <option selected="selected" value="BFDC, Chattogram Fish Harbour">BFDC, Chattogram Fish Harbour</option>
                     </select><label for="department_input">Department</label></div>
                 </div>
@@ -71,7 +71,7 @@
                 </form>
             </div>
           </div>
-          
+          <script>$('.select2').select2();</script>
           @include('layout.footer')
         </div>
       </div>

@@ -22,7 +22,7 @@
                 </div>
                 <div class="col-sm-12 col-md-6">
                   <div class="form-floating">
-                    <select class="form-select" id="bill_section_input" name="bill_section_input">
+                    <select class="select2 form-select" id="bill_section_input" name="bill_section_input">
                       <option selected="selected" value="Assets">Assets</option>
                       <option value="Libility">Libility</option>
                       <option value="Income">Income</option>
@@ -30,7 +30,7 @@
                 </div>
                 <div class="col-sm-12 col-md-6">
                   <div class="form-floating">
-                    <select class="form-select" id="customer_name_input" name="customer_name_input">
+                    <select class="select2 form-select" id="customer_name_input" name="customer_name_input">
                       @foreach($parties as $party)
                       <option value="{{ $party->name }}">{{ $party->name }}</option>
                       @endforeach
@@ -38,7 +38,7 @@
                 </div>
                 <div class="col-sm-12 col-md-6">
                   <div class="form-floating">
-                    <select class="form-select" id="collection_type_input" name="collection_type_input">
+                    <select class="select2 form-select" id="collection_type_input" name="collection_type_input">
                       <option selected="selected" value="Cash">Cash</option>
                       <option value="Cheque">Cheque</option>
                       <option value="Bank Draft">Bank Draft</option>
@@ -58,7 +58,7 @@
                 </div>
                 <div class="col-sm-12 col-md-12">
                   <div class="form-floating">
-                    <select class="form-select" id="dr_head_name_input">
+                    <select class="select2 form-select" id="dr_head_name_input">
                       @foreach($account_heads as $account_head)
                       <option value="{{ $account_head->ac_head_name_eng }}">{{ $account_head->ac_head_name_eng }}</option>
                       @endforeach
@@ -82,7 +82,7 @@
                 </div>
                 <div class="col-sm-12 col-md-12">
                   <div class="form-floating">
-                    <select class="form-select" id="cr_head_name_input">
+                    <select class="select2 form-select" id="cr_head_name_input">
                       @foreach($account_heads as $account_head)
                         <option value="{{ $account_head->ac_head_name_eng }}">{{ $account_head->ac_head_name_eng }}</option>
                       @endforeach
@@ -415,6 +415,7 @@
                 $("#create_collection_btn").prop("disabled", true);
               }
             }
+            $('.select2').select2();
           </script>
           @include('layout.footer')
         </div>

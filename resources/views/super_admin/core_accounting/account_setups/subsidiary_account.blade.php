@@ -17,7 +17,7 @@
                 </div>
                 <div class="col-sm-12 col-md-12">
                   <div class="form-floating">
-                    <select class="form-select" id="accounts_group_input" name="accounts_group_input">
+                    <select class="select2 form-select" id="accounts_group_input" name="accounts_group_input">
                       <option selected="selected" disabled>Select</option>
                       <option value="Assets">Assets</option>
                       <option value="Expenses">Expenses</option>
@@ -102,7 +102,7 @@
                         <input type="hidden" id="id_update" name="id_update" value="">
                         <div class="col-sm-12 col-md-12">
                             <div class="form-floating">
-                            <select class="form-select" id="accounts_group_update" name="accounts_group_update">
+                            <select class="select2 form-select" id="accounts_group_update" name="accounts_group_update">
                                 <option selected="selected" value="Assets">Assets</option>
                                 <option value="Libility">Libility</option>
                                 <option value="Income">Income</option>
@@ -138,7 +138,7 @@
                         <input type="hidden" id="id_delete" name="id_delete" value="" readonly>
                         <div class="col-sm-12 col-md-12">
                             <div class="form-floating">
-                            <select class="form-select" id="accounts_group_delete" name="accounts_group_delete" disabled="true">
+                            <select class="select2 form-select" id="accounts_group_delete" name="accounts_group_delete" disabled="true">
                                 <option selected="selected" value="Assets">Assets</option>
                                 <option value="Libility">Libility</option>
                                 <option value="Income">Income</option>
@@ -211,6 +211,7 @@
                 // Initial filtering on page load
                 filterTable();
             });
+            $('.select2').select2();
           </script>
           
           @include('layout.footer')

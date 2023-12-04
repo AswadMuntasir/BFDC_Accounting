@@ -17,7 +17,7 @@
                 </div>
                 <div class="col-sm-12 col-md-6">
                   <div class="form-floating">
-                    <select class="form-select" id="voucher_type_input" name="voucher_type_input">
+                    <select class="select2 form-select" id="voucher_type_input" name="voucher_type_input">
                       <option selected="selected" value="Journal">Journal</option>
                       <option value="Advanced Payment">Advanced Payment</option>
                       <option value="Payment Voucher">Payment Voucher</option>
@@ -30,7 +30,7 @@
                 </div>
                 <div class="col-sm-12 col-md-6">
                   <div class="form-floating">
-                    <select class="form-select" id="type_input" name="type_input">
+                    <select class="select2 form-select" id="type_input" name="type_input">
                       <option selected="selected" value="Cash">Cash</option>
                       <option value="Cheque">Cheque</option>
                       <option value="Bank Draft">Bank Draft</option>
@@ -52,7 +52,7 @@
                 </div>
                 <div class="col-sm-12 col-md-6" id="party_input_div">
                   <div class="form-floating">
-                    <select class="form-select" id="party_input" name="party_input">
+                    <select class="select2 form-select" id="party_input" name="party_input">
                       @foreach($parties as $party)
                       <option value="{{ $party->name }}">{{ $party->name }}</option>
                       @endforeach
@@ -62,7 +62,7 @@
                 </div>
                 <div class="col-sm-12 col-md-6" id="receiver_input_div">
                   <div class="form-floating">
-                    <select class="form-select" id="receiver_input" name="receiver_input">
+                    <select class="select2 form-select" id="receiver_input" name="receiver_input">
                       <option selected="selected" value="Assets">Assets</option>
                       <option value="Libility">Libility</option>
                       <option value="Income">Income</option>
@@ -73,7 +73,7 @@
                 </div>
                 <div class="col-sm-12 col-md-6">
                   <div class="form-floating">
-                    <select class="form-select" id="dr_head_name_input" name="dr_head_name_input">
+                    <select class="select2 form-select" id="dr_head_name_input" name="dr_head_name_input">
                       @foreach($account_heads as $account_head)
                         <option value="{{ $account_head->ac_head_name_eng }}">{{ $account_head->ac_head_name_eng }}</option>
                       @endforeach
@@ -97,7 +97,7 @@
                 </div>
                 <div class="col-sm-12 col-md-6">
                   <div class="form-floating">
-                    <select class="form-select" id="cr_head_name_input" name="cr_head_name_input">
+                    <select class="select2 form-select" id="cr_head_name_input" name="cr_head_name_input">
                       @foreach($account_heads as $account_head)
                         <option value="{{ $account_head->ac_head_name_eng }}">{{ $account_head->ac_head_name_eng }}</option>
                       @endforeach
@@ -552,6 +552,6 @@
             $("#type_name_input").prop("disabled", true);
           }
         })
-        
+        $('.select2').select2();
       </script>
 @endsection

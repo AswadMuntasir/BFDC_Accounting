@@ -39,8 +39,61 @@
     <link href="{{ asset('assets/css/user-rtl.min.css') }}" type="text/css" rel="stylesheet" id="user-style-rtl">
     <link href="{{ asset('assets/css/user.min.css') }}" type="text/css" rel="stylesheet" id="user-style-default">
     <script src="{{ asset('assets/js/jquery-3.6.4.min.js') }}"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
     <!-- jsPDF library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
+    <style>
+      .select2 {
+        display: block;
+        width: 100%;
+        padding: .5rem 2.5rem .5rem 1rem;
+        -moz-padding-start: calc(1rem - 3px);
+        font-size: 0.8rem;
+        font-weight: 600;
+        line-height: 1.49;
+        color: var(--phoenix-900);
+        background-color: var(--phoenix-input-bg);
+        background-image: var(--phoenix-form-select-indicator);
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 9px 12px;
+        border: 1px solid var(--phoenix-input-border-color);
+        border-radius: .375rem;
+        -webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,0);
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0);
+        -webkit-transition: border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+        transition: border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+        -o-transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+      }
+      .select2-container .select2-selection--single{
+        height:34px !important;
+      }
+      .select2-container--default .select2-selection--single{
+        border: 1px solid #fff !important; 
+        border-radius: 0px !important; 
+      }
+      .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #444;
+        line-height: 28px;
+        margin-top: 10px;
+      }
+      .select2-results__option {
+        padding: 6px;
+        -webkit-user-select: none;
+        font-size: 0.8rem;
+      }
+      .select2-container--default .select2-selection--single .select2-selection__arrow {
+        display: none;
+      }
+    </style>
+    
   </head>
   <body>
     <!-- ===============================================-->

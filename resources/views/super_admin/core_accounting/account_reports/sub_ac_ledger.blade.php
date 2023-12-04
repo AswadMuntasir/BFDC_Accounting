@@ -12,10 +12,10 @@
             <form method="POST" action="{{ route('subACLedgerView') }}">
               @csrf
               <div class="row">
-                <div class="col-4">
+                <!-- <div class="col-4">
                     <div class="form-group">
                         <label for="subsidiary_ac_id">Subsidiary Account:</label>
-                        <select name="subsidiary_ac_id" id="subsidiary_ac_id" class="form-control">
+                        <select class="select2 form-select" name="subsidiary_ac_id" id="subsidiary_ac_id">
                             <option value="">Select Subsidiary Account</option>
                             @foreach ($subsidiaryAccounts as $subsidiaryAccount)
                                 <option value="{{ $subsidiaryAccount->account_name }}">{{ $subsidiaryAccount->account_name }}</option>
@@ -25,8 +25,35 @@
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
+                </div> -->
+                <div class="col-sm-12 col-md-4">
+                  <div class="form-floating">
+                    <select class="select2 form-select" id="subsidiary_ac_id" name="subsidiary_ac_id">
+                      <option value="">Select Subsidiary Account</option>
+                      @foreach ($subsidiaryAccounts as $subsidiaryAccount)
+                        <option value="{{ $subsidiaryAccount->account_name }}">{{ $subsidiaryAccount->account_name }}</option>
+                      @endforeach
+                    </select><label for="subsidiary_ac_id">Subsidiary Account:</label></div>
+                    @error('subsidiary_ac_id')
+                      <span class="text-danger">{{ $message }}</span>
+                    @enderror
                 </div>
-                <div class="col-3">
+                <div class="col-sm-12 col-md-3">
+                  <div class="form-floating">
+                    <input class="form-control datetimepicker" id="start_date" name="start_date" type="text" placeholder="Start Date:" />
+                    <label for="type_date_input">Start Date:</label>
+                  </div>
+                  @error('start_date')
+                    <span class="text-danger">{{ $message }}</span>
+                  @enderror
+                </div>
+                <div class="col-sm-12 col-md-3">
+                  <div class="form-floating">
+                    <input class="form-control datetimepicker" id="end_date" name="end_date" type="text" placeholder="End Date:" />
+                    <label for="type_date_input">End Date:</label>
+                  </div>
+                </div>
+                <!-- <div class="col-3">
                     <div class="form-group">
                         <label for="start_date">Start Date:</label>
                         <input name="start_date" id="start_date" class="form-control datetimepicker" type="text" placeholder="Start Date" data-options='{"disableMobile":true}'>
@@ -43,9 +70,9 @@
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
-                </div>
+                </div> -->
                 <div class="col-2">
-                    <button type="submit" class="btn btn-primary" style="margin-top: 23px;">Search</button>
+                    <button type="submit" class="btn btn-primary" style="margin-top: 4px;">Search</button>
                 </div>
               </div>
               <br><br>
@@ -138,10 +165,13 @@
         <p>No data available.</p>
         @endif
           </div>
-          
+          <script>
+            $('.select2').select2();
+          </script>
           @include('layout.footer')
         </div>
       </div>
+      
     <script>
         const button = document.getElementById('download-button');
         function generatePDF() {

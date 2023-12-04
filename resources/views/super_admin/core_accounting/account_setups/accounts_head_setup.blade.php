@@ -17,19 +17,19 @@
                     </div>
                     <div class="col-sm-12 col-md-6">
                         <div class="form-floating">
-                            <select class="form-select" id="accounts_group_input" name="accounts_group_input">
+                            <select class="select2 form-select" id="accounts_group_input" name="accounts_group_input">
                             </select><label for="accounts_group_input">Accounts Group</label>
                         </div>
                     </div>
                     <div class="col-sm-12 col-md-6">
                         <div class="form-floating">
-                            <select class="form-select" id="sub_ac_name_input" name="sub_ac_name_input">
+                            <select class="select2 form-select" id="sub_ac_name_input" name="sub_ac_name_input">
                             </select><label for="sub_ac_name_input">Sub A/C Name</label>
                         </div>
                     </div>
                     <div class="col-sm-12 col-md-6">
                         <div class="form-floating">
-                            <select class="form-select" id="control_ac_name_input" name="control_ac_name_input">
+                            <select class="select2 form-select" id="control_ac_name_input" name="control_ac_name_input">
                             </select><label for="control_ac_name_input">Control A/C Name</label>
                         </div>
                     </div>
@@ -168,19 +168,19 @@
                             <input type="hidden" id="id_update" name="id_update" value="">
                             <div class="col-sm-12 col-md-6">
                                 <div class="form-floating">
-                                    <select class="form-select" id="update_accounts_group_input" name="update_accounts_group_input">
+                                    <select class="select2 form-select" id="update_accounts_group_input" name="update_accounts_group_input">
                                     </select><label for="update_accounts_group_input">Accounts Group</label>
                                 </div>
                             </div>
                             <div class="col-sm-12 col-md-6">
                                 <div class="form-floating">
-                                    <select class="form-select" id="update_sub_ac_name_input" name="update_sub_ac_name_input">
+                                    <select class="select2 form-select" id="update_sub_ac_name_input" name="update_sub_ac_name_input">
                                     </select><label for="update_sub_ac_name_input">Sub A/C Name</label>
                                 </div>
                             </div>
                             <div class="col-sm-12 col-md-6">
                                 <div class="form-floating">
-                                    <select class="form-select" id="update_control_ac_name_input" name="update_control_ac_name_input">
+                                    <select class="select2 form-select" id="update_control_ac_name_input" name="update_control_ac_name_input">
                                     </select><label for="update_control_ac_name_input">Control A/C Name</label>
                                 </div>
                             </div>
@@ -542,6 +542,7 @@
                 // Initial filtering on page load
                 filterTable();
             });
+            $('.select2').select2();
           </script>
 
         @include('layout.footer')

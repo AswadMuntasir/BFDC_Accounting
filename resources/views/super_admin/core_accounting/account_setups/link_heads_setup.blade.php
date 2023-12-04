@@ -19,7 +19,7 @@
                 </div>
                 <div class="col-sm-5 col-md-5">
                   <div class="form-floating">
-                    <select class="form-select" id="accounts_group_input" name="accounts_group_input">
+                    <select class="select2 form-select" id="accounts_group_input" name="accounts_group_input">
                       <option selected="selected" value="Assets">Assets</option>
                       <option value="Expenses">Expenses</option>
                       <option value="Liabilities">Liabilities</option>
@@ -28,7 +28,7 @@
                 </div>
                 <div class="col-sm-5 col-md-5">
                   <div class="form-floating">
-                    <select class="form-select" id="sub_ac_name_input" name="sub_ac_name_input">
+                    <select class="select2 form-select" id="sub_ac_name_input" name="sub_ac_name_input">
                       <option selected="selected" value="Current Assets">Current Assets</option>
                       <option value="Fixed Assets">Fixed Assets</option>
                       <option value="Other Investments">Other Investments</option>
@@ -39,7 +39,7 @@
                 </div>
                 <div class="col-sm-5 col-md-5">
                   <div class="form-floating">
-                    <select class="form-select" id="sub_ac_name_input" name="control_ac_name_input">
+                    <select class="select2 form-select" id="sub_ac_name_input" name="control_ac_name_input">
                       <option selected="selected" value="Current Assets">Current Assets</option>
                       <option value="Fixed Assets">Fixed Assets</option>
                       <option value="Other Investments">Other Investments</option>
@@ -47,7 +47,7 @@
                 </div>
                 <div class="col-sm-5 col-md-5">
                   <div class="form-floating">
-                    <select class="form-select" id="sub_ac_name_input" name="control_ac_name_input">
+                    <select class="select2 form-select" id="sub_ac_name_input" name="control_ac_name_input">
                       <option selected="selected" value="Current Assets">Current Assets</option>
                       <option value="Fixed Assets">Fixed Assets</option>
                       <option value="Other Investments">Other Investments</option>
@@ -445,7 +445,7 @@
               </form>
             </div>
           </div>
-
+          <script>$('.select2').select2();</script>
           @include('layout.footer')
         </div>
       </div>

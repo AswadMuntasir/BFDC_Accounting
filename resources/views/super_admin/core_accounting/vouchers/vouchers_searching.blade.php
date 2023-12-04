@@ -17,7 +17,7 @@
                 </div>
                 <div class="col-sm-12 col-md-12">
                   <div class="form-floating">
-                    <select class="form-select" id="fin_year_input" name="fin_year_input">
+                    <select class="select2 form-select" id="fin_year_input" name="fin_year_input">
                       <option selected="selected" value="2024">2024</option>
                       <option value="2023">2023</option>
                       <option value="2022">2022</option>
@@ -25,7 +25,7 @@
                 </div>
                 <div class="col-sm-12 col-md-12">
                   <div class="form-floating">
-                    <select class="form-select" id="fin_month_input" name="fin_month_input">
+                    <select class="select2 form-select" id="fin_month_input" name="fin_month_input">
                       <option selected="selected" value="01">January</option>
                       <option value="02">February</option>
                       <option value="03">March</option>
@@ -42,7 +42,7 @@
                 </div>
                 <div class="col-sm-12 col-md-12">
                   <div class="form-floating">
-                    <select class="form-select" id="voucher_type_input" name="voucher_type_input">
+                    <select class="select2 form-select" id="voucher_type_input" name="voucher_type_input">
                       <option selected="selected" value="Journal">Journal</option>
                       <option value="Advanced Payment">Advanced Payment</option>
                       <option value="Payment Voucher">Payment Voucher</option>
@@ -92,7 +92,7 @@
                 </div>
             </div>
           </div>
-          
+          <script>$('.select2').select2();</script>
           @include('layout.footer')
         </div>
       </div>

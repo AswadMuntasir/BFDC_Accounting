@@ -17,12 +17,12 @@
                 </div>
                 <div class="col-sm-12 col-md-6">
                   <div class="form-floating">
-                    <select class="form-select" id="accounts_group_input" name="accounts_group_input">
+                    <select class="select2 form-select" id="accounts_group_input" name="accounts_group_input">
                     </select><label for="accounts_group_input">Accounts Group</label></div>
                 </div>
                 <div class="col-sm-12 col-md-6">
                   <div class="form-floating">
-                    <select class="form-select" id="sub_ac_name_input" name="sub_ac_name_input">
+                    <select class="select2 form-select" id="sub_ac_name_input" name="sub_ac_name_input">
                     </select><label for="sub_ac_name_input">Subsidiary A/C Name</label></div>
                 </div>
                 <div class="col-sm-12 col-md-6">
@@ -121,13 +121,13 @@
                         <input type="hidden" id="id_update" name="id_update" value="">
                         <div class="col-sm-12 col-md-6">
                             <div class="form-floating">
-                                <select class="form-select" id="accounts_group_update" name="accounts_group_update">
+                                <select class="select2 form-select" id="accounts_group_update" name="accounts_group_update">
                                 </select><label for="accounts_group_update">Accounts Group</label>
                             </div>
                         </div>
                         <div class="col-sm-12 col-md-6">
                             <div class="form-floating">
-                                <select class="form-select" id="sub_ac_name_update" name="sub_ac_name_update">
+                                <select class="select2 form-select" id="sub_ac_name_update" name="sub_ac_name_update">
                                 </select><label for="sub_ac_name_update">Subsidiary A/C Name</label>
                             </div>
                         </div>
@@ -180,13 +180,13 @@
                         <input type="hidden" id="id_delete" name="id_delete" value="" readonly>
                         <div class="col-sm-12 col-md-6">
                             <div class="form-floating">
-                                <select class="form-select" id="accounts_group_delete" name="accounts_group_delete" disabled="true">
+                                <select class="select2 form-select" id="accounts_group_delete" name="accounts_group_delete" disabled="true">
                                 </select><label for="accounts_group_delete">Accounts Group</label>
                             </div>
                         </div>
                         <div class="col-sm-12 col-md-6">
                             <div class="form-floating">
-                                <select class="form-select" id="sub_ac_name_delete" name="sub_ac_name_delete" disabled="true">
+                                <select class="select2 form-select" id="sub_ac_name_delete" name="sub_ac_name_delete" disabled="true">
                                 </select><label for="sub_ac_name_delete">Subsidiary A/C Name</label>
                             </div>
                         </div>
@@ -357,6 +357,7 @@
                 // Initial filtering on page load
                 filterTable();
             });
+            $('.select2').select2();
           </script>
 
           
