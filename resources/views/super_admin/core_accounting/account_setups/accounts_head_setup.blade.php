@@ -94,13 +94,14 @@
                     <div class="col-sm-12 col-md-12">
                         <h4>Account Head List</h4>
                     </div>
-                    <div id="tableExample2" data-list="{&quot;valueNames&quot;:[&quot;head_id&quot;,&quot;group_name&quot;,&quot;accounts_name&quot;],&quot;page&quot;:5,&quot;pagination&quot;:true}">
+                    <div id="tableExample2" data-list="{&quot;valueNames&quot;:[&quot;id&quot;,&quot;control_ac_id&quot;,&quot;head_id&quot;,&quot;accounts_head&quot;,&quot;budget_account&quot;,&quot;dr_balance&quot;,&quot;cr_balance&quot;],&quot;page&quot;:25,&quot;pagination&quot;:true}">
                         <div class="table-responsive">
                             <table class="table table-striped table-sm fs--1 mb-0">
                                 <thead>
                                     <tr>
                                         <th class="sort border-top ps-3" data-sort="id" style="display: none;">ID</th>
                                         <th class="sort border-top ps-3" data-sort="head_id">Head ID</th>
+                                        <th class="sort border-top ps-3" data-sort="control_ac_id">Control AC</th>
                                         <th class="sort border-top" data-sort="accounts_head">Accounts<br>Head</th>
                                         <th class="sort border-top" data-sort="budget_account">Budget<br>Account</th>
                                         <th class="sort border-top" data-sort="dr_balance">Opening<br>Balance<br>(Dr.)</th>
@@ -511,6 +512,37 @@
             //     }
             // }
         </script>
+
+        <script>
+            $(document).ready(function() {
+                // Function to filter table data
+                function filterTable() {
+                    var searchTextACHeadID = $('#ac_head_id_input').val().toLowerCase();
+                    var searchTextACHeadName = $('#ac_head_name_english_input').val().toLowerCase();
+
+                    $('.list tr').each(function() {
+                        var acHeadID = $(this).find('.head_id').text().toLowerCase();
+                        var acHeadName = $(this).find('.accounts_head').text().toLowerCase();
+                        var row = $(this);
+
+                        if ((searchTextACHeadID === '' || acHeadID.includes(searchTextACHeadID)) &&
+                            (searchTextACHeadName === '' || acHeadName.includes(searchTextACHeadName))) {
+                            row.show();
+                        } else {
+                            row.hide();
+                        }
+                    });
+                }
+
+                // Event listeners for input changes
+                $('#ac_head_id_input, #ac_head_name_english_input').on('input', function() {
+                    filterTable();
+                });
+
+                // Initial filtering on page load
+                filterTable();
+            });
+          </script>
 
         @include('layout.footer')
     </div>

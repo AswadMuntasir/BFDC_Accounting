@@ -18,7 +18,8 @@
                 <div class="col-sm-12 col-md-12">
                   <div class="form-floating">
                     <select class="form-select" id="accounts_group_input" name="accounts_group_input">
-                      <option selected="selected" value="Assets">Assets</option>
+                      <option selected="selected" disabled>Select</option>
+                      <option value="Assets">Assets</option>
                       <option value="Expenses">Expenses</option>
                       <option value="Liabilities">Liabilities</option>
                       <option value="Income">Income</option>
@@ -176,6 +177,40 @@
                 $('#subsidiary_ac_id_delete').val(subsidiary_ac_id_delete);
                 $('#subsidiary_ac_name_delete').val(subsidiary_ac_name_delete);
             }
+          </script>
+
+          <script>
+            $(document).ready(function() {
+                // Function to filter table data
+                function filterTable() {
+                    var selectedGroup = $('#accounts_group_input').val().toLowerCase();
+                    var searchTextId = $('#subsidiary_ac_id_input').val().toLowerCase();
+                    var searchTextName = $('#subsidiary_ac_name_input').val().toLowerCase();
+
+                    $('.list tr').each(function() {
+                        var group = $(this).find('.group_name').text().toLowerCase();
+                        var accountId = $(this).find('.head_id').text().toLowerCase();
+                        var accountName = $(this).find('.accounts_name').text().toLowerCase();
+                        var row = $(this);
+
+                        if ((selectedGroup === 'all' || group === selectedGroup) &&
+                            (searchTextId === '' || accountId.includes(searchTextId)) &&
+                            (searchTextName === '' || accountName.includes(searchTextName))) {
+                            row.show();
+                        } else {
+                            row.hide();
+                        }
+                    });
+                }
+
+                // Event listeners for input changes
+                $('#accounts_group_input, #subsidiary_ac_id_input, #subsidiary_ac_name_input').on('input', function() {
+                    filterTable();
+                });
+
+                // Initial filtering on page load
+                filterTable();
+            });
           </script>
           
           @include('layout.footer')

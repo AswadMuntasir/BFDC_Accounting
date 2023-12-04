@@ -62,12 +62,13 @@
                     <div class="col-sm-12 col-md-12">
                         <h4>Control Accounts List</h4>
                     </div>
-                    <div data-list="{&quot;valueNames&quot;:[&quot;head_id&quot;,&quot;group_name&quot;,&quot;accounts_name&quot;],&quot;page&quot;:5,&quot;pagination&quot;:true}">
+                    <div data-list="{&quot;valueNames&quot;:[&quot;accounts_group&quot;,&quot;id&quot;,&quot;control_ac_id&quot;,&quot;accounts_name&quot;,&quot;control_ac_name&quot;],&quot;page&quot;:5,&quot;pagination&quot;:true}">
                         <div class="table-responsive">
                             <table class="table table-striped table-sm fs--1 mb-0">
                             <thead>
                                 <tr>
-                                    <th class="sort border-top ps-3"  data-sort="id" style="display: none;">ID</th>
+                                    <th class="sort border-top ps-3" data-sort="id" style="display: none;">ID</th>
+                                    <th class="sort border-top ps-3" data-sort="accounts_group" style="display: none;">Accounts Group</th>
                                     <th class="sort border-top ps-3" data-sort="control_ac_id">Control A/C ID</th>
                                     <th class="sort border-top" data-sort="accounts_name">Accounts Name</th>
                                     <th class="sort border-top" data-sort="control_ac_name">Control A/C Name</th>
@@ -78,6 +79,7 @@
                                 @foreach($control_acs as $control_ac)  
                                 <tr>
                                     <td class="align-middle ps-3 id" style="display: none;">{{$control_ac->id}}</td>
+                                    <th class="align-middle ps-3 accounts_group" style="display: none;">{{$control_ac->accounts_group}}</th>
                                     <td class="align-middle ps-3 control_ac_id">{{$control_ac->account_id}}</td>
                                     <td class="align-middle accounts_name">{{$control_ac->subsidiary_account_name}}</td>
                                     <td class="align-middle control_ac_name">{{$control_ac->account_name}}</td>
@@ -231,7 +233,7 @@
             }
             let account_group_list_unique = [...new Set(account_group_list)];
             
-            var account_group_list_html = ""
+            var account_group_list_html = '<option selected disabled>Select Account Group</option>'
             for (let index = 0; index < account_group_list_unique.length; index++) {
                 account_group_list_html = account_group_list_html + '<option value="' + account_group_list_unique[index] + '">' + account_group_list_unique[index] + '</option>'
             }
@@ -239,7 +241,7 @@
             document.getElementById("accounts_group_update").innerHTML = account_group_list_html;
 
             let account_name_list = [];
-            var account_name_list_html = ""
+            var account_name_list_html = '<option selected disabled>Select Account Name</option>'
             for (let index = 0; index < subsidiary_ac.length; index++) {
                 if(account_group_list_unique[0] === subsidiary_ac[index]['accounts_group']) {
                     account_name_list[index] = subsidiary_ac[index]['account_name'];
@@ -250,7 +252,7 @@
 
             $('#accounts_group_input').change(function(){
                 account_name_list = [];
-                account_name_list_html = ""
+                account_name_list_html = '<option selected disabled>Select Sub A/C Name</option>'
                 for (let index = 0; index < subsidiary_ac.length; index++) {
                     if(this.value === subsidiary_ac[index]['accounts_group']) {
                         account_name_list[index] = subsidiary_ac[index]['account_name'];
@@ -261,7 +263,7 @@
             });
             $('#accounts_group_update').change(function(){
                 account_name_list = [];
-                account_name_list_html = ""
+                account_name_list_html = '<option selected disabled>Select Sub A/C Name</option>'
                 for (let index = 0; index < subsidiary_ac.length; index++) {
                     if(this.value === subsidiary_ac[index]['accounts_group']) {
                         account_name_list[index] = subsidiary_ac[index]['account_name'];
@@ -319,6 +321,44 @@
                 }
             }
           </script>
+
+          <script>
+            $(document).ready(function() {
+                // Function to filter table data
+                function filterTable() {
+                    var selectedGroup = $('#accounts_group_input').val().toLowerCase();
+                    var searchTextSubACName = $('#sub_ac_name_input').val().toLowerCase();
+                    var searchTextControlACCode = $('#control_ac_code_input').val().toLowerCase();
+                    var searchTextControlACName = $('#control_ac_name_input').val().toLowerCase();
+
+                    $('.list tr').each(function() {
+                        var group = $(this).find('.accounts_group').text().toLowerCase();
+                        var subACName = $(this).find('.accounts_name').text().toLowerCase();
+                        var controlACCode = $(this).find('.control_ac_id').text().toLowerCase();
+                        var controlACName = $(this).find('.control_ac_name').text().toLowerCase();
+                        var row = $(this);
+
+                        if ((selectedGroup === 'all' || group === selectedGroup) &&
+                            (searchTextSubACName === '' || subACName.includes(searchTextSubACName)) &&
+                            (searchTextControlACCode === '' || controlACCode.includes(searchTextControlACCode)) &&
+                            (searchTextControlACName === '' || controlACName.includes(searchTextControlACName))) {
+                            row.show();
+                        } else {
+                            row.hide();
+                        }
+                    });
+                }
+
+                // Event listeners for input changes
+                $('#accounts_group_input, #sub_ac_name_input, #control_ac_code_input, #control_ac_name_input').on('input', function() {
+                    filterTable();
+                });
+
+                // Initial filtering on page load
+                filterTable();
+            });
+          </script>
+
           
           @include('layout.footer')
         </div>
