@@ -20,7 +20,10 @@
   <link href="{{ asset('assets/css/user-rtl.min.css') }}" type="text/css" rel="stylesheet" id="user-style-rtl">
   <link href="{{ asset('assets/css/user.min.css') }}" type="text/css" rel="stylesheet" id="user-style-default">
   <script src="{{ asset('assets/js/jquery-3.6.4.min.js') }}"></script>
-
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+  <!-- jsPDF library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
 
   <script src="{{ asset('assets/js/html2pdf.bundle.js') }}"></script>
   <script src="{{ asset('vendors/popper/popper.min.js') }}"></script>
@@ -46,7 +49,7 @@
         <form action="{{ route('acHeadLedgerView') }}" method="POST">
           @csrf
           <div class="row">
-            <div class="col-4">
+            <!-- <div class="col-4">
               <div class="form-group">
                 <label for="ac_head_name_eng">Select AC Head:</label>
                 <select class="form-control" name="ac_head_name_eng" id="ac_head_name_eng">
@@ -68,9 +71,30 @@
                 <label for="end_date">End Date:</label>
                 <input type="date" name="end_date" id="end_date" class="form-control">
               </div>
+            </div> -->
+            <div class="col-sm-12 col-md-4">
+              <div class="form-floating">
+                <select class="select2 form-select" id="ac_head_name_eng" name="ac_head_name_eng">
+                  <option value="">Select Account Head</option>
+                  @foreach ($accounts as $account)
+                    <option value="{{ $account }}">{{ $account }}</option>
+                  @endforeach
+                </select><label for="ac_head_name_eng">Select Account Head:</label></div>
+            </div>
+            <div class="col-sm-12 col-md-3">
+              <div class="form-floating">
+                <input class="form-control datetimepicker" id="start_date" name="start_date" type="text" placeholder="Start Date:" />
+                <label for="type_date_input">Start Date:</label>
+              </div>
+            </div>
+            <div class="col-sm-12 col-md-3">
+              <div class="form-floating">
+                <input class="form-control datetimepicker" id="end_date" name="end_date" type="text" placeholder="End Date:" />
+                <label for="type_date_input">End Date:</label>
+              </div>
             </div>
             <div class="col-2">
-              <button type="submit" class="btn btn-primary" style="margin-top: 23px;">Search</button>
+              <button type="submit" class="btn btn-primary" style="margin-top: 4px;">Search</button>
             </div>
           </div>
         </form>
@@ -190,6 +214,9 @@
       @include('layout.footer')
     </div>
   </div>
+  <script>
+    $('.select2').select2();
+  </script>
   <script>
     const button = document.getElementById('download-button');
     function generatePDF() {

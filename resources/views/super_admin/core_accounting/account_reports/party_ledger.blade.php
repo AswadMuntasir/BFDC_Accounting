@@ -13,30 +13,39 @@
                     <form action="{{ route('partyLedgerView') }}" method="POST">
                         @csrf
                         <div class="row">
-                            <div class="col-4">
+                            <!-- <div class="col-4">
                                 <div class="mb-3">
                                     <label for="name">Name:</label>
-                                    <select class="form-select" id="name1" name="name1">
+                                    <select class="select2 form-select" id="name1" name="name1">
                                         @foreach($parties as $party)
                                             <option value="{{ $party->name }}">{{ $party->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
+                            </div> -->
+                            <div class="col-sm-12 col-md-4">
+                              <div class="form-floating">
+                                <select class="select2 form-select" id="name1" name="name1">
+                                  <option value="">Select Party</option>
+                                  @foreach($parties as $party)
+                                    <option value="{{ $party->name }}">{{ $party->name }}</option>
+                                  @endforeach
+                                </select><label for="name1">Select Party:</label></div>
                             </div>
-                            <div class="col-3">
-                                <div class="mb-3">
-                                    <label for="startDate">Start Date:</label>
-                                    <input type="date" class="form-control" id="startDate" name="startDate">
-                                </div>
+                            <div class="col-sm-12 col-md-3">
+                              <div class="form-floating">
+                                <input class="form-control datetimepicker" id="start_date" name="start_date" type="text" placeholder="Start Date:" />
+                                <label for="type_date_input">Start Date:</label>
+                              </div>
                             </div>
-                            <div class="col-3">
-                                <div class="mb-3">
-                                    <label for="endDate">End Date:</label>
-                                    <input type="date" class="form-control" id="endDate" name="endDate">
-                                </div>
+                            <div class="col-sm-12 col-md-3">
+                              <div class="form-floating">
+                                <input class="form-control datetimepicker" id="end_date" name="end_date" type="text" placeholder="End Date:" />
+                                <label for="type_date_input">End Date:</label>
+                              </div>
                             </div>
                             <div class="col-2">
-                                <button type="submit" class="btn btn-primary" style="margin-top: 23px;">Search</button>
+                              <button type="submit" class="btn btn-primary" style="margin-top: 4px;">Search</button>
                             </div>
                         </div>
                     </form>
@@ -166,6 +175,9 @@
         @else
         <p>No data available.</p>
         @endif
+        <script>
+          $('.select2').select2();
+        </script>
       @include('layout.footer')
     </div>
   </div>

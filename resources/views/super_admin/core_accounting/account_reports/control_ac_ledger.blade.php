@@ -13,7 +13,7 @@
             <form action="{{ route('controlACLedgerView') }}" method="POST">
                 @csrf
                 <div class="row">
-                    <div class="col-4">
+                    <!-- <div class="col-4">
                         <div class="form-group">
                             <label for="account_name">Select Account Name:</label>
                             <select class="form-control" name="account_name" id="account_name">
@@ -23,8 +23,29 @@
                                 @endforeach
                             </select>
                         </div>
+                    </div> -->
+                    <div class="col-sm-12 col-md-4">
+                      <div class="form-floating">
+                        <select class="select2 form-select" id="account_name" name="account_name">
+                          <option value="">Select Control Account</option>
+                          @foreach ($accounts as $account)
+                            <option value="{{ $account }}">{{ $account }}</option>
+                          @endforeach
+                        </select><label for="account_name">Select Account Name:</label></div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-sm-12 col-md-3">
+                      <div class="form-floating">
+                        <input class="form-control datetimepicker" id="start_date" name="start_date" type="text" placeholder="Start Date:" />
+                        <label for="type_date_input">Start Date:</label>
+                      </div>
+                    </div>
+                    <div class="col-sm-12 col-md-3">
+                      <div class="form-floating">
+                        <input class="form-control datetimepicker" id="end_date" name="end_date" type="text" placeholder="End Date:" />
+                        <label for="type_date_input">End Date:</label>
+                      </div>
+                    </div>
+                    <!-- <div class="col-3">
                         <div class="form-group">
                             <label for="start_date">Start Date:</label>
                             <input type="date" name="start_date" id="start_date" class="form-control">
@@ -35,8 +56,8 @@
                             <label for="end_date">End Date:</label>
                             <input type="date" name="end_date" id="end_date" class="form-control">
                         </div>
-                    </div>
-                    <div class="col-2" style="margin-top: 23px;">
+                    </div> -->
+                    <div class="col-2" style="margin-top: 4px;">
                         <button type="submit" class="btn btn-primary">Search</button>
                     </div>
                 </div>
@@ -130,7 +151,9 @@
         <p>No data available.</p>
         @endif
           </div>
-          
+          <script>
+            $('.select2').select2();
+          </script>
           @include('layout.footer')
         </div>
       </div>
