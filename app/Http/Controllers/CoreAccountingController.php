@@ -1814,11 +1814,11 @@ class CoreAccountingController extends Controller
             if ($request->isMethod('post')) {
                 $parties = party::all();
                 $name = $request->name1;
-                $startDate = $request->startDate;
-                $endDate = $request->endDate;
+                $start_date = $request->start_date;
+                $end_date = $request->end_date;
                 $name1 = $request->name1;
 
-                // dd($name);
+                // dd($name, $startDate, $endDate);
 
                 // $ledgerData = DB::table('voucher_entry')
                 //     ->whereBetween('voucher_date', [$startDate, $endDate])
@@ -1840,7 +1840,7 @@ class CoreAccountingController extends Controller
                 //     ->get();
                 $ledgerData = DB::table('voucher_entry')
                     ->select('voucher_no', 'description', 'voucher_date', 'dr_amount', 'cr_amount')
-                    ->whereBetween('voucher_date', [$startDate, $endDate])
+                    ->whereBetween('voucher_date', [$start_date, $end_date])
                     ->whereIn('status', ['pending', 'Done', 'Pending'])
                     ->where(function ($query) use ($name) {
                         $query->where(function ($query) use ($name) {
@@ -1881,7 +1881,7 @@ class CoreAccountingController extends Controller
                 // dd($ledgerData);
                 $sortedLedgerData = $this->ledgerDataManupulation($ledgerData, $name, $selectedAccountName);
                 // dd($sortedLedgerData);
-                return view('super_admin.core_accounting.account_reports.party_ledger')->with('ledgerData', $sortedLedgerData)->with('parties', $parties)->with('partyName', $name)->with('startDate', $startDate)->with('endDate', $endDate);
+                return view('super_admin.core_accounting.account_reports.party_ledger')->with('ledgerData', $sortedLedgerData)->with('parties', $parties)->with('partyName', $name)->with('startDate', $start_date)->with('endDate', $end_date);
             } else {
                 $parties = party::all();
                 return view('super_admin.core_accounting.account_reports.party_ledger')->with('ledgerData', null)->with('data2', null)->with('parties', $parties);
