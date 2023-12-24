@@ -362,11 +362,19 @@
             // document.getElementById("delete_accounts_group_input").innerHTML = account_group_list_html;
 
             let account_name_list = [];
-            var account_name_list_html = ""
+            let account_name_set = new Set(); // Using a Set to store unique values
+
+            var account_name_list_html = "";
             for (let index = 0; index < control_ac.length; index++) {
                 if (account_group_list_unique[0] === control_ac[index]['accounts_group']) {
-                    account_name_list[index] = control_ac[index]['subsidiary_account_name'];
-                    account_name_list_html = account_name_list_html + '<option value="' + account_name_list[index] + '">' + account_name_list[index] + '</option>';
+                    let account_name = control_ac[index]['subsidiary_account_name'];
+
+                    // Check if the account_name is not already in the set
+                    if (!account_name_set.has(account_name)) {
+                        account_name_set.add(account_name); // Add the unique value to the Set
+                        account_name_list.push(account_name); // Push to the array
+                        account_name_list_html += '<option value="' + account_name + '">' + account_name + '</option>';
+                    }
                 }
             }
             document.getElementById("sub_ac_name_input").innerHTML = account_name_list_html;
@@ -386,17 +394,27 @@
             document.getElementById("control_ac_name_input").innerHTML = control_ac_name_list_html;
 
             $('#accounts_group_input').change(function() {
-                account_name_list = [];
-                account_name_list_html = "";
-                control_ac_name_list = [];
-                control_ac_name_list_html = "";
+                let account_name_list = [];
+                let account_name_set = new Set(); // Using a Set to store unique values
+                let account_name_list_html = "";
+                let control_ac_name_list = [];
+                let control_ac_name_list_html = "";
+                let account_id_list = [];
+
                 for (let index = 0; index < control_ac.length; index++) {
                     if (this.value === control_ac[index]['accounts_group']) {
-                        account_name_list[index] = control_ac[index]['subsidiary_account_name'];
-                        account_name_list_html = account_name_list_html + '<option value="' + account_name_list[index] + '">' + account_name_list[index] + '</option>';
+                        let account_name = control_ac[index]['subsidiary_account_name'];
+
+                        // Check if the account_name is not already in the set
+                        if (!account_name_set.has(account_name)) {
+                            account_name_set.add(account_name); // Add the unique value to the Set
+                            account_name_list.push(account_name); // Push to the array
+                            account_name_list_html += '<option value="' + account_name + '">' + account_name + '</option>';
+                        }
+
                         control_ac_name_list[index] = control_ac[index]['account_name'];
                         account_id_list[index] = control_ac[index]['account_id'];
-                        control_ac_name_list_html = control_ac_name_list_html + '<option value="' + account_id_list[index] + '">' + control_ac_name_list[index] + '</option>';
+                        control_ac_name_list_html += '<option value="' + account_id_list[index] + '">' + control_ac_name_list[index] + '</option>';
                     }
                 }
                 document.getElementById("sub_ac_name_input").innerHTML = account_name_list_html;
