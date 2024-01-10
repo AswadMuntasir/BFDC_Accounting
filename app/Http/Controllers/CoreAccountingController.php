@@ -1345,85 +1345,85 @@ class CoreAccountingController extends Controller
             $endDate = $request->input('end_date');
             
             if ($request->isMethod('post')) {
-                $voucher_entry = DB::table('voucher_entry')
-                    ->whereBetween('voucher_date', [$startDate, $endDate])
-                    ->whereIn('status', ['pending', 'Pending', 'Done'])
-                    ->select('dr_amount', 'cr_amount', 'voucher_date')
-                    ->orderBy('voucher_date')
-                    ->get();
+                // $voucher_entry = DB::table('voucher_entry')
+                //     ->whereBetween('voucher_date', [$startDate, $endDate])
+                //     ->whereIn('status', ['pending', 'Pending', 'Done'])
+                //     ->select('dr_amount', 'cr_amount', 'voucher_date')
+                //     ->orderBy('voucher_date')
+                //     ->get();
 
-                // dd($voucher_entry);
-                foreach($voucher_entry as $voucher_data) {
-                    $accountHeads = account_head::select('ac_head_id', 'ac_head_name_eng')->get();
-                    $dailyData = daily_data::where('voucher_date', $voucher_data->voucher_date)->pluck('ac_head');
+                // // dd($voucher_entry);
+                // foreach($voucher_entry as $voucher_data) {
+                //     $accountHeads = account_head::select('ac_head_id', 'ac_head_name_eng')->get();
+                //     $dailyData = daily_data::where('voucher_date', $voucher_data->voucher_date)->pluck('ac_head');
 
-                    $drAmountJson = $voucher_data->dr_amount;
-                    $crAmountJson = $voucher_data->cr_amount;
+                //     $drAmountJson = $voucher_data->dr_amount;
+                //     $crAmountJson = $voucher_data->cr_amount;
 
-                    $drAmountData = json_decode($drAmountJson, true);
-                    $crAmountData = json_decode($crAmountJson, true);
+                //     $drAmountData = json_decode($drAmountJson, true);
+                //     $crAmountData = json_decode($crAmountJson, true);
 
-                    $dailyDataArray = [];
-                    // dd($drAmountData, $crAmountData);
-                    if ($drAmountData && !empty($drAmountData)) {
-                        foreach ($drAmountData as $drItem) {
-                            $desiredAcHead = $accountHeads->firstWhere('ac_head_name_eng', $drItem['name']);
-                            if ($desiredAcHead) {
-                                $dailyDataArray[] = [
-                                    'id' => $desiredAcHead->ac_head_id,
-                                    'amount' => intval($drItem['amount']),
-                                    'type' => 'dr_amount',
-                                ];
-                            }
-                        }
-                    }
+                //     $dailyDataArray = [];
+                //     // dd($drAmountData, $crAmountData);
+                //     if ($drAmountData && !empty($drAmountData)) {
+                //         foreach ($drAmountData as $drItem) {
+                //             $desiredAcHead = $accountHeads->firstWhere('ac_head_name_eng', $drItem['name']);
+                //             if ($desiredAcHead) {
+                //                 $dailyDataArray[] = [
+                //                     'id' => $desiredAcHead->ac_head_id,
+                //                     'amount' => intval($drItem['amount']),
+                //                     'type' => 'dr_amount',
+                //                 ];
+                //             }
+                //         }
+                //     }
 
-                    if ($crAmountData && !empty($crAmountData)) {
-                        foreach ($crAmountData as $crItem) {
-                            $desiredAcHead = $accountHeads->firstWhere('ac_head_name_eng', $crItem['name']);
-                            if ($desiredAcHead) {
-                                $dailyDataArray[] = [
-                                    'id' => $desiredAcHead->ac_head_id,
-                                    'amount' => intval($crItem['amount']),
-                                    'type' => 'cr_amount',
-                                ];
-                            }
-                        }
-                    }
-                    $processedData = [];
-                    foreach ($dailyDataArray as $item) {
-                        $key = $item['id'] . '_' . $item['type'];
-                        $amount = intval($item['amount']);
+                //     if ($crAmountData && !empty($crAmountData)) {
+                //         foreach ($crAmountData as $crItem) {
+                //             $desiredAcHead = $accountHeads->firstWhere('ac_head_name_eng', $crItem['name']);
+                //             if ($desiredAcHead) {
+                //                 $dailyDataArray[] = [
+                //                     'id' => $desiredAcHead->ac_head_id,
+                //                     'amount' => intval($crItem['amount']),
+                //                     'type' => 'cr_amount',
+                //                 ];
+                //             }
+                //         }
+                //     }
+                //     $processedData = [];
+                //     foreach ($dailyDataArray as $item) {
+                //         $key = $item['id'] . '_' . $item['type'];
+                //         $amount = intval($item['amount']);
                         
-                        if (!isset($processedData[$key])) {
-                            $processedData[$key] = [
-                                "id" => $item['id'],
-                                "amount" => $amount,
-                                "type" => $item['type']
-                            ];
-                        } else {
-                            $processedData[$key]['amount'] += $amount;
-                        }
-                    }
+                //         if (!isset($processedData[$key])) {
+                //             $processedData[$key] = [
+                //                 "id" => $item['id'],
+                //                 "amount" => $amount,
+                //                 "type" => $item['type']
+                //             ];
+                //         } else {
+                //             $processedData[$key]['amount'] += $amount;
+                //         }
+                //     }
 
-                    $result = array_values($processedData);
-                    $dailyDataJson = json_encode($result);
-                    // dd($dailyDataJson);
-                    if(isset($dailyData[0])) {
-                        $dailyDataJson = $this->dailyDataCalculation($dailyData, $dailyDataJson);
-                    }
-                    // dd($dailyDataJson);
-                    if (isset($dailyData[0])) {
-                        // Update the existing record
-                        daily_data::where('voucher_date', $voucher_data->voucher_date)->update(['ac_head' => $dailyDataJson]);
-                    } else {
-                        // Create a new record
-                        $newDailyData = new daily_data;
-                        $newDailyData->voucher_date = $voucher_data->voucher_date;
-                        $newDailyData->ac_head = $dailyDataJson;
-                        $newDailyData->save();
-                    }
-                }
+                //     $result = array_values($processedData);
+                //     $dailyDataJson = json_encode($result);
+                //     // dd($dailyDataJson);
+                //     if(isset($dailyData[0])) {
+                //         $dailyDataJson = $this->dailyDataCalculation($dailyData, $dailyDataJson);
+                //     }
+                //     // dd($dailyDataJson);
+                //     if (isset($dailyData[0])) {
+                //         // Update the existing record
+                //         daily_data::where('voucher_date', $voucher_data->voucher_date)->update(['ac_head' => $dailyDataJson]);
+                //     } else {
+                //         // Create a new record
+                //         $newDailyData = new daily_data;
+                //         $newDailyData->voucher_date = $voucher_data->voucher_date;
+                //         $newDailyData->ac_head = $dailyDataJson;
+                //         $newDailyData->save();
+                //     }
+                // }
 
                 // $voucher_entry = DB::table('daily_data')
                 //                 ->whereBetween('voucher_date', [$startDate, $endDate])
