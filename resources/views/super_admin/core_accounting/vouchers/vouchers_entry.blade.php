@@ -145,7 +145,7 @@
                     <div class="col-sm-12 col-md-12">
                         <h4>Voucher Entry List</h4>
                     </div>
-                    <div id="tableExample2" data-list="{&quot;valueNames&quot;:[&quot;head_id&quot;,&quot;group_name&quot;,&quot;accounts_name&quot;],&quot;page&quot;:10,&quot;pagination&quot;:true}">
+                    <div id="tableExample2" data-list="{&quot;valueNames&quot;:[&quot;id&quot;,&quot;voucher_no&quot;,&quot;voucher_type&quot;,&quot;voucher_date&quot;,&quot;collection_type&quot;,&quot;amount&quot;],&quot;page&quot;:25,&quot;pagination&quot;:true}">
                         <div class="table-responsive">
                             <table class="table table-striped table-sm fs--1 mb-0">
                             <thead>

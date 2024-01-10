@@ -121,7 +121,7 @@
                     <div class="col-sm-12 col-md-12">
                         <h4>Collection Entry List</h4>
                     </div>
-                    <div id="tableExample2" data-list="{&quot;valueNames&quot;:[&quot;head_id&quot;,&quot;group_name&quot;,&quot;accounts_name&quot;],&quot;page&quot;:25,&quot;pagination&quot;:true}">
+                    <div id="tableExample2" data-list="{&quot;valueNames&quot;:[&quot;id&quot;,&quot;date&quot;,&quot;pdf&quot;,&quot;bill_receivable_section&quot;,&quot;customer_name&quot;,&quot;type&quot;,&quot;amount&quot;],&quot;page&quot;:25,&quot;pagination&quot;:true}">
                         <div class="table-responsive">
                             <table class="table table-striped table-sm fs--1 mb-0">
                             <thead>
