@@ -42,7 +42,7 @@
 
                 @if ($status === 'Multiple')
 
-                  <div id="tableExample2" data-list="{&quot;valueNames&quot;:[&quot;head_id&quot;,&quot;group_name&quot;,&quot;accounts_name&quot;],&quot;page&quot;:250,&quot;pagination&quot;:true}">
+                  <div id="tableExample2" data-list="{&quot;valueNames&quot;:[&quot;serial&quot;,&quot;voucher_no&quot;,&quot;voucher_type&quot;,&quot;amount&quot;],&quot;page&quot;:250,&quot;pagination&quot;:true}">
                     <div class="table-responsive">
                         <table class="table table-striped table-sm fs--1 mb-0">
                         <thead>
