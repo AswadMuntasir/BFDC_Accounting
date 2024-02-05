@@ -160,7 +160,7 @@
                               @foreach ($ledger->dr_amount as $amount)
                                 {{ $amount->amount }}<br>
                                 @php
-                                  $totalDr = $totalDr + $amount->amount;
+                                  $totalDr = $totalDr + (int)$amount->amount;
                                 @endphp
                               @endforeach
                             @else
@@ -172,7 +172,7 @@
                               @foreach ($ledger->cr_amount as $amount)
                                 {{ $amount->amount }}<br>
                                 @php
-                                  $totalCr = $totalCr + $amount->amount;
+                                  $totalCr = $totalCr + (int)$amount->amount;
                                 @endphp
                               @endforeach
                             @else
@@ -182,10 +182,10 @@
                           <td>
                             @php
                               foreach ($ledger->dr_amount as $amount) {
-                                $total += $amount->amount;
+                                $total += (int)$amount->amount;
                               }
                               foreach ($ledger->cr_amount as $amount) {
-                                $total -= $amount->amount;
+                                $total -= (int)$amount->amount;
                               }
                             @endphp
                             &nbsp;{{ $total }}
