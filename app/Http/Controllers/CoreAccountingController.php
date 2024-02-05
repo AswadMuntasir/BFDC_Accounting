@@ -1114,6 +1114,12 @@ return json_encode($finalResult);
 
             if ($drAmountData && !empty($drAmountData)) {
                 foreach ($drAmountData as $drItem) {
+                    $finalDataArray[] = [
+                        'name' => $drItem['name'],
+                        'amount' => $drItem['amount'],
+                        'party_name' => $request->input('party_input'),
+                        'type' => 'dr_amount',
+                    ];
                     $desiredAcHead = $accountHeads->Where('ac_head_name_eng', $drItem['name'])->first();
                     // return $desiredAcHead;
                     if ($drItem) {
@@ -1129,6 +1135,12 @@ return json_encode($finalResult);
 
             if ($crAmountData && !empty($crAmountData)) {
                 foreach ($crAmountData as $crItem) {
+                    $finalDataArray[] = [
+                        'name' => $crItem['name'],
+                        'amount' => $crItem['amount'],
+                        'party_name' => $request->input('party_input'),
+                        'type' => 'cr_amount',
+                    ];
                     $desiredAcHead = $accountHeads->Where('ac_head_name_eng', $crItem['name'])->first();
                     // dd($desiredAcHead);
                     if ($desiredAcHead) {
