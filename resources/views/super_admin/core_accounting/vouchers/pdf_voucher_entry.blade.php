@@ -118,7 +118,7 @@
                                                 @if ($entry['type'] === 'dr_amount')
                                                 {{ $entry['amount'] }}.00
                                                 @php
-                                                $totalDrAmount += $entry['amount'];
+                                                $totalDrAmount += (int)$entry['amount'];
                                                 @endphp
                                                 @else
 
@@ -128,7 +128,7 @@
                                                 @if ($entry['type'] === 'cr_amount')
                                                 {{ $entry['amount'] }}.00
                                                 @php
-                                                $totalCrAmount += $entry['amount'];
+                                                $totalCrAmount += (int)$entry['amount'];
                                                 @endphp
                                                 @else
 
@@ -196,7 +196,7 @@
                                                                 @if ($entry['type'] === 'dr_amount')
                                                                 {{ $entry['amount'] }}.00
                                                                 @php
-                                                                $totalDrAmount += $entry['amount'];
+                                                                $totalDrAmount += (int)$entry['amount'];
                                                                 @endphp
                                                                 @else
                                                                 0.00
@@ -206,7 +206,7 @@
                                                                 @if ($entry['type'] === 'cr_amount')
                                                                 {{ $entry['amount'] }}.00
                                                                 @php
-                                                                $totalCrAmount += $entry['amount'];
+                                                                $totalCrAmount += (int)$entry['amount'];
                                                                 @endphp
                                                                 @else
                                                                 0.00
