@@ -1079,6 +1079,10 @@ return json_encode($finalResult);
             return response()->json(['data' => $newEntry]);
         } elseif ($data->count() === 1) {
             // Single data selected
+            $accountHeads = control_ac::join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
+                                    ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'ac_head.ac_head_name_eng')
+                                    ->get();
+                                    
             $item = $data->first();
             $item['cr_amount'] = json_decode($item['cr_amount'], true);
             $item['dr_amount'] = json_decode($item['dr_amount'], true);
@@ -1088,20 +1092,24 @@ return json_encode($finalResult);
             $drAmountData = $item['dr_amount'];
             $crAmountData = $item['cr_amount'];
 
-            $accountHeads = account_head::select('ac_head_id', 'ac_head_name_eng')->get();
+            // $accountHeads = account_head::select('ac_head_id', 'ac_head_name_eng')->get();
             $dailyData = daily_data::where('voucher_date', $v_date)->pluck('ac_head');
             // Transform data to final_data format
             $finalDataArray = [];
             $dailyDataArray = [];
 
+            // return $drAmountData;
+
             if ($drAmountData && !empty($drAmountData)) {
                 foreach ($drAmountData as $drItem) {
-                    $desiredAcHead = $accountHeads->firstWhere('ac_head_name_eng', $drItem['name']);
-                    if ($desiredAcHead) {
+                    $desiredAcHead = $accountHeads->Where('ac_head_name_eng', $drItem['name'])->first();
+                    // return $desiredAcHead;
+                    if ($drItem) {
                         $dailyDataArray[] = [
-                            'id' => $desiredAcHead->ac_head_id,
-                            'amount' => $drItem['amount'],
-                            'type' => 'dr_amount',
+                            'account_group' => $desiredAcHead->accounts_group,
+                            'subsidiary_account_name' => $desiredAcHead->subsidiary_account_name,
+                            'name' => $drItem['name'],
+                            'amount' => intval($drItem['amount']),
                         ];
                     }
                 }
@@ -1109,28 +1117,35 @@ return json_encode($finalResult);
 
             if ($crAmountData && !empty($crAmountData)) {
                 foreach ($crAmountData as $crItem) {
-                    $desiredAcHead = $accountHeads->firstWhere('ac_head_name_eng', $crItem['name']);
+                    $desiredAcHead = $accountHeads->Where('ac_head_name_eng', $crItem['name'])->first();
+                    // dd($desiredAcHead);
                     if ($desiredAcHead) {
                         $dailyDataArray[] = [
-                            'id' => $desiredAcHead->ac_head_id,
-                            'amount' => $drItem['amount'],
-                            'type' => 'cr_amount',
+                            'account_group' => $desiredAcHead->accounts_group,
+                            'subsidiary_account_name' => $desiredAcHead->subsidiary_account_name,
+                            'name' => $crItem['name'],
+                            'amount' => -intval($crItem['amount']),
                         ];
                     }
                 }
             }
-
+            // return $dailyDataArray;
+            $finalDataJson = json_encode($finalDataArray);
             $dailyDataJson = json_encode($dailyDataArray);
-
+            // dd($dailyData, $dailyDataJson);
+            // return $dailyDataJson;
             if(isset($dailyData[0])) {
                 $dailyDataJson = $this->dailyDataCalculation($dailyData, $dailyDataJson);
-
+                // dd($dailyDataJson);
+            }
+            // return $dailyDataJson;
+            if (isset($dailyData[0])) {
                 // Update the existing record
-                daily_data::where('voucher_date', $v_date)->update(['ac_head' => $dailyDataJson]);
+                daily_data::where('voucher_date', $item['collection_date'])->update(['ac_head' => $dailyDataJson]);
             } else {
                 // Create a new record
                 $newDailyData = new daily_data;
-                $newDailyData->voucher_date = $v_date;
+                $newDailyData->voucher_date = $item['collection_date'];
                 $newDailyData->ac_head = $dailyDataJson;
                 $newDailyData->save();
             }
