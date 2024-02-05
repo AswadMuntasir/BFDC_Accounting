@@ -222,6 +222,19 @@
       <script src="{{ asset('assets/js/bootstrap-datetimepicker.min.js') }}"></script>
       <!-- <script src="{{ asset('assets/js/html2pdf.bundle.min.js') }}"></script> -->
       <script src="{{ asset('assets/js/html2pdf.bundle.min.js') }}"></script>
+      <script src="{{ asset('assets/js/html2pdf.bundle.js') }}"></script>
+      <script src="{{ asset('vendors/popper/popper.min.js') }}"></script>
+      <script src="{{ asset('vendors/bootstrap/bootstrap.min.js') }}"></script>
+      <script src="{{ asset('vendors/anchorjs/anchor.min.js') }}"></script>
+      <script src="{{ asset('vendors/is/is.min.js') }}"></script>
+      <script src="{{ asset('vendors/fontawesome/all.min.js') }}"></script>
+      <script src="{{ asset('vendors/lodash/lodash.min.js') }}"></script>
+      <script src="https://polyfill.io/v3/polyfill.min.js"></script>
+      <script src="{{ asset('vendors/list.js/list.min.js') }}"></script>
+      <script src="{{ asset('vendors/feather-icons/feather.min.js') }}"></script>
+      <script src="{{ asset('vendors/dayjs/dayjs.min.js') }}"></script>
+      <script src="{{ asset('vendors/choices/choices.min.js') }}"></script>
+      <script src="{{ asset('assets/js/phoenix.js') }}"></script>
       <script>
           // Initialize datetimepicker
           $(document).ready(function() {
@@ -231,23 +244,35 @@
               });
           });
 
-          // Download as PDF
-          const html2pdf = require('html2pdf');
+        //   // Download as PDF
+        //   const html2pdf = require('html2pdf');
 
-          document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('download_button').addEventListener('click', function() {
-                const invoice = document.getElementById('invoice');
-                const options = {
-                    margin: 0.5,
-                    filename: 'trial_balance.pdf',
-                    image: { type: 'jpeg', quality: 1 },
-                    html2canvas: { scale: 2 },
-                    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-                };
+        //   document.addEventListener('DOMContentLoaded', function() {
+        //     document.getElementById('download_button').addEventListener('click', function() {
+        //         const invoice = document.getElementById('invoice');
+        //         const options = {
+        //             margin: 0.5,
+        //             filename: 'trial_balance.pdf',
+        //             image: { type: 'jpeg', quality: 1 },
+        //             html2canvas: { scale: 2 },
+        //             jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        //         };
 
-                html2pdf().set(options).from(invoice).save();
-            });
-          });
+        //         html2pdf().set(options).from(invoice).save();
+        //     });
+        //   });
       </script>
+      <script>
+        const button = document.getElementById('download-button');
+
+        function generatePDF() {
+            // Choose the element that your content will be rendered to.
+            const element = document.getElementById('invoice');
+            // Choose the element and save the PDF for your user.
+            html2pdf().from(element).save();
+        }
+
+        button.addEventListener('click', generatePDF);
+    </script>
       </div>
 @endsection
