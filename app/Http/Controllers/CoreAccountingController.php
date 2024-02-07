@@ -1590,7 +1590,16 @@ return json_encode($finalResult);
                 // Use Laravel's collection methods to merge and sum amounts
                 if ($ledgerData->count() === 1) {
                     // If there is only one set of data, you can use it directly
-                    $mergedData = $ledgerData;
+                    // $mergedData = $ledgerData;
+                    // $acHeadData = $dataArray['ac_head'];
+                    foreach ($ledgerData as $data) {
+                        $decodedData = json_decode($data->ac_head, true);
+                        $dailyData[] = $decodedData; 
+                        // $dailyData = array_merge($previous_data, $decodedData); 
+                    }
+                    // Initialize an empty array to store formatted data
+                    $mergedData = [];
+                    $mergedData = $dailyData[0];
                 } else {
                     // $previous_data = [];
                     $dailyData = [];
@@ -1654,10 +1663,10 @@ return json_encode($finalResult);
                     });
 
                     // dd($newArray);
+                    $mergedData = $newArray;
                 }
                 // dd($mergedData[0]->ac_head);
                 // $finalResult = json_decode($mergedData[0]->ac_head, true);
-                $mergedData = $newArray;
                 return view('super_admin.core_accounting.account_reports.trial_balance', [
                     'data' => $mergedData,
                     'startDate' => $startDate,
