@@ -771,6 +771,76 @@ return json_encode($finalResult);
         // dd($output);
         $voucher_type = $voucher_data[0]["voucher_type"];
 
+        $drAmountData = json_decode($voucher_data[0]['dr_amount'], true);
+        $crAmountData = json_decode($voucher_data[0]['cr_amount'], true);
+
+        $accountHeads = control_ac::join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
+                                    ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name', 'ac_head.ac_head_name_eng')
+                                    ->get();
+        
+        $dailyData = daily_data::where('voucher_date', $voucher_data[0]['voucher_date'])->pluck('ac_head');
+        // $desiredAcHead = $accountHeads->Where('ac_head_name_eng', $drAmountData['name'])->first();
+
+        if ($drAmountData && !empty($drAmountData)) {
+            foreach ($drAmountData as $drItem) {
+                $desiredAcHead = $accountHeads->Where('ac_head_name_eng', $drItem['name'])->first();
+                // return $desiredAcHead;
+                if ($drItem) {
+                    $dailyDataArray[] = [
+                        'account_group' => $desiredAcHead->accounts_group,
+                        'subsidiary_account_name' => $desiredAcHead->subsidiary_account_name,
+                        'name' => $desiredAcHead->account_name,
+                        'amount' => intval($drItem['amount']),
+                    ];
+                }
+            }
+        }
+
+        if ($crAmountData && !empty($crAmountData)) {
+            foreach ($crAmountData as $crItem) {
+                $desiredAcHead = $accountHeads->Where('ac_head_name_eng', $drItem['name'])->first();
+                if ($desiredAcHead) {
+                    $dailyDataArray[] = [
+                        'account_group' => $desiredAcHead->accounts_group,
+                        'subsidiary_account_name' => $desiredAcHead->subsidiary_account_name,
+                        'name' => $desiredAcHead->account_name,
+                        'amount' => -intval($crItem['amount']),
+                    ];
+                }
+            }
+        }
+        $oldDailyData = json_decode($dailyData[0]);
+        // $dataArray = json_decode($oldDailyData, true);
+        // Initialize an empty array to store converted data
+        $convertedData = [];
+
+        // Iterate over the array of objects
+        foreach ($oldDailyData as $item) {
+            // Convert each object into an associative array
+            $convertedData[] = [
+                "account_group" => $item->account_group,
+                "subsidiary_account_name" => $item->subsidiary_account_name,
+                "name" => $item->name,
+                "amount" => $item->amount
+            ];
+        }
+
+        // dd($convertedData, $dailyDataArray);
+        foreach ($convertedData as $item2) {
+            // Find corresponding item in data1 based on account_group, subsidiary_account_name, and name
+            foreach ($dailyDataArray as &$item1) {
+                if ($item1["account_group"] === $item2["account_group"] &&
+                    $item1["subsidiary_account_name"] === $item2["subsidiary_account_name"] &&
+                    $item1["name"] === $item2["name"]) {
+                    // Subtract the amount from data1
+                    $item2["amount"] -= $item1["amount"];
+                    break;
+                }
+            }
+        }
+
+        // dd($drAmountData, $crAmountData, $dailyDataArray, $convertedData);
+        // dd($voucher_data, $dailyData);
         if($size > 0) {
             if($voucher_type == "Receipt Voucher") {
                 collection_entry::whereIn('id', $output)->update(['status' => 'visible']);
@@ -919,7 +989,7 @@ return json_encode($finalResult);
             $totalCrAmount = 0;
             // return $data[0];
             $accountHeads = control_ac::join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
-                                    ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'ac_head.ac_head_name_eng')
+                                    ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name', 'ac_head.ac_head_name_eng')
                                     ->get();
             // dd($accountHeads);
 
@@ -957,7 +1027,7 @@ return json_encode($finalResult);
                             $dailyDataArray[] = [
                                 'account_group' => $desiredAcHead->accounts_group,
                                 'subsidiary_account_name' => $desiredAcHead->subsidiary_account_name,
-                                'name' => $drItem['name'],
+                                'name' => $desiredAcHead->account_name,
                                 'amount' => intval($drItem['amount']),
                             ];
                         }
@@ -978,7 +1048,7 @@ return json_encode($finalResult);
                             $dailyDataArray[] = [
                                 'account_group' => $desiredAcHead->accounts_group,
                                 'subsidiary_account_name' => $desiredAcHead->subsidiary_account_name,
-                                'name' => $crItem['name'],
+                                'name' => $desiredAcHead->account_name,
                                 'amount' => -intval($crItem['amount']),
                             ];
                         }
@@ -1092,7 +1162,7 @@ return json_encode($finalResult);
         } elseif ($data->count() === 1) {
             // Single data selected
             $accountHeads = control_ac::join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
-                                    ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'ac_head.ac_head_name_eng')
+                                    ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name', 'ac_head.ac_head_name_eng')
                                     ->get();
                                     
             $item = $data->first();
@@ -1126,7 +1196,7 @@ return json_encode($finalResult);
                         $dailyDataArray[] = [
                             'account_group' => $desiredAcHead->accounts_group,
                             'subsidiary_account_name' => $desiredAcHead->subsidiary_account_name,
-                            'name' => $drItem['name'],
+                            'name' => $desiredAcHead->account_name,
                             'amount' => intval($drItem['amount']),
                         ];
                     }
@@ -1147,7 +1217,7 @@ return json_encode($finalResult);
                         $dailyDataArray[] = [
                             'account_group' => $desiredAcHead->accounts_group,
                             'subsidiary_account_name' => $desiredAcHead->subsidiary_account_name,
-                            'name' => $crItem['name'],
+                            'name' => $desiredAcHead->account_name,
                             'amount' => -intval($crItem['amount']),
                         ];
                     }
