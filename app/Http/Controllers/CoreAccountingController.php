@@ -1512,145 +1512,45 @@ return json_encode($finalResult);
             $endDate = $request->input('end_date');
             
             if ($request->isMethod('post')) {
-                // $startDateTime = new DateTime($startDate);
-                // $endDateTime = new DateTime($endDate);
+                $startDateTime = new DateTime($startDate);
+                $endDateTime = new DateTime($endDate);
 
-                // // Iterate through each date in the range
-                // while ($startDateTime <= $endDateTime) {
-                //     $currentDate = $startDateTime->format('Y-m-d'); // Format the date as needed
+                // Iterate through each date in the range
+                while ($startDateTime <= $endDateTime) {
+                    $currentDate = $startDateTime->format('Y-m-d'); // Format the date as needed
 
-                //     // Fetch and process data for the current date
-                //     $trailBalanceSavedata = $this->trialBalanceSaveInDailyData($currentDate, $currentDate);
-                //     $trailBalanceSavedataJson = json_encode($trailBalanceSavedata);
+                    // Fetch and process data for the current date
+                    $trailBalanceSavedata = $this->trialBalanceSaveInDailyData($currentDate, $currentDate);
+                    $trailBalanceSavedataJson = json_encode($trailBalanceSavedata);
 
-                //     // Create a new daily_data entry for the current date
-                //     $newDailyData = new daily_data;
-                //     $newDailyData->voucher_date = $currentDate;
-                //     $newDailyData->ac_head = $trailBalanceSavedataJson;
-                //     $newDailyData->save();
+                    // Create a new daily_data entry for the current date
+                    $newDailyData = new daily_data;
+                    $newDailyData->voucher_date = $currentDate;
+                    $newDailyData->ac_head = $trailBalanceSavedataJson;
+                    $newDailyData->save();
 
-                //     // Fetch voucher entries for the current date
-                //     $voucher_entries = DB::table('voucher_entry')
-                //         ->where('voucher_date', $currentDate)
-                //         ->whereIn('status', ['pending', 'Pending', 'Done'])
-                //         ->select('dr_amount', 'cr_amount', 'voucher_date')
-                //         ->orderBy('voucher_date')
-                //         ->get();
+                    // Fetch voucher entries for the current date
+                    $voucher_entries = DB::table('voucher_entry')
+                        ->where('voucher_date', $currentDate)
+                        ->whereIn('status', ['pending', 'Pending', 'Done'])
+                        ->select('dr_amount', 'cr_amount', 'voucher_date')
+                        ->orderBy('voucher_date')
+                        ->get();
 
-                //     // Process or store the fetched voucher entries as needed
+                    // Process or store the fetched voucher entries as needed
 
-                //     // Move to the next date
-                //     $startDateTime->modify('+1 day');
-                // }
-                // $trailBalanceSavedata = $this->trialBalanceSaveInDailyData($startDate, $endDate);
-                // $trailBalanceSavedataJson = json_encode($trailBalanceSavedata);
-                // $newDailyData = new daily_data;
-                // $newDailyData->voucher_date = $startDate;
-                // $newDailyData->ac_head = $trailBalanceSavedataJson;
-                // $newDailyData->save();
-                // $voucher_entry = DB::table('voucher_entry')
-                //     ->whereBetween('voucher_date', [$startDate, $endDate])
-                //     ->whereIn('status', ['pending', 'Pending', 'Done'])
-                //     ->select('dr_amount', 'cr_amount', 'voucher_date')
-                //     ->orderBy('voucher_date')
-                //     ->get();
+                    // Move to the next date
+                    $startDateTime->modify('+1 day');
+                }
+                $trailBalanceSavedata = $this->trialBalanceSaveInDailyData($startDate, $endDate);
+                $trailBalanceSavedataJson = json_encode($trailBalanceSavedata);
+                $newDailyData = new daily_data;
+                $newDailyData->voucher_date = $startDate;
+                $newDailyData->ac_head = $trailBalanceSavedataJson;
+                $newDailyData->save();
+                
 
-                // // dd($voucher_entry);
-                // foreach($voucher_entry as $voucher_data) {
-                //     $accountHeads = account_head::select('ac_head_id', 'ac_head_name_eng')->get();
-                //     $dailyData = daily_data::where('voucher_date', $voucher_data->voucher_date)->pluck('ac_head');
-
-                //     $drAmountJson = $voucher_data->dr_amount;
-                //     $crAmountJson = $voucher_data->cr_amount;
-
-                //     $drAmountData = json_decode($drAmountJson, true);
-                //     $crAmountData = json_decode($crAmountJson, true);
-
-                //     $dailyDataArray = [];
-                //     // dd($drAmountData, $crAmountData);
-                //     if ($drAmountData && !empty($drAmountData)) {
-                //         foreach ($drAmountData as $drItem) {
-                //             $desiredAcHead = $accountHeads->firstWhere('ac_head_name_eng', $drItem['name']);
-                //             if ($desiredAcHead) {
-                //                 $dailyDataArray[] = [
-                //                     'id' => $desiredAcHead->ac_head_id,
-                //                     'amount' => intval($drItem['amount']),
-                //                     'type' => 'dr_amount',
-                //                 ];
-                //             }
-                //         }
-                //     }
-
-                //     if ($crAmountData && !empty($crAmountData)) {
-                //         foreach ($crAmountData as $crItem) {
-                //             $desiredAcHead = $accountHeads->firstWhere('ac_head_name_eng', $crItem['name']);
-                //             if ($desiredAcHead) {
-                //                 $dailyDataArray[] = [
-                //                     'id' => $desiredAcHead->ac_head_id,
-                //                     'amount' => intval($crItem['amount']),
-                //                     'type' => 'cr_amount',
-                //                 ];
-                //             }
-                //         }
-                //     }
-                //     $processedData = [];
-                //     foreach ($dailyDataArray as $item) {
-                //         $key = $item['id'] . '_' . $item['type'];
-                //         $amount = intval($item['amount']);
-                        
-                //         if (!isset($processedData[$key])) {
-                //             $processedData[$key] = [
-                //                 "id" => $item['id'],
-                //                 "amount" => $amount,
-                //                 "type" => $item['type']
-                //             ];
-                //         } else {
-                //             $processedData[$key]['amount'] += $amount;
-                //         }
-                //     }
-
-                //     $result = array_values($processedData);
-                //     $dailyDataJson = json_encode($result);
-                //     // dd($dailyDataJson);
-                //     if(isset($dailyData[0])) {
-                //         $dailyDataJson = $this->dailyDataCalculation($dailyData, $dailyDataJson);
-                //     }
-                //     // dd($dailyDataJson);
-                //     if (isset($dailyData[0])) {
-                //         // Update the existing record
-                //         daily_data::where('voucher_date', $voucher_data->voucher_date)->update(['ac_head' => $dailyDataJson]);
-                //     } else {
-                //         // Create a new record
-                //         $newDailyData = new daily_data;
-                //         $newDailyData->voucher_date = $voucher_data->voucher_date;
-                //         $newDailyData->ac_head = $dailyDataJson;
-                //         $newDailyData->save();
-                //     }
-                // }
-
-                // $voucher_entry = DB::table('daily_data')
-                //                 ->whereBetween('voucher_date', [$startDate, $endDate])
-                //                 ->get();
-
-                //             dd($voucher_entry);
-
-                // $all_ac_head_names = account_head::select(
-                //         'ac_head.ac_head_id',
-                //         'ac_head.ac_head_name_eng',
-                //         'control_ac.accounts_group',
-                //         'control_ac.subsidiary_account_name',
-                //         'control_ac.account_name'
-                //     )
-                //     ->join('control_ac', 'ac_head.control_ac_id', '=', 'control_ac.account_id')
-                //     ->get()
-                //     ->toArray();
-
-                // $ledgerData = DB::table('daily_data')
-                //     ->whereBetween('voucher_date', [$startDate, $endDate])
-                //     ->select('ac_head')
-                //     ->get();
-
-                // $finalResult = $this->dailyDataDispatch($ledgerData, $all_ac_head_names);
+                // // // // // $finalResult = $this->dailyDataDispatch($ledgerData, $all_ac_head_names);
 
                 $ledgerData = DB::table('daily_data')
                     ->whereBetween('voucher_date', [$startDate, $endDate])
