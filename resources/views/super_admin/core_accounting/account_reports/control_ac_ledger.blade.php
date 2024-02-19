@@ -1,6 +1,21 @@
 @extends('layout.app')
 
 @section('content')
+    <script src="{{ asset('assets/js/html2pdf.bundle.js') }}"></script>
+    <script src="{{ asset('vendors/popper/popper.min.js') }}"></script>
+    <script src="{{ asset('vendors/bootstrap/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('vendors/anchorjs/anchor.min.js') }}"></script>
+    <script src="{{ asset('vendors/is/is.min.js') }}"></script>
+    <script src="{{ asset('vendors/fontawesome/all.min.js') }}"></script>
+    <script src="{{ asset('vendors/lodash/lodash.min.js') }}"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js"></script>
+    <script src="{{ asset('vendors/list.js/list.min.js') }}"></script>
+    <script src="{{ asset('vendors/feather-icons/feather.min.js') }}"></script>
+    <script src="{{ asset('vendors/dayjs/dayjs.min.js') }}"></script>
+    <script src="{{ asset('vendors/choices/choices.min.js') }}"></script>
+    <script src="{{ asset('assets/js/phoenix.js') }}"></script>
+    <script src="{{ asset('vendors/echarts/echarts.min.js') }}"></script>
+    <script src="{{ asset('assets/js/ecommerce-dashboard.js') }}"></script>
       <div class="container-fluid px-0" data-layout="container">
         @include('layout.navbar.navbar')
         <!-- 
@@ -154,17 +169,19 @@
           <script>
             $('.select2').select2();
           </script>
+          <script>
+        const button = document.getElementById('download-button');
+
+        function generatePDF() {
+            // Choose the element that your content will be rendered to.
+            const element = document.getElementById('invoice');
+            // Choose the element and save the PDF for your user.
+            html2pdf().from(element).save();
+        }
+
+        button.addEventListener('click', generatePDF);
+    </script>
           @include('layout.footer')
         </div>
       </div>
-    <script>
-        const button = document.getElementById('download-button');
-        function generatePDF() {
-        // Choose the element that your content will be rendered to.
-        const element = document.getElementById('invoice');
-        // Choose the element and save the PDF for your user.
-        html2pdf().from(element).save();
-        }
-        button.addEventListener('click', generatePDF);
-    </script>
 @endsection
