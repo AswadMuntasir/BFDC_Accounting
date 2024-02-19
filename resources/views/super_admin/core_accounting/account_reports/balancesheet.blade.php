@@ -35,7 +35,7 @@
         <div class="col-12">
             <div id="result-container">
                 <div style="float:right; margin-right:20%;">
-                    <button id="download_button" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
+                    <button id="download-button" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
                 </div>
                 <br><br>
                 <div style="border: 2px solid #000000; background-color:#ffffff; width: 60%; margin-left: auto; margin-right: auto;">
@@ -244,6 +244,18 @@
         </div>
         @endif
       </div>
+      <script>
+        const button = document.getElementById('download-button');
+
+        function generatePDF() {
+            // Choose the element that your content will be rendered to.
+            const element = document.getElementById('invoice');
+            // Choose the element and save the PDF for your user.
+            html2pdf().from(element).save();
+        }
+
+        button.addEventListener('click', generatePDF);
+      </script>
       @include('layout.footer')
     </div>
   </div>

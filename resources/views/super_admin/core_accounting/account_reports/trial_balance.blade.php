@@ -34,7 +34,7 @@
               <div class="col-12">
                   <div id="result-container">
                       <div style="float:right; margin-right:20%;">
-                          <button id="download_button" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
+                          <button id="download-button" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
                       </div>
                       <br><br>
                       <div style="border: 2px solid #000000; background-color:#ffffff; width: 60%; margin-left: auto; margin-right: auto;">
@@ -68,7 +68,14 @@
                                               @php
                                                 $grandTotaldr = 0;
                                                 $grandTotalcr = 0;
-                                              @endphp
+                                                $rowCount = 0;
+                                                $drTotal = 0;
+                                                $crTotal = 0;
+                                                $previousDrTotal = 0;
+                                                $previousCrTotal = 0;
+                                                $previous_accounts_group = "";
+                                                $previous_subsidiary_account_name = "";
+                                                @endphp
                                               <div class="col-12" style="border: 1px solid #000000; font-size: 8pt;">
                                                 <table style="width: 100%;">
                                                     <thead>
@@ -80,14 +87,7 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        @php
-                                                            $drTotal = 0;
-                                                            $crTotal = 0;
-                                                            $previousDrTotal = 0;
-                                                            $previousCrTotal = 0;
-                                                            $previous_accounts_group = "";
-                                                            $previous_subsidiary_account_name = "";
-                                                        @endphp
+                                                        
                                                         @foreach ($data as $item)
                                                             @php
                                                                 $accounts_group_data = $item['account_group'];
@@ -107,6 +107,29 @@
                                                                         <td style="text-align: right;">{{ $drTotal }}<br><br></td>
                                                                         <td style="text-align: right;">{{ abs($crTotal) }}<br><br></td>
                                                                     </tr>
+                                                                    @php
+                                                                        $rowCount++; $rowCount++;
+                                                                    @endphp
+                                                                    @if ($rowCount > 44)
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </div>
+                                                                        <div class="col-12"> <br><br><br> </div>
+                                                                    <div class="col-12" style="border: 1px solid #000000; font-size: 8pt;">
+                                                                        <table style="width: 100%;">
+                                                                            <thead>
+                                                                                <tr style="border-bottom: 1px solid #000000;">
+                                                                                    <th style="width: 40%;">Particulars</th>
+                                                                                    <th style="width: 20%;"></th>
+                                                                                    <th style="width: 20%; text-align: right;">Balance (DR)</th>
+                                                                                    <th style="width: 20%; text-align: right;">Balance(CR)</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                        <tbody>
+                                                                    @php
+                                                                        $rowCount = 0;
+                                                                    @endphp
+                                                                @endif
                                                                 @endif
                                                                 @php
                                                                     $drTotal = 0;
@@ -118,6 +141,29 @@
                                                                     <td></td>
                                                                     <td></td>
                                                                 </tr>
+                                                                @php
+                                                                    $rowCount++;
+                                                                @endphp
+                                                                    @if ($rowCount > 44)
+                                                                            </tbody>
+                                                                        </table>
+                                                                        </div>
+                                                                        <div class="col-12"> <br><br><br> </div>
+                                                                    <div class="col-12" style="border: 1px solid #000000; font-size: 8pt;">
+                                                                        <table style="width: 100%;">
+                                                                            <thead>
+                                                                                <tr style="border-bottom: 1px solid #000000;">
+                                                                                    <th style="width: 40%;">Particulars</th>
+                                                                                    <th style="width: 20%;"></th>
+                                                                                    <th style="width: 20%; text-align: right;">Balance (DR)</th>
+                                                                                    <th style="width: 20%; text-align: right;">Balance(CR)</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                        <tbody>
+                                                                    @php
+                                                                        $rowCount = 0;
+                                                                    @endphp
+                                                                @endif
                                                             @endif
 
                                                             @php
@@ -131,6 +177,29 @@
                                                                     <td></td>
                                                                     <td></td>
                                                                 </tr>
+                                                                @php
+                                                                    $rowCount++;
+                                                                @endphp
+                                                                    @if ($rowCount > 44)
+                                                                            </tbody>
+                                                                        </table>
+                                                                        </div>
+                                                                        <div class="col-12"> <br><br><br> </div>
+                                                                    <div class="col-12" style="border: 1px solid #000000; font-size: 8pt;">
+                                                                        <table style="width: 100%;">
+                                                                            <thead>
+                                                                                <tr style="border-bottom: 1px solid #000000;">
+                                                                                    <th style="width: 40%;">Particulars</th>
+                                                                                    <th style="width: 20%;"></th>
+                                                                                    <th style="width: 20%; text-align: right;">Balance (DR)</th>
+                                                                                    <th style="width: 20%; text-align: right;">Balance(CR)</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                        <tbody>
+                                                                    @php
+                                                                        $rowCount = 0;
+                                                                    @endphp
+                                                                @endif
                                                             @endif
 
                                                             @php
@@ -165,8 +234,29 @@
                                                                     }
                                                                 @endphp
                                                             </tr>
-
-                                                            
+                                                            @php
+                                                                $rowCount++;
+                                                            @endphp
+                                                                @if ($rowCount > 44)
+                                                                        </tbody>
+                                                                    </table>
+                                                                    </div>
+                                                                    <div class="col-12"> <br><br><br> </div>
+                                                                    <div class="col-12" style="border: 1px solid #000000; font-size: 8pt;">
+                                                                    <table style="width: 100%;">
+                                                                        <thead>
+                                                                            <tr style="border-bottom: 1px solid #000000;">
+                                                                                <th style="width: 40%;">Particulars</th>
+                                                                                <th style="width: 20%;"></th>
+                                                                                <th style="width: 20%; text-align: right;">Balance (DR)</th>
+                                                                                <th style="width: 20%; text-align: right;">Balance(CR)</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                    <tbody>
+                                                                @php
+                                                                    $rowCount = 0;
+                                                                @endphp
+                                                            @endif
                                                         @endforeach
                                                     </tbody>
                                                 </table>
