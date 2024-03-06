@@ -903,7 +903,7 @@ return json_encode($finalResult);
         }
 
         $finalDataJson = json_encode($finalDataArray); //cr_dr output
-
+        $finalDataJson1 = $finalDataJson;
         $updatedDrAmount = []; // Initialize as empty array
         $updatedCrAmount = []; // Initialize as empty array
 
@@ -1058,7 +1058,7 @@ return json_encode($finalResult);
                 $finalDataJson = json_encode($finalDataArray);
                 $dailyDataJson = json_encode($dailyDataArray);
                 // dd($dailyData, $dailyDataJson);
-                // return $dailyDataJson;
+                // return $finalDataJson;
                 if(isset($dailyData[0])) {
                     $dailyDataJson = $this->dailyDataCalculation($dailyData, $dailyDataJson);
                     // dd($dailyDataJson);
@@ -1130,7 +1130,7 @@ return json_encode($finalResult);
                 'description' => $description,
                 'dr_amount' => json_encode($newDR),
                 'cr_amount' => json_encode($newCR),
-                'cr_dr' => $finalDataJson
+                'cr_dr' => $finalDataJson1
             ];
 
             // return response()->json(['data' => $newEntry]);
@@ -1148,7 +1148,7 @@ return json_encode($finalResult);
             $voucher->description = $description;
             $voucher->dr_amount = json_encode($newDR);
             $voucher->cr_amount = json_encode($newCR);
-            $voucher->cr_dr = $finalDataJson;
+            $voucher->cr_dr = $finalDataJson1;
             $voucher->total_dr_amount = $totalDrAmount;
             $voucher->total_cr_amount = $totalCrAmount;
             $voucher->vat = 0;
@@ -1227,7 +1227,7 @@ return json_encode($finalResult);
             $finalDataJson = json_encode($finalDataArray);
             $dailyDataJson = json_encode($dailyDataArray);
             // dd($dailyData, $dailyDataJson);
-            // return $dailyDataJson;
+            $finalDataJson1 = $finalDataJson;
             if(isset($dailyData[0])) {
                 $dailyDataJson = $this->dailyDataCalculation($dailyData, $dailyDataJson);
                 // dd($dailyDataJson);
@@ -1275,7 +1275,7 @@ return json_encode($finalResult);
             $voucher->description = $description;
             $voucher->dr_amount = json_encode($item['dr_amount']); // Convert to JSON string
             $voucher->cr_amount = json_encode($item['cr_amount']); // Convert to JSON string
-            $voucher->cr_dr = $finalDataJson;
+            $voucher->cr_dr = $finalDataJson1;
             $voucher->total_dr_amount = $totalDrAmount;
             $voucher->total_cr_amount = $totalCrAmount;
             $voucher->vat = 0;

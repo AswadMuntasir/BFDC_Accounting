@@ -223,7 +223,7 @@
                                                     </tbody>
                                                 </table>
                                                 <br><br><br>
-                                                <span style="padding: 20px; border: 3px solid;"><b>Stapm</b></span><br>
+                                                <span style="padding: 20px; border: 3px solid;"><b>Stamp</b></span><br>
                                                 @endif
                                                 <br><br>
                                                 Signeture
