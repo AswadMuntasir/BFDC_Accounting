@@ -2307,7 +2307,8 @@ return json_encode($finalResult);
                     "Bills Receivable Of Water",
                     "Bills Receivable Of  T-head Jetty",
                     "Bills Receivable Of Multichannel Slipway",
-                    "Bills Receivable Of Water  ( T-head Jetty)"
+                    "Bills Receivable Of Water  ( T-head Jetty)",
+                    "Bills Receivable Of Water T-head jetty"
                 ];
                 // dd($ledgerData);
                 $sortedLedgerData = $this->ledgerDataManupulation($ledgerData, $name, $selectedAccountName);
