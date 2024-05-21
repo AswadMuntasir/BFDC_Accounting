@@ -163,6 +163,10 @@
                           <div class="d-flex align-items-center"><span class="nav-link-text">Party Ledger</span></div>
                         </a><!-- more inner pages-->
                       </li>
+                      <li class="nav-item"><a class="nav-link" href="all-party-ledger" data-bs-toggle="" aria-expanded="false">
+                          <div class="d-flex align-items-center"><span class="nav-link-text">All Party Ledger</span></div>
+                        </a><!-- more inner pages-->
+                      </li>
                       <li class="nav-item"><a class="nav-link" href="control-ac-summary" data-bs-toggle="" aria-expanded="false">
                           <div class="d-flex align-items-center"><span class="nav-link-text">Control A/C Summary</span></div>
                         </a><!-- more inner pages-->

@@ -101,6 +101,7 @@ Route::match(['get', 'post'], 'sub-ac-ledger', [CoreAccountingController::class,
 Route::match(['get', 'post'], 'control-ac-ledger', [CoreAccountingController::class, 'controlACLedgerView'])->name('controlACLedgerView');
 Route::match(['get', 'post'], 'ac-head-ledger', [CoreAccountingController::class, 'acHeadLedgerView'])->name('acHeadLedgerView');
 Route::match(['get', 'post'], 'party-ledger', [CoreAccountingController::class, 'partyLedgerView'])->name('partyLedgerView');
+Route::match(['get', 'post'], 'all-party-ledger', [CoreAccountingController::class, 'allPartyLedgerView'])->name('allPartyLedgerView');
 Route::get('control-ac-summary', [CoreAccountingController::class, 'controlACSummaryView']);
 Route::get('control-ac-balance', [CoreAccountingController::class, 'controlACBalanceView']);
 Route::get('bank-reconciliation-statement', [CoreAccountingController::class, 'bankReconciliationStatementView']);

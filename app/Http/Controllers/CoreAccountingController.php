@@ -2238,7 +2238,117 @@ return json_encode($finalResult);
             return isset($item->name) && $item->name === $keyword;
         });
     }
+    public function allPartyLedgerView(Request $request){
+        if(Auth::check()){
+            if ($request->isMethod('post')) {
+                $start_date = $request->start_date;
+                $end_date = $request->end_date;
 
+                $parties = DB::table('party')
+                    ->where('name', 'like', "%Bills Receivable%")
+                    ->orWhere('name', 'like', "%Bill receivable")
+                    ->select('name')
+                    ->orderBy('name')
+                    ->get();
+                // dd($parties);
+
+                $selectedAccountName = [
+                    "Bills Receivable Of Rent & Lease",
+                    "Bills Receivable Of Processing",
+                    "Bills Receivable Of Marine Workshop",
+                    "Bills Receivable Of Electric",
+                    "Bills Receivable Of Water",
+                    "Bills Receivable Of  T-head Jetty",
+                    "Bills Receivable Of  T-head Jetty",
+                    "Bills Receivable Of Multichannel Slipway",
+                    "Bills Receivable Of Water  ( T-head Jetty)",
+                    "Bills Receivable Of Water T-head jetty",
+                    "Bills Receivable Of Water  ( T-head Jetty)",
+                    "Bills receivable of Land and Lease"
+                ];
+
+                $allResults = [];
+                $count = 0;
+                foreach ($parties as $eachParty) {
+                    $name = $eachParty->name;
+
+                    $ledgerData = DB::table('voucher_entry')
+                    ->select('voucher_no', 'description', 'voucher_date', 'dr_amount', 'cr_amount')
+                    ->whereBetween('voucher_date', [$start_date, $end_date])
+                    ->whereIn('status', ['pending', 'Done', 'Pending'])
+                    ->where(function ($query) use ($name) {
+                        $query->where(function ($query) use ($name) {
+                            $query->where('voucher_type', 'Journal')
+                                ->where('party', $name);
+                        })->orWhere(function ($query) use ($name) {
+                            $query->where('voucher_type', 'Receipt Voucher')
+                                ->where(function ($query) use ($name) {
+                                    $query->where(function ($query) use ($name) {
+                                        $query->where(function ($query) use ($name) {
+                                            $query->where('description', 'not like', 'Multiple vouchers added:%')
+                                                ->where('description', 'not like', 'Voucher ID:%')
+                                                ->where('party', $name);
+                                        })->orWhere(function ($query) {
+                                            $query->where(function ($query) {
+                                                $query->where('description', 'like', 'Multiple vouchers added:%')
+                                                    ->orWhere('description', 'like', 'Voucher ID:%');
+                                            });
+                                        });
+                                    });
+                                });
+                        })->orWhere(function ($query) {
+                            $query->whereIn('voucher_type', ['Advanced Payment', 'Adjustment']);
+                        });
+                    })
+                    ->get();
+                    
+                    $sortedLedgerData = $this->ledgerDataManupulation($ledgerData, $name, $selectedAccountName);
+                    
+                    if ($sortedLedgerData) {
+                        // dd(gettype($sortedLedgerData[0]));
+                        $totalAmount = 0;
+
+                        foreach ($sortedLedgerData as $item) {
+                            // dd(count($item->cr_amount));
+                            
+                            // Check if cr_amount has items (credit)
+                            if (count($item->cr_amount) > 0) {
+                                // dd(empty($item->cr_amount));
+                                $crAmountArray = $item->cr_amount->toArray();
+                                if (array_key_exists(0, $crAmountArray)) {
+                                    $totalAmount -= intval($item->cr_amount[0]->amount); // Add credit amount from index 0
+                                } else if (array_key_exists(1, $crAmountArray)) { // Check for key existence
+                                    $totalAmount -= intval($item->cr_amount[1]->amount); // Add credit amount from index 1
+                                }
+                            }
+
+                            // Check if dr_amount has items (debit)
+                            if (count($item->dr_amount) > 0) {
+                                // dd(empty($item->dr_amount));
+                                $drAmountArray = $item->dr_amount->toArray();
+                                if (array_key_exists(0, $drAmountArray)) {
+                                    $totalAmount += intval($item->dr_amount[0]->amount); // Subtract debit amount (negate)
+                                } else if (array_key_exists(1, $drAmountArray)) {
+                                    $totalAmount += intval($item->dr_amount[1]->amount); // Add debit amount
+                                }
+                            }
+                        }
+                        $result = [
+                            "name" => $name,
+                            "amount" => $totalAmount,
+                        ];
+                        $allResults[] = $result;
+                    }
+                }
+                
+                return view('super_admin.core_accounting.account_reports.all_party_ledger')->with('ledgerData', $allResults)->with('parties', $parties)->with('partyName', 'All Parties')->with('startDate', $start_date)->with('endDate', $end_date);
+            } else {
+                $parties = party::all();
+                return view('super_admin.core_accounting.account_reports.all_party_ledger')->with('ledgerData', null)->with('data2', null)->with('parties', $parties);
+            }
+        }
+        return redirect("login")->withSuccess('You are not allowed to access');
+    }
     public function partyLedgerView(Request $request)
     {
         if(Auth::check()){
@@ -2249,26 +2359,6 @@ return json_encode($finalResult);
                 $end_date = $request->end_date;
                 $name1 = $request->name1;
 
-                // dd($name, $startDate, $endDate);
-
-                // $ledgerData = DB::table('voucher_entry')
-                //     ->whereBetween('voucher_date', [$startDate, $endDate])
-                //     ->select('voucher_no', 'description', 'voucher_date', 'dr_amount', 'cr_amount')
-                //     ->whereIn('status', ['pending', 'Done'])
-                //     ->whereIn('voucher_type', ['Journal', 'Receipt Voucher', 'Advanced Payment', 'Adjustment'])
-                //     ->get();
-
-                // $ledgerData = DB::table('voucher_entry')
-                //     ->select('voucher_no', 'description', 'voucher_date', 'dr_amount', 'cr_amount')
-                //     ->whereBetween('voucher_date', [$startDate, $endDate])
-                //     ->whereIn('status', ['pending', 'Done', 'Pending'])
-                //     ->where(function ($query) use ($name) {
-                //         $query->where(function ($query) use ($name) {
-                //             $query->where('voucher_type', 'Journal')
-                //                 ->where('party', $name);
-                //         })->orWhereIn('voucher_type', ['Receipt Voucher', 'Advanced Payment', 'Adjustment']);
-                //     })
-                //     ->get();
                 $ledgerData = DB::table('voucher_entry')
                     ->select('voucher_no', 'description', 'voucher_date', 'dr_amount', 'cr_amount')
                     ->whereBetween('voucher_date', [$start_date, $end_date])
@@ -2310,7 +2400,8 @@ return json_encode($finalResult);
                     "Bills Receivable Of Multichannel Slipway",
                     "Bills Receivable Of Water  ( T-head Jetty)",
                     "Bills Receivable Of Water T-head jetty",
-                    "Bills Receivable Of Water  ( T-head Jetty)"
+                    "Bills Receivable Of Water  ( T-head Jetty)",
+                    "Bills receivable of Land and Lease"
                 ];
                 // dd($ledgerData);
                 $sortedLedgerData = $this->ledgerDataManupulation($ledgerData, $name, $selectedAccountName);
