@@ -3386,7 +3386,7 @@ return json_encode($finalResult);
                 if($arrayData->amount > 0) {
                     // dd($acHeadName);
                     foreach ($acHeadNames as $key => $acHeadName) {
-                        dd($acHeadName, $arrayData);
+                        // dd($acHeadName, $arrayData);
                         if($arrayData->name == $acHeadName->ac_head_name_eng) {
                             $arrayData->control_account = $acHeadName->account_name;
                             $filteredExtractedData[] = $arrayData;
