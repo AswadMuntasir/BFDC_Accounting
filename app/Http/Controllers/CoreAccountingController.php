@@ -3344,34 +3344,15 @@ return json_encode($finalResult);
             ->select('ac_head')
             ->get();
 
-        $final_data = [];
-        $acHeadNamecs = [];
-        foreach ($all_contol_names as $all_contol_name) {
-            // dd($all_contol_name);
-            $acHeadNames = account_head::distinct()
-                ->select('ac_head.ac_head_name_eng', 'control_ac.account_name')
-                ->join('control_ac', 'ac_head.control_ac_id', '=', 'control_ac.account_id')
-                ->join('subsidiary_ac', 'control_ac.subsidiary_account_name', '=', 'subsidiary_ac.account_name')
-                ->where('subsidiary_ac.account_name', '=', ['Sales and Services', 'Services', 'Operational Expenditure'])
-                ->get()
-                ->toArray();
-            $acHeadNamecs[] = $acHeadNames;
-        }
-        $headNameAC = [];
-        foreach ($acHeadNamecs as $subArray) {
-            $headNameAC = array_merge($headNameAC, array_values($subArray)); // Merge objects from sub-array
-        }
-
-        $acHeadNames2 = DB::table('ac_head')
+        $acHeadNames = DB::table('ac_head')
                 ->select('ac_head.ac_head_name_eng', 'control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name')
                 ->join('control_ac', 'ac_head.control_ac_id', '=', 'control_ac.account_id')
                 ->whereIn('control_ac.subsidiary_account_name', ['Sales and Services', 'Services', 'Operational Expenditure'])
                 ->get()
                 ->toArray();
 
-        // dd($acHeadNames2, $all_contol_names);
-
-        $filteredLedgerData = $this->tredingAccountCalculation($ledgerData, $all_contol_names, $acHeadNames2);
+        $filteredLedgerData = $this->tredingAccountCalculation($ledgerData, $all_contol_names, $acHeadNames);
+        // dd($filteredLedgerData, $acHeadNames);
 
         return $filteredLedgerData;
     }
@@ -3379,11 +3360,17 @@ return json_encode($finalResult);
     public function tredingAccountCalculation($ledgerData, $contol_name, $acHeadNames) {
         $all_data = [];
         // dd($ledgerData);
+        // $count = 0;
         foreach ($ledgerData as $key => $eachLedgerData) {
             $extractedData = json_decode($eachLedgerData->ac_head);
             $filteredExtractedData = [];
             foreach ($extractedData as $key => $arrayData) {
-                if($arrayData->amount > 0) {
+                // if($count === 1) {
+                //     if($arrayData->name == "Royalty Toll & Commission"){
+                //         dd($arrayData);
+                //     }
+                // }
+                if($arrayData->amount != 0) {
                     // dd($acHeadName);
                     foreach ($acHeadNames as $key => $acHeadName) {
                         // dd($acHeadName, $arrayData);
@@ -3399,6 +3386,11 @@ return json_encode($finalResult);
                 unset($data->name);
             }
             $all_data[] = $filteredExtractedData;
+            // if($count === 1) {
+            //     dd($filteredExtractedData);
+            // }
+            // dd();
+            // $count++;
         }
         // dd($all_data);
 
