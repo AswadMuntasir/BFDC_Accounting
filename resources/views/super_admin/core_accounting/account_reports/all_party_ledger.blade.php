@@ -7,7 +7,7 @@
           Content Starts Here
         -->
         <div class="content">
-            <h2 class="mb-4">Party Ledger</h2>
+            <h2 class="mb-4">All Party Ledger</h2>
             <div class="row">
                 <div class="col-12">
                     <form action="{{ route('allPartyLedgerView') }}" method="POST">
@@ -50,8 +50,7 @@
                   <center>
                     <h4>বাংলাদেশ ম​ৎস উন্নয়ন কর্পোরেশন​</h5>
                     <h5>চট্টগ্রাম ম​ৎস বন্দর​, চট্টগ্রাম​</h5> <br><br>
-                    <h5>Party Ledger</h5>
-                    <h6>Party: {{ $partyName }}</h6>
+                    <h5>All Party Ledger</h5>
                     <h6>From {{ $startDate }} To {{ $endDate }}</h6>
                   </center>
                 </div>

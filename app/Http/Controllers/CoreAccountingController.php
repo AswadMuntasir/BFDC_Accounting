@@ -3338,123 +3338,91 @@ return json_encode($finalResult);
             ->whereIn('subsidiary_account_name', ['Sales and Services', 'Services', 'Operational Expenditure'])
             ->get()
             ->toArray();
-        // dd($all_contol_names);
-        $ledgerData = DB::table('voucher_entry')
+
+        $ledgerData = DB::table('daily_data')
             ->whereBetween('voucher_date', [$startDate, $endDate])
-            ->select('voucher_no', 'description', 'dr_amount', 'cr_amount', 'voucher_date')
-            ->whereIn('status', ['pending', 'Done'])
+            ->select('ac_head')
             ->get();
 
         $final_data = [];
-
+        $acHeadNamecs = [];
         foreach ($all_contol_names as $all_contol_name) {
-
+            // dd($all_contol_name);
             $acHeadNames = account_head::distinct()
-                ->select('ac_head.ac_head_name_eng')
-                ->join('control_ac', 'ac_head.control_ac_id', '=', 'control_ac.account_id')
-                ->join('subsidiary_ac', 'control_ac.subsidiary_account_name', '=', 'subsidiary_ac.account_name')
-                ->where('subsidiary_ac.account_name', '=', $all_contol_name['subsidiary_account_name'])
-                ->get()
-                ->pluck('ac_head_name_eng')
-                ->toArray();
-
-            $controlACNames = account_head::distinct()
                 ->select('ac_head.ac_head_name_eng', 'control_ac.account_name')
                 ->join('control_ac', 'ac_head.control_ac_id', '=', 'control_ac.account_id')
                 ->join('subsidiary_ac', 'control_ac.subsidiary_account_name', '=', 'subsidiary_ac.account_name')
-                ->where('subsidiary_ac.account_name', '=', $all_contol_name['subsidiary_account_name'])
+                ->where('subsidiary_ac.account_name', '=', ['Sales and Services', 'Services', 'Operational Expenditure'])
                 ->get()
                 ->toArray();
-            
-            $filteredLedgerData = $this->ledgerDataManupulation($ledgerData, "", $acHeadNames);
-
-            $totals = [];
-            foreach ($acHeadNames as $name) {
-                $total = 0;
-            
-                foreach ($filteredLedgerData as $entry) {
-                    foreach ($entry->dr_amount as $dr) {
-                        if ($dr->name === $name) {
-                            $total += floatval($dr->amount);
-                        }
-                    }
-            
-                    foreach ($entry->cr_amount as $cr) {
-                        if ($cr->name === $name) {
-                            $total -= floatval($cr->amount);
-                        }
-                    }
-                }
-            
-                $totals[] = [
-                    "name" => $name,
-                    "amount" => $total
-                ];
-            }
-            
-            // Remove entries with zero amounts
-            $totals = array_filter($totals, function ($item) {
-                return floatval($item["amount"]) != 0;
-            });
-
-            // dd($totals);
-
-            $accumulatedAmounts = [];
-
-            // Loop through data2 to accumulate amounts
-            foreach ($totals as $item2) {
-                $name2 = $item2['name'];
-                $amount2 = $item2['amount'];
-
-                // Find the corresponding "ac_head_name_eng" in data1
-                $matchingItem1 = null;
-                foreach ($controlACNames as $item1) {
-                    if ($item1['ac_head_name_eng'] === $name2) {
-                        $matchingItem1 = $item1;
-                        break;
-                    }
-                }
-
-                if ($matchingItem1) {
-                    $accountName = $matchingItem1['account_name'];
-                    // Accumulate the amount based on "account_name"
-                    if (!isset($accumulatedAmounts[$accountName])) {
-                        $accumulatedAmounts[$accountName] = 0;
-                    }
-                    $accumulatedAmounts[$accountName] += $amount2;
-                }
-            }
-
-            // Create the final output array
-            $output = [];
-            foreach ($accumulatedAmounts as $accountName => $amount) {
-                $output[] = [
-                    'account_group' => $all_contol_name['accounts_group'],
-                    'subsidiary_account_name' => $all_contol_name['subsidiary_account_name'],
-                    'name' => $accountName,
-                    'amount' => $amount,
-                ];
-            }
-
-            // Convert the associative array to indexed array
-            $output = array_values($output);
-            $final_data = array_merge($final_data, $output);
-            // dd($output);
+            $acHeadNamecs[] = $acHeadNames;
+        }
+        $headNameAC = [];
+        foreach ($acHeadNamecs as $subArray) {
+            $headNameAC = array_merge($headNameAC, array_values($subArray)); // Merge objects from sub-array
         }
 
-        $uniqueData = [];
+        $acHeadNames2 = DB::table('ac_head')
+                ->select('ac_head.ac_head_name_eng', 'control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name')
+                ->join('control_ac', 'ac_head.control_ac_id', '=', 'control_ac.account_id')
+                ->whereIn('control_ac.subsidiary_account_name', ['Sales and Services', 'Services', 'Operational Expenditure'])
+                ->get()
+                ->toArray();
 
-        foreach ($final_data as $item) {
-            $key = $item['account_group'] . $item['subsidiary_account_name'] . $item['name'] . $item['amount'];
-            
-            if (!isset($uniqueData[$key])) {
-                $uniqueData[$key] = $item;
+        // dd($acHeadNames2, $all_contol_names);
+
+        $filteredLedgerData = $this->tredingAccountCalculation($ledgerData, $all_contol_names, $acHeadNames2);
+
+        return $filteredLedgerData;
+    }
+
+    public function tredingAccountCalculation($ledgerData, $contol_name, $acHeadNames) {
+        $all_data = [];
+        // dd($ledgerData);
+        foreach ($ledgerData as $key => $eachLedgerData) {
+            $extractedData = json_decode($eachLedgerData->ac_head);
+            $filteredExtractedData = [];
+            foreach ($extractedData as $key => $arrayData) {
+                if($arrayData->amount > 0) {
+                    // dd($acHeadName);
+                    foreach ($acHeadNames as $key => $acHeadName) {
+                        dd($acHeadName, $arrayData);
+                        if($arrayData->name == $acHeadName->ac_head_name_eng) {
+                            $arrayData->control_account = $acHeadName->account_name;
+                            $filteredExtractedData[] = $arrayData;
+                        }
+                    }
+                }
             }
+
+            foreach($filteredExtractedData as $data) {
+                unset($data->name);
+            }
+            $all_data[] = $filteredExtractedData;
+        }
+        // dd($all_data);
+
+        $mergedData = [];
+        foreach ($all_data as $subArray) {
+            $mergedData = array_merge($mergedData, array_values($subArray)); // Merge objects from sub-array
         }
 
-        $final_data = array_values($uniqueData);
+        $collection = collect($mergedData);
 
-        return $final_data;
+        // Group the collection by 'control_account'
+        $grouped = $collection->groupBy('control_account');
+
+        // Sum the 'amount' for each group and transform the data
+        $result = $grouped->map(function ($group) {
+            return (object)[
+                "account_group" => $group->first()->account_group,
+                "subsidiary_account_name" => $group->first()->subsidiary_account_name,
+                "amount" => $group->sum->amount,
+                "control_account" => $group->first()->control_account
+            ];
+        })->values()->toArray();
+        
+        return $result;
     }
 
     public function balanceSheetView(Request $request)
