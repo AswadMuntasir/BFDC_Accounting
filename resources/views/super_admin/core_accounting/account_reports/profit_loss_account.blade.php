@@ -86,9 +86,9 @@
                                                         </tr>
                                                         @foreach ($otherIncomeData as $item)
                                                         <tr>
-                                                            <td>{{ $item['name'] }}</td>
+                                                            <td>{{ $item->control_account }}</td>
                                                             <td></td>
-                                                            <td style="text-align: right;">{{ number_format($item['amount'], 2) }}</td>
+                                                            <td style="text-align: right;">{{ number_format($item->amount, 2) }}</td>
                                                         </tr>
                                                         @endforeach
                                                         <tr>
@@ -109,9 +109,9 @@
                                                         </tr>
                                                         @foreach ($administrativeExpenditureData as $item)
                                                         <tr>
-                                                            <td>{{ $item['name'] }}</td>
+                                                            <td>{{ $item->control_account }}</td>
                                                             <td></td>
-                                                            <td style="text-align: right;">{{ number_format($item['amount'], 2) }}</td>
+                                                            <td style="text-align: right;">{{ number_format($item->amount, 2) }}</td>
                                                         </tr>
                                                         @endforeach
                                                         <tr>
@@ -122,9 +122,9 @@
 
                                                         @foreach ($nonOperatingExpenditureData as $item)
                                                         <tr>
-                                                            <td>{{ $item['name'] }}</td>
+                                                            <td>{{ $item->name }}</td>
                                                             <td></td>
-                                                            <td style="text-align: right;">{{ number_format($item['amount'], 2) }}</td>
+                                                            <td style="text-align: right;">{{ number_format($item->amount, 2) }}</td>
                                                         </tr>
                                                         @endforeach
                                                         @php
