@@ -2341,11 +2341,54 @@ return json_encode($finalResult);
                     }
                 }
 
+                $bills_Receivables_Of_Processing = [];
+                $bills_Receivables_Of_Rent_and_Lease = [];
+                $bills_Receivables_Of_Land_and_Lease = [];
+                $bills_Receivables_Of_Multichannel = [];
+                $bills_Receivables_Of_Multichannel_Slipway = [];
+                $bills_Receivables_Of_Multichannel_Slipway_Dockyard = [];
+                $bills_Receivables_Of_T_head_Jetty = [];
+                $bills_Receivables_Of_Water = [];
+                $bills_Receivables_Of_Water_T_head_Jetty = [];
+                $bills_Receivables_Of_Electric = [];
+                $bills_Receivables_Of_Workshop = [];
+                $bills_Receivables_Of_Marine_Workshop = [];
+                $other_Bills_Receivables = [];
+        
                 foreach ($allResults as &$entry) {
-                        $group = preg_replace('/[\[\]()]/', '', $entry["name"]);
-                        $standard_group = $this->standardize_group_name($group);
-                        $entry["group"] = $standard_group;
+                    $group = preg_replace('/[\[\]()]/', '', $entry["name"]);
+                    $standard_group = $this->standardize_group_name($group);
+                    $entry["group"] = $standard_group;
+
+                    if($standard_group === "Bills Receivables Of Processing") {
+                        $bills_Receivables_Of_Processing[] = $entry;
+                    } else if($standard_group === "Bills Receivables Rent & Lease") {
+                        $bills_Receivables_Of_Rent_and_Lease[] = $entry;
+                    } else if($standard_group === "Bills Receivables of Land and Lease") {
+                        $bills_Receivables_Of_Land_and_Lease[] = $entry;
+                    } else if($standard_group === "Bills Receivables Of Multichannel") {
+                        $bills_Receivables_Of_Multichannel[] = $entry;
+                    } else if($standard_group === "Bills Receivables Of Multichannel Slipway") {
+                        $bills_Receivables_Of_Multichannel_Slipway[] = $entry;
+                    } else if($standard_group === "Bills Receivables Of Multichannel Slipway Dockyard") {
+                        $bills_Receivables_Of_Multichannel_Slipway_Dockyard[] = $entry;
+                    } else if($standard_group === "Bills Receivables Of T-head Jetty") {
+                        $bills_Receivables_Of_T_head_Jetty[] = $entry;
+                    } else if($standard_group === "Bills Receivables Of Water") {
+                        $bills_Receivables_Of_Water[] = $entry;
+                    } else if($standard_group === "Bills Receivables Of Water T-head Jetty") {
+                        $bills_Receivables_Of_Water_T_head_Jetty[] = $entry;
+                    } else if($standard_group === "Bills Receivables Of Electric") {
+                        $bills_Receivables_Of_Electric[] = $entry;
+                    } else if($standard_group === "Bills Receivables Of Workshop") {
+                        $bills_Receivables_Of_Workshop[] = $entry;
+                    } else if($standard_group === "Bills Receivables Of Marine Workshop") {
+                        $bills_Receivables_Of_Marine_Workshop[] = $entry;
+                    } else {
+                        $other_Bills_Receivables[] = $entry;
+                    }
                 }
+                // dd($bills_Receivables_Of_Processing, $bills_Receivables_Of_Rent_and_Lease, $bills_Receivables_Of_Land_and_Lease, $bills_Receivables_Of_Multichannel, $bills_Receivables_Of_Multichannel_Slipway, $bills_Receivables_Of_Multichannel_Slipway_Dockyard, $bills_Receivables_Of_T_head_Jetty, $bills_Receivables_Of_Water, $bills_Receivables_Of_Water_T_head_Jetty, $bills_Receivables_Of_Electric, $bills_Receivables_Of_Workshop, $bills_Receivables_Of_Marine_Workshop, $other_Bills_Receivables);
                 
                 // Sort array by standardized group names
                 usort($allResults, function ($a, $b) {
@@ -2353,10 +2396,10 @@ return json_encode($finalResult);
                 });
                 // dd($allResults);
 
-                return view('super_admin.core_accounting.account_reports.all_party_ledger')->with('ledgerData', $allResults)->with('parties', $parties)->with('partyName', 'All Parties')->with('startDate', $start_date)->with('endDate', $end_date);
+                return view('super_admin.core_accounting.account_reports.all_party_ledger')->with('ledgerData', $allResults)->with('parties', $parties)->with('partyName', 'All Parties')->with('startDate', $start_date)->with('endDate', $end_date)->with('bills_Receivables_Of_Processing', $bills_Receivables_Of_Processing)->with('bills_Receivables_Of_Rent_and_Lease', $bills_Receivables_Of_Rent_and_Lease)->with('bills_Receivables_Of_Land_and_Lease', $bills_Receivables_Of_Land_and_Lease)->with('bills_Receivables_Of_Multichannel', $bills_Receivables_Of_Multichannel)->with('bills_Receivables_Of_Multichannel_Slipway_Dockyard', $bills_Receivables_Of_Multichannel_Slipway_Dockyard)->with('bills_Receivables_Of_Multichannel_Slipway', $bills_Receivables_Of_Multichannel_Slipway)->with('bills_Receivables_Of_Water_T_head_Jetty', $bills_Receivables_Of_Water_T_head_Jetty)->with('bills_Receivables_Of_Water', $bills_Receivables_Of_Water)->with('bills_Receivables_Of_T_head_Jetty', $bills_Receivables_Of_T_head_Jetty)->with('bills_Receivables_Of_Marine_Workshop', $bills_Receivables_Of_Marine_Workshop)->with('bills_Receivables_Of_Workshop', $bills_Receivables_Of_Workshop)->with('bills_Receivables_Of_Electric', $bills_Receivables_Of_Electric)->with('other_Bills_Receivables', $other_Bills_Receivables);
             } else {
                 $parties = party::all();
-                return view('super_admin.core_accounting.account_reports.all_party_ledger')->with('ledgerData', null)->with('data2', null)->with('parties', $parties);
+                return view('super_admin.core_accounting.account_reports.all_party_ledger')->with('ledgerData', null)->with('data2', null)->with('parties', $parties)->with('bills_Receivables_Of_Processing', null)->with('bills_Receivables_Of_Rent_and_Lease', null)->with('bills_Receivables_Of_Land_and_Lease', null)->with('bills_Receivables_Of_Multichannel', null)->with('bills_Receivables_Of_Multichannel_Slipway_Dockyard', null)->with('bills_Receivables_Of_Multichannel_Slipway', null)->with('bills_Receivables_Of_Water_T_head_Jetty', null)->with('bills_Receivables_Of_Water', null)->with('bills_Receivables_Of_T_head_Jetty', null)->with('bills_Receivables_Of_Marine_Workshop', null)->with('bills_Receivables_Of_Workshop', null)->with('bills_Receivables_Of_Electric', null)->with('other_Bills_Receivables', null);
             }
         }
         return redirect("login")->withSuccess('You are not allowed to access');
@@ -2368,8 +2411,9 @@ return json_encode($finalResult);
             "Bill receivable of Processing" => "Bills Receivables Of Processing",
             "Bills Receivable Of Processing" => "Bills Receivables Of Processing",
             "Bills Receivables Of Processing" => "Bills Receivables Of Processing",
-            "Bills Receivable of Fish Processing" => "Bills Receivables of Fish Processing",
-            "Bills Receivables of Fish Processing" => "Bills Receivables of Fish Processing,",
+            "Bills Receivable of Fish Processing" => "Bills Receivables of Processing",
+            "Bills Receivables of Fish Processing" => "Bills Receivables of Processing,",
+            "Bills receivable of Fish Processing" => "Bills Receivables of Processing",
             "Bill receivable of Rent and Lease" => "Bills Receivables Rent & Lease",
             "Bills Receivable Of Rent & Lease" => "Bills Receivables Rent & Lease",
             "Bills Receivable of Rent and Lease" => "Bills Receivables Rent & Lease",
