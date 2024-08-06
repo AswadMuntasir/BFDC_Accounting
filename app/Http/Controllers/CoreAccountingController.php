@@ -484,7 +484,13 @@ class CoreAccountingController extends Controller
         $accountHeads = control_ac::join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
         ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'ac_head.ac_head_name_eng')
         ->get();
-        // dd($accountHeads);
+
+        $fixed_assets_data = DB::table('control_ac')
+            ->join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
+            ->select('ac_head.ac_head_name_eng')
+            ->whereIn('control_ac.subsidiary_account_name', ['Fixed Assets'])
+            ->get();
+        // dd($fixed_assets_data);
         // ::select('ac_head_id', 'ac_head_name_eng')->get();
         $dailyData = daily_data::where('voucher_date', $voucherDateInput)->pluck('ac_head');
 
@@ -497,6 +503,8 @@ class CoreAccountingController extends Controller
         // Transform data to final_data format
         $finalDataArray = [];
         $dailyDataArray = [];
+        $fixedAsset_DR_amount = 0;
+        $fixedAsset_CR_amount = 0;
 
         if ($drAmountData && !empty($drAmountData)) {
             foreach ($drAmountData as $drItem) {
@@ -516,8 +524,13 @@ class CoreAccountingController extends Controller
                         'amount' => intval($drItem['amount']),
                     ];
                 }
+                $fixedAssetAcHead = $fixed_assets_data->Where('ac_head_name_eng', $drItem['name'])->first();
+                if ($fixedAssetAcHead) {
+                    $fixedAsset_DR_amount = intval($fixedAsset_DR_amount) + intval($drItem['amount']);
+                }
             }
         }
+        // dd($fixedAsset_DR_amount);
 
         if ($crAmountData && !empty($crAmountData)) {
             foreach ($crAmountData as $crItem) {
@@ -537,10 +550,23 @@ class CoreAccountingController extends Controller
                         'amount' => -intval($crItem['amount']),
                     ];
                 }
+                $fixedAssetAcHead = $fixed_assets_data->Where('ac_head_name_eng', $crItem['name'])->first();
+                if ($fixedAssetAcHead) {
+                    $fixedAsset_CR_amount =  intval($fixedAsset_CR_amount) - intval($crItem['amount']);
+                }
             }
             // dd($dailyDataArray);
         }
-        // dd($dailyDataArray);
+        // dd($fixedAsset_CR_amount);
+
+        $fixedAssetDailyData[] = [
+            'dr_amount' => $fixedAsset_DR_amount,
+            'cr_amount' => $fixedAsset_CR_amount
+        ];
+        // dd($fixedAssetDailyData);
+
+        $fixedAssetData = daily_data::where('voucher_date', $voucherDateInput)->pluck('control_ac');
+        // dd($fixedAssetData);
         $finalDataJson = json_encode($finalDataArray);
         $dailyDataJson = json_encode($dailyDataArray);
         // dd($dailyData, $dailyDataJson);
@@ -580,15 +606,36 @@ class CoreAccountingController extends Controller
         $voucher->status = "Pending";
         $voucher->save();
 
+        $daily_control = false;
+
         if (isset($dailyData[0])) {
-            // Update the existing record
-            daily_data::where('voucher_date', $voucherDateInput)->update(['ac_head' => $dailyDataJson]);
+            if(isset($fixedAssetData[0])) {
+                $dailyFixedAssetData = json_decode($fixedAssetData[0], true);
+                // dd($dailyFixedAssetData, $fixedAssetDailyData[0]['dr_amount']);
+                $sum = [
+                    'dr_amount' => intval($dailyFixedAssetData['dr_amount']) + intval($fixedAssetDailyData[0]['dr_amount']),
+                    'cr_amount' => intval($dailyFixedAssetData['cr_amount']) + intval($fixedAssetDailyData[0]['cr_amount']),
+                ];
+                daily_data::where('voucher_date', $voucherDateInput)->update(['ac_head' => $dailyDataJson, 'control_ac' => $sum]);
+                $daily_control = true;
+            } else {
+                // Update the existing record
+                daily_data::where('voucher_date', $voucherDateInput)->update(['ac_head' => $dailyDataJson]);
+            }
         } else {
-            // Create a new record
-            $newDailyData = new daily_data;
-            $newDailyData->voucher_date = $request->get('voucher_date_input');
-            $newDailyData->ac_head = $dailyDataJson;
-            $newDailyData->save();
+            if ($daily_control === false) {
+                $newDailyData = new daily_data;
+                $newDailyData->voucher_date = $request->get('voucher_date_input');
+                $newDailyData->ac_head = $dailyDataJson;
+                $newDailyData->control_ac = json_encode($fixedAssetDailyData);
+                $newDailyData->save();
+            } else {
+                // Create a new record
+                $newDailyData = new daily_data;
+                $newDailyData->voucher_date = $request->get('voucher_date_input');
+                $newDailyData->ac_head = $dailyDataJson;
+                $newDailyData->save();
+            }
         }
 
         return redirect('vouchers-entry');
@@ -709,8 +756,8 @@ class CoreAccountingController extends Controller
             }
         }
 
-// Convert to JSON if needed
-return json_encode($finalResult);
+        // Convert to JSON if needed
+        return json_encode($finalResult);
     }
 
     private function findMatchingEntry($id, $type, $data)
@@ -778,8 +825,17 @@ return json_encode($finalResult);
                                     ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name', 'ac_head.ac_head_name_eng')
                                     ->get();
         
+        $fixed_assets_data = DB::table('control_ac')
+            ->join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
+            ->select('ac_head.ac_head_name_eng')
+            ->whereIn('control_ac.subsidiary_account_name', ['Fixed Assets'])
+            ->get();
+        
         $dailyData = daily_data::where('voucher_date', $voucher_data[0]['voucher_date'])->pluck('ac_head');
+        $dailyControlData = daily_data::where('voucher_date', $voucher_data[0]['voucher_date'])->pluck('control_ac');
         // $desiredAcHead = $accountHeads->Where('ac_head_name_eng', $drAmountData['name'])->first();
+        $fixedAsset_DR_amount = 0;
+        $fixedAsset_CR_amount = 0;
 
         if ($drAmountData && !empty($drAmountData)) {
             foreach ($drAmountData as $drItem) {
@@ -792,6 +848,10 @@ return json_encode($finalResult);
                         'name' => $desiredAcHead->account_name,
                         'amount' => intval($drItem['amount']),
                     ];
+                }
+                $fixedAssetAcHead = $fixed_assets_data->Where('ac_head_name_eng', $drItem['name'])->first();
+                if ($fixedAssetAcHead) {
+                    $fixedAsset_DR_amount += intval($drItem['amount']);
                 }
             }
         }
@@ -807,9 +867,23 @@ return json_encode($finalResult);
                         'amount' => -intval($crItem['amount']),
                     ];
                 }
+                $fixedAssetAcHead = $fixed_assets_data->Where('ac_head_name_eng', $crItem['name'])->first();
+                if ($fixedAssetAcHead) {
+                    $fixedAsset_CR_amount -= intval($crItem['amount']);
+                }
             }
         }
         $oldDailyData = json_decode($dailyData[0]);
+        $oldDailyControlData = json_decode($dailyControlData[0]);
+        // dd($oldDailyControlData->dr_amount, $fixedAsset_DR_amount);
+        $sum = [
+            'dr_amount' => $oldDailyControlData->dr_amount - $fixedAsset_DR_amount,
+            'cr_amount' => $oldDailyControlData->cr_amount - $fixedAsset_CR_amount,
+        ];
+        // dd($voucher_data[0]['dr_amount']);
+
+        daily_data::where('voucher_date', $voucher_data[0]['voucher_date'])->update(['control_ac' => json_encode($sum)]);
+
         // $dataArray = json_decode($oldDailyData, true);
         // Initialize an empty array to store converted data
         $convertedData = [];
@@ -3369,12 +3443,21 @@ return json_encode($finalResult);
 
                 $final_main_data = $this->tradingAccountCalculation($startDate, $endDate, $sub_ac);
 
-                $fixed_assets_data = DB::table('control_ac')
-                    ->join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
-                    ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name', 'ac_head.ac_head_name_eng')
-                    ->whereIn('control_ac.subsidiary_account_name', ['Fixed Assets'])
-                    ->get();
+                $fixed_assets_data = DB::table('daily_data')
+                        ->whereBetween('voucher_date', [$startDate, $endDate])
+                        ->whereNotNull('control_ac')
+                        ->select('control_ac')
+                        ->get();
+                $final_fixed_assets_data = [];
+                $final_fixed_assets_dr = 0;
+                $final_fixed_assets_cr = 0;
+                foreach($fixed_assets_data as $dada) {
+                    if($dada->control_ac != null) {
+                        $final_fixed_assets = json_decode($dada->control_ac);
 
+                        // dd("Done");
+                    }
+                }
                 // dd($fixed_assets_data);
         
                 $drAmountSum = [];
@@ -3386,7 +3469,7 @@ return json_encode($finalResult);
                 foreach ($records as $record) {
                     $drAmount = json_decode($record->dr_amount, true);
                     $crAmount = json_decode($record->cr_amount, true);
-        
+                    // dd($drAmount, $crAmount);
                     foreach ($drAmount as $item) {
                         $name = $item['name'];
                         $amount = intval($item['amount']);
@@ -3413,19 +3496,19 @@ return json_encode($finalResult);
                         $totalCrAmount += $amount;
                     }
                 }
-        
+                // dd($totalCrAmount);
                 foreach ($drAmountSum as $name => $drAmount) {
                     $crAmount = isset($crAmountSum[$name]) ? $crAmountSum[$name] : 0;
                     $result[] = ['name' => $name, 'drAmount' => $drAmount, 'crAmount' => $crAmount];
                 }
-        
+                
                 // Add the remaining crAmount entries that do not have a corresponding drAmount entry
                 foreach ($crAmountSum as $name => $crAmount) {
                     if (!isset($drAmountSum[$name])) {
                         $result[] = ['name' => $name, 'drAmount' => 0, 'crAmount' => $crAmount];
                     }
                 }
-
+                // dd($result);
                 foreach ($combine_data as &$item) {
                     $found = false;
                     foreach ($result as $entry) {
@@ -3441,31 +3524,25 @@ return json_encode($finalResult);
                         $item->crAmount = 0;
                     }
                 }
-
-                foreach ($fixed_assets_data as &$item) {
-                    $found = false;
-                    foreach ($result as $entry) {
-                        if ($entry['name'] === $item->ac_head_name_eng) {
-                            $item->drAmount = $entry['drAmount'];
-                            $item->crAmount = $entry['crAmount'];
-                            $found = true;
-                            break;
-                        }
-                    }
-                    if (!$found) {
-                        $item->drAmount = 0;
-                        $item->crAmount = 0;
-                    }
-                }
+                // dd($combine_data);
 
                 // dd($fixed_assets_data);
                 $totalDrAmount2 = 0;
                 $totalCrAmount2 = 0;
 
                 foreach ($fixed_assets_data as $item2) {
-                    $totalDrAmount2 += $item2->drAmount;
-                    $totalCrAmount2 += $item2->crAmount;
+                    if($item2->control_ac === null) {
+                        break;
+                    } else if ($item2->control_ac === 0) {
+                        break;
+                    }
+                    else {
+                        $item3 = json_decode($item2->control_ac);    
+                        $totalDrAmount2 += $item3->dr_amount;
+                        $totalCrAmount2 += $item3->cr_amount;
+                    }
                 }
+                // dd($totalDrAmount2, $totalCrAmount2);
 
                 $fixed_assets_output = [
                     "drAmount" => $totalDrAmount2,
@@ -3503,7 +3580,7 @@ return json_encode($finalResult);
                     ["subsidiary_account_name", "asc"],
                 ]);
 
-                dd($sortedData, $final_main_data, $fixed_assets_output, $profit_loss_formattedData);
+                // dd($sortedData, $final_main_data, $fixed_assets_output, $profit_loss_formattedData);
 
                 return view('super_admin.core_accounting.account_reports.balancesheet', [
                     'data' => $sortedData,
