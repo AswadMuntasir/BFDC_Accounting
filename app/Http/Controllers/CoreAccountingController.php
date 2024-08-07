@@ -552,7 +552,7 @@ class CoreAccountingController extends Controller
                 }
                 $fixedAssetAcHead = $fixed_assets_data->Where('ac_head_name_eng', $crItem['name'])->first();
                 if ($fixedAssetAcHead) {
-                    $fixedAsset_CR_amount =  intval($fixedAsset_CR_amount) - intval($crItem['amount']);
+                    $fixedAsset_CR_amount =  intval($fixedAsset_CR_amount) + intval($crItem['amount']);
                 }
             }
             // dd($dailyDataArray);
@@ -627,7 +627,7 @@ class CoreAccountingController extends Controller
                 $newDailyData = new daily_data;
                 $newDailyData->voucher_date = $request->get('voucher_date_input');
                 $newDailyData->ac_head = $dailyDataJson;
-                $newDailyData->control_ac = json_encode($fixedAssetDailyData);
+                $newDailyData->control_ac = json_encode($fixedAssetDailyData[0]);
                 $newDailyData->save();
             } else {
                 // Create a new record
@@ -1595,12 +1595,14 @@ class CoreAccountingController extends Controller
 
                 //     // Fetch and process data for the current date
                 //     $trailBalanceSavedata = $this->trialBalanceSaveInDailyData($currentDate, $currentDate);
-                //     $trailBalanceSavedataJson = json_encode($trailBalanceSavedata);
-
+                //     $trailBalanceSavedataJson = json_encode($trailBalanceSavedata["final_data"]);
+                //     $trailBalanceSaveControl_AC = $trailBalanceSavedata["fixedAssetDailyData"];
+                //     // dd();
                 //     // Create a new daily_data entry for the current date
                 //     $newDailyData = new daily_data;
                 //     $newDailyData->voucher_date = $currentDate;
                 //     $newDailyData->ac_head = $trailBalanceSavedataJson;
+                //     $newDailyData->control_ac = json_encode($trailBalanceSaveControl_AC[0]);
                 //     $newDailyData->save();
 
                 //     // Fetch voucher entries for the current date
@@ -1793,8 +1795,34 @@ class CoreAccountingController extends Controller
             ->select('voucher_no', 'description', 'dr_amount', 'cr_amount', 'voucher_date')
             ->whereIn('status', ['pending', 'Done'])
             ->get();
+            // dd($ledgerData, $startDate, $endDate);
 
         $final_data = [];
+
+        $fixed_assets_data = DB::table('control_ac')
+            ->join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
+            ->select('ac_head.ac_head_name_eng')
+            ->whereIn('control_ac.subsidiary_account_name', ['Fixed Assets'])
+            ->get();
+
+        $fixedAsset_DR_amount = 0;
+        $fixedAsset_CR_amount = 0;
+        foreach ($ledgerData as $items) {
+            $drAmount = json_decode($items->dr_amount);
+            $crAmount = json_decode($items->cr_amount);
+            foreach($drAmount as $individualDR) {
+                $fixedAssetAcHead = $fixed_assets_data->Where('ac_head_name_eng', $individualDR->name)->first();
+                if ($fixedAssetAcHead) {
+                    $fixedAsset_DR_amount = intval($fixedAsset_DR_amount) + intval($individualDR->amount);
+                }
+            }
+            foreach($crAmount as $individualCR) {
+                $fixedAssetAcHead = $fixed_assets_data->Where('ac_head_name_eng', $individualCR->name)->first();
+                if ($fixedAssetAcHead) {
+                    $fixedAsset_DR_amount = intval($fixedAsset_DR_amount) + intval($individualCR->amount);
+                }
+            }
+        }
 
         foreach ($all_contol_names as $all_contol_name) {
 
@@ -1816,11 +1844,13 @@ class CoreAccountingController extends Controller
                 ->toArray();
             
             $filteredLedgerData = $this->ledgerDataManupulation($ledgerData, "", $acHeadNames);
-
+            // if($filteredLedgerData !== []) {
+            //     dd($filteredLedgerData);
+            // }
             $totals = [];
+            
             foreach ($acHeadNames as $name) {
                 $total = 0;
-            
                 foreach ($filteredLedgerData as $entry) {
                     foreach ($entry->dr_amount as $dr) {
                         if ($dr->name === $name) {
@@ -1894,11 +1924,17 @@ class CoreAccountingController extends Controller
             }
         }
 
+        $fixedAssetDailyData[] = [
+            'dr_amount' => $fixedAsset_DR_amount,
+            'cr_amount' => $fixedAsset_CR_amount
+        ];
+        // dd($fixedAssetDailyData);
+
         $final_data = array_values($uniqueData);
 
-        // dd($final_data);
+        // dd($final_data, $fixedAssetDailyData);
 
-        return  $final_data;
+        return  ['final_data' => $final_data, 'fixedAssetDailyData' => $fixedAssetDailyData];
     }
 
     public function bankBookView()
@@ -3529,7 +3565,7 @@ class CoreAccountingController extends Controller
                 // dd($fixed_assets_data);
                 $totalDrAmount2 = 0;
                 $totalCrAmount2 = 0;
-
+                $idextcount = 0;
                 foreach ($fixed_assets_data as $item2) {
                     if($item2->control_ac === null) {
                         break;
@@ -3537,9 +3573,14 @@ class CoreAccountingController extends Controller
                         break;
                     }
                     else {
-                        $item3 = json_decode($item2->control_ac);    
+                        $item3 = json_decode($item2->control_ac);
+                        // if($idextcount > 0){
+                        //     dd($item3);
+                        // }
+                        
                         $totalDrAmount2 += $item3->dr_amount;
                         $totalCrAmount2 += $item3->cr_amount;
+                        $idextcount++;
                     }
                 }
                 // dd($totalDrAmount2, $totalCrAmount2);
