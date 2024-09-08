@@ -45,12 +45,9 @@
                 <option value="Bills Receivables Of Processing">Bills Receivables Of Processing</option>
                 <option value="Bills Receivables Of Land and Lease">Bills Receivables Of Land and Lease</option>
                 <option value="Bills Receivables Of Multichannel">Bills Receivables Of Multichannel</option>
-                <option value="Bills Receivables Of Multichannel Slipway">Bills Receivables Of Multichannel Slipway</option>
-                <option value="Bills Receivables Of Multichannel Slipway Dockyard">Bills Receivables Of Multichannel Slipway Dockyard</option>
                 <option value="Bills Receivables Of Water">Bills Receivables Of Water</option>
                 <option value="Bills Receivables Of T-head Jetty">Bills Receivables Of T-head Jetty</option>
                 <option value="Bills Receivables Of Water T-head Jetty">Bills Receivables Of Water T-head Jetty</option>
-                <option value="Bills Receivables Of Workshop">Bills Receivables Of Workshop</option>
                 <option value="Bills Receivables Of Marine Workshop">Bills Receivables Of Marine Workshop</option>
                 <option value="Bills Receivables Of Electric">Bills Receivables Of Electric</option>
                 <option value="Other Bills Receivables">Other Bills Receivables</option>
@@ -94,6 +91,7 @@
                         <tbody>
                           <?php
                             $count = 0;
+                            $totalAmount = 0;
                           ?>
                           @foreach ($ledgerData as $ledger)
                             <tr>
@@ -102,6 +100,7 @@
                             </tr>
                             <?php
                               $count++;
+                              $totalAmount += $ledger["amount"];
                               if($count === 16 || $count === 34 || $count === 52 || $count === 70 || $count === 88 || $count === 106) {
                             ?>
                         </tbody>
@@ -119,6 +118,10 @@
                               }
                             ?>
                           @endforeach
+                          <tr>
+                            <td>&nbsp;&nbsp;<strong>Total</strong></td>
+                            <td><center>{{ $totalAmount }}</center></td>
+                          </tr>
                         </tbody>
                       </table>
                     </div>
@@ -171,6 +174,7 @@
                         <tbody>
                           <?php
                             $count = 0;
+                            $totalAmount_Rent_and_Lease = 0;
                           ?>
                           @foreach ($bills_Receivables_Of_Rent_and_Lease as $ledger)
                             <tr>
@@ -179,6 +183,7 @@
                             </tr>
                             <?php
                               $count++;
+                              $totalAmount_Rent_and_Lease += $ledger["amount"];
                               if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
                             ?>
                         </tbody>
@@ -197,6 +202,10 @@
                               }
                             ?>
                           @endforeach
+                          <tr>
+                            <td>&nbsp;&nbsp;<strong>Total</strong></td>
+                            <td><center>{{ $totalAmount_Rent_and_Lease }}</center></td>
+                          </tr>
                         </tbody>
                       </table>
                     </div>
@@ -248,6 +257,7 @@
                         <tbody>
                           <?php
                             $count = 0;
+                            $totalAmount_Processing = 0;
                           ?>
                           @foreach ($bills_Receivables_Of_Processing as $ledger)
                             <tr>
@@ -256,6 +266,7 @@
                             </tr>
                             <?php
                               $count++;
+                              $totalAmount_Processing += $ledger["amount"];
                               if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
                             ?>
                         </tbody>
@@ -274,6 +285,10 @@
                               }
                             ?>
                           @endforeach
+                          <tr>
+                            <td>&nbsp;&nbsp;<strong>Total</strong></td>
+                            <td><center>{{ $totalAmount_Processing }}</center></td>
+                          </tr>
                         </tbody>
                       </table>
                     </div>
@@ -325,6 +340,7 @@
                         <tbody>
                           <?php
                             $count = 0;
+                            $totalAmount_Land_and_Lease = 0;
                           ?>
                           @foreach ($bills_Receivables_Of_Land_and_Lease as $ledger)
                             <tr>
@@ -333,6 +349,7 @@
                             </tr>
                             <?php
                               $count++;
+                              $totalAmount_Land_and_Lease += $ledger["amount"];
                               if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
                             ?>
                         </tbody>
@@ -351,6 +368,10 @@
                               }
                             ?>
                           @endforeach
+                          <tr>
+                            <td>&nbsp;&nbsp;<strong>Total</strong></td>
+                            <td><center>{{ $totalAmount_Land_and_Lease }}</center></td>
+                          </tr>
                         </tbody>
                       </table>
                     </div>
@@ -402,6 +423,7 @@
                         <tbody>
                           <?php
                             $count = 0;
+                            $totalAmount_Multichannel = 0;
                           ?>
                           @foreach ($bills_Receivables_Of_Multichannel as $ledger)
                             <tr>
@@ -410,6 +432,7 @@
                             </tr>
                             <?php
                               $count++;
+                              $totalAmount_Multichannel += $ledger["amount"];
                               if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
                             ?>
                         </tbody>
@@ -428,6 +451,10 @@
                               }
                             ?>
                           @endforeach
+                          <tr>
+                            <td>&nbsp;&nbsp;<strong>Total</strong></td>
+                            <td><center>{{ $totalAmount_Multichannel }}</center></td>
+                          </tr>
                         </tbody>
                       </table>
                     </div>
@@ -437,160 +464,6 @@
             </div>
           </div>
           @endif
-
-
-        @if ($bills_Receivables_Of_Multichannel_Slipway_Dockyard)
-          <div id="multichannel_Slipway_Dockyard" style="display: none;">
-            <div style="float:right; margin-right:20%; padding-bottom: 20px;">
-              <button id="download-Multichannel-Slipway-Dockyard" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
-            </div>
-            <br> <br>
-            <div style="border: 2px solid #000000; background-color:#ffffff; width: 70%; margin-left: auto; margin-right: auto; color: #000000;">
-              <div id="invoice_Multichannel_Slipway_Dockyard" style="width: 100%; margin-left: auto; margin-right: auto;">
-                <div style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
-                  <br><br>
-                  <div class="row">
-                    <div class="col-2"><img src="{{ asset('assets/img/bfdc-logo-2.png') }}" width="60" height="48" /></div>
-                    <div class="col-8">
-                      <center>
-                        <h4>বাংলাদেশ ম​ৎস উন্নয়ন কর্পোরেশন​</h5>
-                        <h5>চট্টগ্রাম ম​ৎস বন্দর​, চট্টগ্রাম​</h5> <br><br>
-                        <h5>All Party Ledger</h5>
-                        <h6>From {{ $startDate }} To {{ $endDate }}</h6>
-                      </center>
-                    </div>
-                    <div class="col-2"></div>
-                  </div>
-                  <div class="row">
-                    <div class="col-12">
-                      @php
-                        $totalDr = 0;
-                        $totalCr = 0;
-                        $total = 0;
-                      @endphp
-                      <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
-                        <thead>
-                          <tr><td colspan="2"><center><strong> Bills Receivables Of Multichannel Slipway Dockyard </strong></center></td></tr>
-                          <tr style="width: 100%;">
-                            <th style="text-align: center; width: 27%;">Party Name</th>
-                            <th style="text-align: center; width: 10%;">Balance (TK.)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <?php
-                            $count = 0;
-                          ?>
-                          @foreach ($bills_Receivables_Of_Multichannel_Slipway_Dockyard as $ledger)
-                            <tr>
-                              <td>&nbsp;&nbsp;{{ $ledger["name"] }}</td>
-                              <td><center>{{ $ledger["amount"] }}</center></td>
-                            </tr>
-                            <?php
-                              $count++;
-                              if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
-                            ?>
-                        </tbody>
-                      </table>
-                      <br><br><br><br><br><br>
-                      <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
-                        <thead>
-                          <tr><td colspan="2"><center><strong> Bills Receivables Of Multichannel Slipway Dockyard </strong></center></td></tr>
-                          <tr style="width: 100%;">
-                            <th style="text-align: center; width: 27%;">Party Name</th>
-                            <th style="text-align: center; width: 10%;">Balance (TK.)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                              }
-                            ?>
-                          @endforeach
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          @endif
-
-
-        @if ($bills_Receivables_Of_Multichannel_Slipway)
-          <div id="multichannel_Slipway" style="display: none;">
-            <div style="float:right; margin-right:20%; padding-bottom: 20px;">
-              <button id="download-Multichannel-Slipway" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
-            </div>
-            <br> <br>
-            <div style="border: 2px solid #000000; background-color:#ffffff; width: 70%; margin-left: auto; margin-right: auto; color: #000000;">
-              <div id="invoice_Multichannel_Slipway" style="width: 100%; margin-left: auto; margin-right: auto;">
-                <div style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
-                  <br><br>
-                  <div class="row">
-                    <div class="col-2"><img src="{{ asset('assets/img/bfdc-logo-2.png') }}" width="60" height="48" /></div>
-                    <div class="col-8">
-                      <center>
-                        <h4>বাংলাদেশ ম​ৎস উন্নয়ন কর্পোরেশন​</h5>
-                        <h5>চট্টগ্রাম ম​ৎস বন্দর​, চট্টগ্রাম​</h5> <br><br>
-                        <h5>All Party Ledger</h5>
-                        <h6>From {{ $startDate }} To {{ $endDate }}</h6>
-                      </center>
-                    </div>
-                    <div class="col-2"></div>
-                  </div>
-                  <div class="row">
-                    <div class="col-12">
-                      @php
-                        $totalDr = 0;
-                        $totalCr = 0;
-                        $total = 0;
-                      @endphp
-                      <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
-                        <thead>
-                          <tr><td colspan="2"><center><strong> Bills Receivables Of Multichannel Slipway </strong></center></td></tr>
-                          <tr style="width: 100%;">
-                            <th style="text-align: center; width: 27%;">Party Name</th>
-                            <th style="text-align: center; width: 10%;">Balance (TK.)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <?php
-                            $count = 0;
-                          ?>
-                          @foreach ($bills_Receivables_Of_Multichannel_Slipway as $ledger)
-                            <tr>
-                              <td>&nbsp;&nbsp;{{ $ledger["name"] }}</td>
-                              <td><center>{{ $ledger["amount"] }}</center></td>
-                            </tr>
-                            <?php
-                              $count++;
-                              if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
-                            ?>
-                        </tbody>
-                      </table>
-                      <br><br><br><br><br><br>
-                      <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
-                        <thead>
-                          <tr><td colspan="2"><center><strong> Bills Receivables Of Multichannel Slipway </strong></center></td></tr>
-                          <tr style="width: 100%;">
-                            <th style="text-align: center; width: 27%;">Party Name</th>
-                            <th style="text-align: center; width: 10%;">Balance (TK.)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                              }
-                            ?>
-                          @endforeach
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        @endif
 
 
         @if ($bills_Receivables_Of_Water_T_head_Jetty)
@@ -633,6 +506,7 @@
                         <tbody>
                           <?php
                             $count = 0;
+                            $totalAmount_Water_T_head_Jetty = 0;
                           ?>
                           @foreach ($bills_Receivables_Of_Water_T_head_Jetty as $ledger)
                             <tr>
@@ -641,6 +515,7 @@
                             </tr>
                             <?php
                               $count++;
+                              $totalAmount_Water_T_head_Jetty += $ledger["amount"];
                               if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
                             ?>
                         </tbody>
@@ -659,6 +534,10 @@
                               }
                             ?>
                           @endforeach
+                          <tr>
+                            <td>&nbsp;&nbsp;<strong>Total</strong></td>
+                            <td><center>{{ $totalAmount_Water_T_head_Jetty }}</center></td>
+                          </tr>
                         </tbody>
                       </table>
                     </div>
@@ -671,7 +550,7 @@
 
 
         @if ($bills_Receivables_Of_Water)
-          <div id="Water" style="display: none;">
+          <div id="water" style="display: none;">
             <div style="float:right; margin-right:20%; padding-bottom: 20px;">
               <button id="download-Water" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
             </div>
@@ -710,6 +589,7 @@
                         <tbody>
                           <?php
                             $count = 0;
+                            $totalAmount_Water = 0;
                           ?>
                           @foreach ($bills_Receivables_Of_Water as $ledger)
                             <tr>
@@ -718,6 +598,7 @@
                             </tr>
                             <?php
                               $count++;
+                              $totalAmount_Water += $ledger["amount"];
                               if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
                             ?>
                         </tbody>
@@ -736,6 +617,10 @@
                               }
                             ?>
                           @endforeach
+                          <tr>
+                            <td>&nbsp;&nbsp;<strong>Total</strong></td>
+                            <td><center>{{ $totalAmount_Water }}</center></td>
+                          </tr>
                         </tbody>
                       </table>
                     </div>
@@ -787,6 +672,7 @@
                         <tbody>
                           <?php
                             $count = 0;
+                            $totalAmount_T_head_Jetty = 0;
                           ?>
                           @foreach ($bills_Receivables_Of_T_head_Jetty as $ledger)
                             <tr>
@@ -795,6 +681,7 @@
                             </tr>
                             <?php
                               $count++;
+                              $totalAmount_T_head_Jetty += $ledger["amount"];
                               if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
                             ?>
                         </tbody>
@@ -813,6 +700,10 @@
                               }
                             ?>
                           @endforeach
+                          <tr>
+                            <td>&nbsp;&nbsp;<strong>Total</strong></td>
+                            <td><center>{{ $totalAmount_T_head_Jetty }}</center></td>
+                          </tr>
                         </tbody>
                       </table>
                     </div>
@@ -864,6 +755,7 @@
                         <tbody>
                           <?php
                             $count = 0;
+                            $totalAmount_Marine_Workshop = 0;
                           ?>
                           @foreach ($bills_Receivables_Of_Marine_Workshop as $ledger)
                             <tr>
@@ -872,6 +764,7 @@
                             </tr>
                             <?php
                               $count++;
+                              $totalAmount_Marine_Workshop += $ledger["amount"];
                               if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
                             ?>
                         </tbody>
@@ -890,6 +783,10 @@
                               }
                             ?>
                           @endforeach
+                          <tr>
+                            <td>&nbsp;&nbsp;<strong>Total</strong></td>
+                            <td><center>{{ $totalAmount_Marine_Workshop }}</center></td>
+                          </tr>
                         </tbody>
                       </table>
                     </div>
@@ -899,84 +796,6 @@
             </div>
           </div>
         @endif
-
-
-        @if ($bills_Receivables_Of_Workshop)
-          <div id="workshop" style="display: none;">
-            <div style="float:right; margin-right:20%; padding-bottom: 20px;">
-              <button id="download-Workshop" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
-            </div>
-            <br> <br>
-            <div style="border: 2px solid #000000; background-color:#ffffff; width: 70%; margin-left: auto; margin-right: auto; color: #000000;">
-              <div id="invoice_Workshop" style="width: 100%; margin-left: auto; margin-right: auto;">
-                <div style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
-                  <br><br>
-                  <div class="row">
-                    <div class="col-2"><img src="{{ asset('assets/img/bfdc-logo-2.png') }}" width="60" height="48" /></div>
-                    <div class="col-8">
-                      <center>
-                        <h4>বাংলাদেশ ম​ৎস উন্নয়ন কর্পোরেশন​</h5>
-                        <h5>চট্টগ্রাম ম​ৎস বন্দর​, চট্টগ্রাম​</h5> <br><br>
-                        <h5>All Party Ledger</h5>
-                        <h6>From {{ $startDate }} To {{ $endDate }}</h6>
-                      </center>
-                    </div>
-                    <div class="col-2"></div>
-                  </div>
-                  <div class="row">
-                    <div class="col-12">
-                      @php
-                        $totalDr = 0;
-                        $totalCr = 0;
-                        $total = 0;
-                      @endphp
-                      <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
-                        <thead>
-                          <tr><td colspan="2"><center><strong> Bills Receivables Of Workshop </strong></center></td></tr>
-                          <tr style="width: 100%;">
-                            <th style="text-align: center; width: 27%;">Party Name</th>
-                            <th style="text-align: center; width: 10%;">Balance (TK.)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <?php
-                            $count = 0;
-                          ?>
-                          @foreach ($bills_Receivables_Of_Workshop as $ledger)
-                            <tr>
-                              <td>&nbsp;&nbsp;{{ $ledger["name"] }}</td>
-                              <td><center>{{ $ledger["amount"] }}</center></td>
-                            </tr>
-                            <?php
-                              $count++;
-                              if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
-                            ?>
-                        </tbody>
-                      </table>
-                      <br><br><br><br><br><br>
-                      <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
-                        <thead>
-                          <tr><td colspan="2"><center><strong> Bills Receivables Of Workshop </strong></center></td></tr>
-                          <tr style="width: 100%;">
-                            <th style="text-align: center; width: 27%;">Party Name</th>
-                            <th style="text-align: center; width: 10%;">Balance (TK.)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                              }
-                            ?>
-                          @endforeach
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        @endif
-
 
         @if ($bills_Receivables_Of_Electric)
           <div id="electric" style="display: none;">
@@ -1018,6 +837,7 @@
                         <tbody>
                           <?php
                             $count = 0;
+                            $totalAmount_Electric = 0;
                           ?>
                           @foreach ($bills_Receivables_Of_Electric as $ledger)
                             <tr>
@@ -1026,6 +846,7 @@
                             </tr>
                             <?php
                               $count++;
+                              $totalAmount_Electric += $ledger["amount"];
                               if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
                             ?>
                         </tbody>
@@ -1044,6 +865,10 @@
                               }
                             ?>
                           @endforeach
+                          <tr>
+                            <td>&nbsp;&nbsp;<strong>Total</strong></td>
+                            <td><center>{{ $totalAmount_Electric }}</center></td>
+                          </tr>
                         </tbody>
                       </table>
                     </div>
@@ -1391,14 +1216,6 @@
         if (multichannelDiv) {
           multichannelDiv.style.display = "block";
         }
-      } else if (dropdown.value === 'Bills Receivables Of Multichannel Slipway'){
-        if (multichannel_SlipwayDiv) {
-          multichannel_SlipwayDiv.style.display = "block";
-        }
-      } else if (dropdown.value === 'Bills Receivables Of Multichannel Slipway Dockyard'){
-        if (multichannel_Slipway_DockyardDiv) {
-          multichannel_Slipway_DockyardDiv.style.display = "block";
-        }
       } else if (dropdown.value === 'Bills Receivables Of Water'){
         if (waterDiv) {
           waterDiv.style.display = "block";
@@ -1410,10 +1227,6 @@
       } else if (dropdown.value === 'Bills Receivables Of Water T-head Jetty'){
         if (water_T_head_JettyDiv) {
           water_T_head_JettyDiv.style.display = "block";
-        }
-      } else if (dropdown.value === 'Bills Receivables Of Workshop'){
-        if (workshopDiv) {
-          workshopDiv.style.display = "block";
         }
       } else if (dropdown.value === 'Bills Receivables Of Marine Workshop'){
         if (marine_WorkshopDiv) {

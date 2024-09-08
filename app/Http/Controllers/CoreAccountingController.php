@@ -2365,16 +2365,18 @@ class CoreAccountingController extends Controller
                 $selectedAccountName = [
                     "Bills Receivable Of Rent & Lease",
                     "Bills Receivable Of Processing",
+                    "Bills Receivable of Fish Processing",
+                    "Bills receivable of Fish Processing",
                     "Bills Receivable Of Marine Workshop",
                     "Bills Receivable Of Electric",
-                    "Bills Receivable Of Water",
                     "Bills Receivable Of  T-head Jetty",
                     "Bills Receivable Of  T-head Jetty",
                     "Bills Receivable Of Multichannel Slipway",
                     "Bills Receivable Of Water  ( T-head Jetty)",
                     "Bills Receivable Of Water T-head jetty",
                     "Bills Receivable Of Water  ( T-head Jetty)",
-                    "Bills receivable of Land and Lease"
+                    "Bills receivable of Land and Lease",
+                    "Bills Receivable Of Water"
                 ];
 
                 $allResults = [];
@@ -2467,10 +2469,12 @@ class CoreAccountingController extends Controller
         
                 foreach ($allResults as &$entry) {
                     $group = preg_replace('/[\[\]()]/', '', $entry["name"]);
-                    $standard_group = $this->standardize_group_name($group);
+                    $standard_group = $this->standardize_group_name($group); //Group Checks are done in this function 
                     $entry["group"] = $standard_group;
 
                     if($standard_group === "Bills Receivables Of Processing") {
+                        $bills_Receivables_Of_Processing[] = $entry; 
+                    } else if($entry["group"] === "Bills Receivables of Processing") {
                         $bills_Receivables_Of_Processing[] = $entry;
                     } else if($standard_group === "Bills Receivables Rent & Lease") {
                         $bills_Receivables_Of_Rent_and_Lease[] = $entry;
@@ -2479,9 +2483,9 @@ class CoreAccountingController extends Controller
                     } else if($standard_group === "Bills Receivables Of Multichannel") {
                         $bills_Receivables_Of_Multichannel[] = $entry;
                     } else if($standard_group === "Bills Receivables Of Multichannel Slipway") {
-                        $bills_Receivables_Of_Multichannel_Slipway[] = $entry;
+                        $bills_Receivables_Of_Multichannel[] = $entry;
                     } else if($standard_group === "Bills Receivables Of Multichannel Slipway Dockyard") {
-                        $bills_Receivables_Of_Multichannel_Slipway_Dockyard[] = $entry;
+                        $bills_Receivables_Of_Multichannel[] = $entry;
                     } else if($standard_group === "Bills Receivables Of T-head Jetty") {
                         $bills_Receivables_Of_T_head_Jetty[] = $entry;
                     } else if($standard_group === "Bills Receivables Of Water") {
@@ -2491,7 +2495,7 @@ class CoreAccountingController extends Controller
                     } else if($standard_group === "Bills Receivables Of Electric") {
                         $bills_Receivables_Of_Electric[] = $entry;
                     } else if($standard_group === "Bills Receivables Of Workshop") {
-                        $bills_Receivables_Of_Workshop[] = $entry;
+                        $bills_Receivables_Of_Marine_Workshop[] = $entry;
                     } else if($standard_group === "Bills Receivables Of Marine Workshop") {
                         $bills_Receivables_Of_Marine_Workshop[] = $entry;
                     } else {
@@ -2504,7 +2508,7 @@ class CoreAccountingController extends Controller
                 usort($allResults, function ($a, $b) {
                     return strcmp($a["group"], $b["group"]);
                 });
-                // dd($allResults);
+                // dd($bills_Receivables_Of_Water);
 
                 return view('super_admin.core_accounting.account_reports.all_party_ledger')->with('ledgerData', $allResults)->with('parties', $parties)->with('partyName', 'All Parties')->with('startDate', $start_date)->with('endDate', $end_date)->with('bills_Receivables_Of_Processing', $bills_Receivables_Of_Processing)->with('bills_Receivables_Of_Rent_and_Lease', $bills_Receivables_Of_Rent_and_Lease)->with('bills_Receivables_Of_Land_and_Lease', $bills_Receivables_Of_Land_and_Lease)->with('bills_Receivables_Of_Multichannel', $bills_Receivables_Of_Multichannel)->with('bills_Receivables_Of_Multichannel_Slipway_Dockyard', $bills_Receivables_Of_Multichannel_Slipway_Dockyard)->with('bills_Receivables_Of_Multichannel_Slipway', $bills_Receivables_Of_Multichannel_Slipway)->with('bills_Receivables_Of_Water_T_head_Jetty', $bills_Receivables_Of_Water_T_head_Jetty)->with('bills_Receivables_Of_Water', $bills_Receivables_Of_Water)->with('bills_Receivables_Of_T_head_Jetty', $bills_Receivables_Of_T_head_Jetty)->with('bills_Receivables_Of_Marine_Workshop', $bills_Receivables_Of_Marine_Workshop)->with('bills_Receivables_Of_Workshop', $bills_Receivables_Of_Workshop)->with('bills_Receivables_Of_Electric', $bills_Receivables_Of_Electric)->with('other_Bills_Receivables', $other_Bills_Receivables);
             } else {
@@ -2522,6 +2526,7 @@ class CoreAccountingController extends Controller
             "Bills Receivable Of Processing" => "Bills Receivables Of Processing",
             "Bills Receivables Of Processing" => "Bills Receivables Of Processing",
             "Bills Receivable of Fish Processing" => "Bills Receivables of Processing",
+            "Bills Receivables of Fish Processing" => "Bills Receivables of Processing",
             "Bills Receivables of Fish Processing" => "Bills Receivables of Processing,",
             "Bills receivable of Fish Processing" => "Bills Receivables of Processing",
             "Bill receivable of Rent and Lease" => "Bills Receivables Rent & Lease",
@@ -2546,17 +2551,21 @@ class CoreAccountingController extends Controller
             "Bills receivable Of  T-head Jetty" => "Bills Receivables Of T-head Jetty",
             "Bill receivable of T-head Jetty" => "Bills Receivables Of T-head Jetty",
             "Bills Receivables Of T-head Jetty" => "Bills Receivables Of T-head Jetty",
-            "Bills receivable of Water" => "Bills Receivables Of Water",
-            "Bills Receivable Of Water " => "Bills Receivables Of Water",
             "Bills Receivable of Water T-head Jetty" => "Bills Receivables Of Water T-head Jetty",
             "Bill receivable of Water T-head Jetty" => "Bills Receivables Of Water T-head Jetty",
             "Bills Receivables of Water T - head Jetty" => "Bills Receivables Of Water T-head Jetty",
             "Bills Receivables Water T-head Jetty" => "Bills Receivables Of Water T-head Jetty",
             "Bills Receivables Of Water T-head Jetty" => "Bills Receivables Of Water T-head Jetty",
+            "Bills receivable of Water" => "Bills Receivables Of Water",
+            "Bills Receivable Of Water " => "Bills Receivables Of Water",
             "Bills Receivables Electric" => "Bills Receivables Of Electric",
             "Bills Receivables Of Electric" => "Bills Receivables Of Electric",
             "Bills Receivable Of Electric" => "Bills Receivables Of Electric",
-            "bills receivable of workshop" => "Bills Receivables Of Workshop",
+            "Bills Receivables Of workshop" => "Bills Receivables Of Marine Workshop",
+            "Bills Receivables of workshop" => "Bills Receivables Of Marine Workshop",
+            "Bills receivables of workshop" => "Bills Receivables Of Marine Workshop",
+            "Bills receivable of workshop" => "Bills Receivables Of Marine Workshop",
+            "bills receivable of workshop" => "Bills Receivables Of Marine Workshop",
             "Bills Receivables Marine Workshop" => "Bills Receivables Of Marine Workshop",
             "Bills Receivables Of Marine Workshop" => "Bills Receivables Of Marine Workshop",
             "Bill receivable of Marine Workshop" => "Bills Receivables Of Marine Workshop",
