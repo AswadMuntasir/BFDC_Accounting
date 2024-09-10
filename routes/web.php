@@ -78,6 +78,7 @@ Route::post('vouchers_entry_update', [CoreAccountingController::class, 'vouchers
 Route::post('vouchers_entry_delete', [CoreAccountingController::class, 'vouchers_entry_delete'])->name('vouchers_entry_delete');
 
 Route::get('voucher-details-page/{id}', [CoreAccountingController::class, 'voucher_details_page'])->name('voucher_details_page');
+Route::get('voucher-entry-pdf/{id}', [CoreAccountingController::class, 'voucher_entry_pdf'])->name('voucher_entry_pdf');
 
 // Route::get('vouchers-searching', [CoreAccountingController::class, 'vouchersSearchingView']);
 Route::match(['get', 'post'], 'vouchers-searching', [CoreAccountingController::class, 'vouchersSearchingView'])->name('vouchersSearching');

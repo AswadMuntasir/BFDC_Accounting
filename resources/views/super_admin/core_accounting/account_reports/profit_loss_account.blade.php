@@ -34,12 +34,12 @@
               <div class="col-12">
                   <div id="result-container">
                       <div style="float:right; margin-right:20%;">
-                          <button id="download_button" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
+                          <button id="download_button" onclick="pdf_download()" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
                       </div>
                       <br><br>
                       <div style="border: 2px solid #000000; font-size: 10pt; background-color:#ffffff; width: 60%; margin-left: auto; margin-right: auto;">
-                          <div id="invoice" style="width: 100%; margin-left: auto; margin-right: auto;">
-                              <div style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
+                          <div style="width: 100%; margin-left: auto; margin-right: auto;">
+                              <div id="invoice" style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
                                   <br><br>
                                   <div class="row">
                                       <div class="col-2">
@@ -217,22 +217,32 @@
                   ignoreReadonly: true
               });
           });
-
-          // Download as PDF
-            document.addEventListener('DOMContentLoaded', function() {
-                document.getElementById('download_button').addEventListener('click', function() {
-                    const invoice = document.getElementById('invoice');
-                    const options = {
-                        margin: 0.5,
-                        filename: 'profit_and_loss_account.pdf',
-                        image: { type: 'jpeg', quality: 1 },
-                        html2canvas: { scale: 2 },
-                        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-                    };
-
-                    html2pdf().set(options).from(invoice).save();
-                });
-            });
       </script>
+      <script>
+        const calculatePDF = function(pdf_document) {
+            const html_code = `
+                <link rel="preconnect" href="https://fonts.googleapis.com/">
+                <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+                <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
+                <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
+                <div style="width: 100%; margin-left: auto; margin-right: auto;">
+                    <div id="invoice" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
+                        ${pdf_document.innerHTML}
+                    </div>
+                </div>
+            `;
+            const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
+            new_window.document.write(html_code);
+
+            setTimeout(() => {
+                new_window.print();
+                new_window.close();
+            }, 200);
+        }
+        function pdf_download() {
+            const pdf_document = document.querySelector("#invoice");
+            calculatePDF(pdf_document);
+        };
+    </script>
       </div>
 @endsection

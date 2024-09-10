@@ -34,12 +34,12 @@
 					<div class="col-12">
 							<div id="result-container">
 									<div style="float:right; margin-right:20%;">
-											<button id="download-button" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
+											<button id="download-button" onclick="pdf_download()" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
 									</div>
 									<br><br>
 									<div style="border: 2px solid #000000; background-color:#ffffff; width: 60%; margin-left: auto; margin-right: auto;">
-											<div id="invoice" style="width: 100%; margin-left: auto; margin-right: auto;">
-													<div style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
+											<div style="width: 100%; margin-left: auto; margin-right: auto;">
+													<div id="invoice" style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
 															<br><br>
 															<div class="row">
 																	<div class="col-2">
@@ -68,7 +68,6 @@
 																					@php
 																						$grandTotaldr = 0;
 																						$grandTotalcr = 0;
-																						$rowCount = 0;
 																						$drTotal = 0;
 																						$crTotal = 0;
 																						$previousDrTotal = 0;
@@ -107,29 +106,6 @@
 																																		<td style="text-align: right;">{{ $drTotal }}<br><br></td>
 																																		<td style="text-align: right;">{{ abs($crTotal) }}<br><br></td>
 																																</tr>
-																																@php
-																																		$rowCount++; $rowCount++;
-																																@endphp
-																																@if ($rowCount > 44)
-																																						</tbody>
-																																				</table>
-																																		</div>
-																																		<div class="col-12"> <br><br><br> </div>
-																																<div class="col-12" style="border: 1px solid #000000; font-size: 8pt;">
-																																		<table style="width: 100%;">
-																																				<thead>
-																																						<tr style="border-bottom: 1px solid #000000;">
-																																								<th style="width: 40%;">Particulars</th>
-																																								<th style="width: 20%;"></th>
-																																								<th style="width: 20%; text-align: right;">Balance (DR)</th>
-																																								<th style="width: 20%; text-align: right;">Balance(CR)</th>
-																																						</tr>
-																																				</thead>
-																																		<tbody>
-																																@php
-																																		$rowCount = 0;
-																																@endphp
-																														@endif
 																														@endif
 																														@php
 																																$drTotal = 0;
@@ -141,29 +117,6 @@
 																																<td></td>
 																																<td></td>
 																														</tr>
-																														@php
-																																$rowCount++;
-																														@endphp
-																																@if ($rowCount > 44)
-																																				</tbody>
-																																		</table>
-																																		</div>
-																																		<div class="col-12"> <br><br><br> </div>
-																																<div class="col-12" style="border: 1px solid #000000; font-size: 8pt;">
-																																		<table style="width: 100%;">
-																																				<thead>
-																																						<tr style="border-bottom: 1px solid #000000;">
-																																								<th style="width: 40%;">Particulars</th>
-																																								<th style="width: 20%;"></th>
-																																								<th style="width: 20%; text-align: right;">Balance (DR)</th>
-																																								<th style="width: 20%; text-align: right;">Balance(CR)</th>
-																																						</tr>
-																																				</thead>
-																																		<tbody>
-																																@php
-																																		$rowCount = 0;
-																																@endphp
-																														@endif
 																												@endif
 
 																												@php
@@ -177,29 +130,6 @@
 																																<td></td>
 																																<td></td>
 																														</tr>
-																														@php
-																																$rowCount++;
-																														@endphp
-																																@if ($rowCount > 44)
-																																				</tbody>
-																																		</table>
-																																		</div>
-																																		<div class="col-12"> <br><br><br> </div>
-																																<div class="col-12" style="border: 1px solid #000000; font-size: 8pt;">
-																																		<table style="width: 100%;">
-																																				<thead>
-																																						<tr style="border-bottom: 1px solid #000000;">
-																																								<th style="width: 40%;">Particulars</th>
-																																								<th style="width: 20%;"></th>
-																																								<th style="width: 20%; text-align: right;">Balance (DR)</th>
-																																								<th style="width: 20%; text-align: right;">Balance(CR)</th>
-																																						</tr>
-																																				</thead>
-																																		<tbody>
-																																@php
-																																		$rowCount = 0;
-																																@endphp
-																														@endif
 																												@endif
 
 																												@php
@@ -234,29 +164,6 @@
 																																}
 																														@endphp
 																												</tr>
-																												@php
-																														$rowCount++;
-																												@endphp
-																														@if ($rowCount > 44)
-																																		</tbody>
-																																</table>
-																																</div>
-																																<div class="col-12"> <br><br><br> </div>
-																																<div class="col-12" style="border: 1px solid #000000; font-size: 8pt;">
-																																<table style="width: 100%;">
-																																		<thead>
-																																				<tr style="border-bottom: 1px solid #000000;">
-																																						<th style="width: 40%;">Particulars</th>
-																																						<th style="width: 20%;"></th>
-																																						<th style="width: 20%; text-align: right;">Balance (DR)</th>
-																																						<th style="width: 20%; text-align: right;">Balance(CR)</th>
-																																				</tr>
-																																		</thead>
-																																<tbody>
-																														@php
-																																$rowCount = 0;
-																														@endphp
-																												@endif
 																										@endforeach
 																								</tbody>
 																						</table>
@@ -335,16 +242,30 @@
 				});
 		</script>
 		<script>
-			const button = document.getElementById('download-button');
+			const calculatePDF = function(pdf_document) {
+				const html_code = `
+					<link rel="preconnect" href="https://fonts.googleapis.com/">
+					<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+					<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
+					<link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
+					<div style="width: 100%; margin-left: auto; margin-right: auto;">
+						<div id="invoice" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
+							${pdf_document.innerHTML}
+						</div>
+					</div>
+				`;
+				const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
+				new_window.document.write(html_code);
 
-			function generatePDF() {
-					// Choose the element that your content will be rendered to.
-					const element = document.getElementById('invoice');
-					// Choose the element and save the PDF for your user.
-					html2pdf().from(element).save();
+				setTimeout(() => {
+					new_window.print();
+					new_window.close();
+				}, 200);
 			}
-
-			button.addEventListener('click', generatePDF);
-    </script>
+			function pdf_download() {
+				const pdf_document = document.querySelector("#invoice");
+				calculatePDF(pdf_document);
+			};
+		</script>
   </div>
 @endsection

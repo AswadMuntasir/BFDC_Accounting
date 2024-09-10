@@ -471,6 +471,15 @@ class CoreAccountingController extends Controller
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
+    public function voucher_entry_pdf($id) {
+        if(Auth::check()){
+            $voucher_entry = voucher_entry::findOrFail($id);
+            return view('super_admin.core_accounting.vouchers.voucher_entry_pdf_file')->with('voucher_entry', $voucher_entry);
+        }
+  
+        return redirect("login")->withSuccess('You are not allowed to access');
+    }
+
     public function vouchers_entry_post(Request $request)
     {
         $request->validate([

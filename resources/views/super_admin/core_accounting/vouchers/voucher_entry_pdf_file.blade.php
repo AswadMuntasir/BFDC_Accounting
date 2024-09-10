@@ -7,59 +7,22 @@
     <title>Voucher Entry PDF</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- ===============================================-->
-    <!--    Favicons-->
-    <!-- ===============================================-->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/img/BFDC_logo.png') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/BFDC_logo.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/BFDC_logo.png') }}">
-    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/img/BFDC_logo.png') }}">
-    <link rel="manifest" href="{{ asset('assets/img/favicons/manifest.json') }}">
-    <meta name="msapplication-TileImage" content="{{ asset('assets/img/BFDC_logo.png') }}">
-    <meta name="theme-color" content="#ffffff">
-    <script src="{{ asset('vendors/imagesloaded/imagesloaded.pkgd.min.js') }}"></script>
-    <script src="{{ asset('vendors/simplebar/simplebar.min.js') }}"></script>
-    <script src="{{ asset('assets/js/config.js') }}"></script>
-
-    <!-- ===============================================-->
     <!--    Stylesheets-->
     <!-- ===============================================-->
-    <link href="{{ asset('vendors/choices/choices.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('vendors/flatpickr/flatpickr.min.css') }}" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
     <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
-    <link href="{{ asset('vendors/simplebar/simplebar.min.css') }}" rel="stylesheet">
-    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
     <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
-    <link href="{{ asset('assets/css/theme.min.css') }}" type="text/css" rel="stylesheet" id="style-default">
-    <link href="{{ asset('assets/css/user-rtl.min.css') }}" type="text/css" rel="stylesheet" id="user-style-rtl">
-    <link href="{{ asset('assets/css/user.min.css') }}" type="text/css" rel="stylesheet" id="user-style-default">
-    <script src="{{ asset('assets/js/jquery-3.6.4.min.js') }}"></script>
-
-
-    <script src="{{ asset('assets/js/html2pdf.bundle.js') }}"></script>
-    <script src="{{ asset('vendors/popper/popper.min.js') }}"></script>
-    <script src="{{ asset('vendors/bootstrap/bootstrap.min.js') }}"></script>
-    <script src="{{ asset('vendors/anchorjs/anchor.min.js') }}"></script>
-    <script src="{{ asset('vendors/is/is.min.js') }}"></script>
-    <script src="{{ asset('vendors/fontawesome/all.min.js') }}"></script>
-    <script src="{{ asset('vendors/lodash/lodash.min.js') }}"></script>
-    <script src="https://polyfill.io/v3/polyfill.min.js"></script>
-    <script src="{{ asset('vendors/list.js/list.min.js') }}"></script>
-    <script src="{{ asset('vendors/feather-icons/feather.min.js') }}"></script>
-    <script src="{{ asset('vendors/dayjs/dayjs.min.js') }}"></script>
-    <script src="{{ asset('vendors/choices/choices.min.js') }}"></script>
-    <script src="{{ asset('assets/js/phoenix.js') }}"></script>
-    <script src="{{ asset('vendors/echarts/echarts.min.js') }}"></script>
-    <script src="{{ asset('assets/js/ecommerce-dashboard.js') }}"></script>
+    <script src="{{ asset('assets/js/jspdf.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jspdf.autotable.js') }}"></script>
 </head>
 
 <body>
-    <br>
+    <br> <br>
     <div style="float:right; margin-right:20%;">
         <button id="download-button" onclick="pdf_download()" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
     </div>
-    <br> <br>
+    <br><br>
     <div style="border: 2px solid #000000; background-color:#ffffff; width: 60%; margin-left: auto; margin-right: auto; color: #000000;">
         <div style="width: 100%; margin-left: auto; margin-right: auto;">
             <div id="invoice" style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
@@ -101,7 +64,7 @@
                                 <b>Voucher Date:</b> {{$voucher_entry->voucher_date}}
                             </div>
                             <div class="col-12">
-                                <table border="1" width="100%">
+                                <table border="1" width="100%" id="table1">
                                     <thead>
                                         <tr>
                                             <th>Name</th>
@@ -250,11 +213,11 @@
                                 </div>
                             </div>
                         </div>
-                    </div><br><br>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </div><br><br>
 
     <script>
         const calculatePDF = function(pdf_document) {

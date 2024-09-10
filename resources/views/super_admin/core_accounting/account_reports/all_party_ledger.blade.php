@@ -55,12 +55,12 @@
             
           <div id="all">
             <div style="float:right; margin-right:20%; padding-bottom: 20px;">
-              <button id="download-button" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
+              <button id="download-button" onclick="pdf_download()" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
             </div>
             <br> <br>
             <div style="border: 2px solid #000000; background-color:#ffffff; width: 70%; margin-left: auto; margin-right: auto; color: #000000;">
-              <div id="invoice" style="width: 100%; margin-left: auto; margin-right: auto;">
-                <div style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
+              <div style="width: 100%; margin-left: auto; margin-right: auto;">
+                <div id="invoice" style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
                   <br><br>
                   <div class="row">
                     <div class="col-2"><img src="{{ asset('assets/img/bfdc-logo-2.png') }}" width="60" height="48" /></div>
@@ -90,7 +90,6 @@
                         </thead>
                         <tbody>
                           <?php
-                            $count = 0;
                             $totalAmount = 0;
                           ?>
                           @foreach ($ledgerData as $ledger)
@@ -99,23 +98,7 @@
                               <td><center>{{ $ledger["amount"] }}</center></td>
                             </tr>
                             <?php
-                              $count++;
                               $totalAmount += $ledger["amount"];
-                              if($count === 16 || $count === 34 || $count === 52 || $count === 70 || $count === 88 || $count === 106) {
-                            ?>
-                        </tbody>
-                      </table>
-                      <br><br><br><br><br><br>
-                      <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
-                        <thead>
-                          <tr style="width: 100%;">
-                            <th style="text-align: center; width: 27%;">Party Name</th>
-                            <th style="text-align: center; width: 10%;">Balance (TK.)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                              }
                             ?>
                           @endforeach
                           <tr>
@@ -137,12 +120,12 @@
           @if ($bills_Receivables_Of_Rent_and_Lease)
           <div id="rent" style="display: none;">
             <div style="float:right; margin-right:20%; padding-bottom: 20px;">
-              <button id="download-Rent-and-Lease" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
+              <button id="download-Rent-and-Lease" onclick="pdf_Rent_and_Lease_download()" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
             </div>
             <br> <br>
             <div style="border: 2px solid #000000; background-color:#ffffff; width: 70%; margin-left: auto; margin-right: auto; color: #000000;">
-              <div id="invoice_Rent_and_Lease" style="width: 100%; margin-left: auto; margin-right: auto;">
-                <div style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
+              <div style="width: 100%; margin-left: auto; margin-right: auto;">
+                <div id="invoice_Rent_and_Lease" style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
                   <br><br>
                   <div class="row">
                     <div class="col-2"><img src="{{ asset('assets/img/bfdc-logo-2.png') }}" width="60" height="48" /></div>
@@ -173,7 +156,6 @@
                         </thead>
                         <tbody>
                           <?php
-                            $count = 0;
                             $totalAmount_Rent_and_Lease = 0;
                           ?>
                           @foreach ($bills_Receivables_Of_Rent_and_Lease as $ledger)
@@ -182,24 +164,7 @@
                               <td><center>{{ $ledger["amount"] }}</center></td>
                             </tr>
                             <?php
-                              $count++;
                               $totalAmount_Rent_and_Lease += $ledger["amount"];
-                              if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
-                            ?>
-                        </tbody>
-                      </table>
-                      <br><br><br><br><br><br>
-                      <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
-                        <thead>
-                          <tr><td colspan="2"><center><strong> Bills Receivables Of Rent and Lease </strong></center></td></tr>
-                          <tr style="width: 100%;">
-                            <th style="text-align: center; width: 27%;">Party Name</th>
-                            <th style="text-align: center; width: 10%;">Balance (TK.)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                              }
                             ?>
                           @endforeach
                           <tr>
@@ -220,12 +185,12 @@
         @if ($bills_Receivables_Of_Processing)
           <div id="processing" style="display: none;">
             <div style="float:right; margin-right:20%; padding-bottom: 20px;">
-              <button id="download-Processing" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
+              <button id="download-Processing" onclick="pdf_Processing_download()" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
             </div>
             <br> <br>
             <div style="border: 2px solid #000000; background-color:#ffffff; width: 70%; margin-left: auto; margin-right: auto; color: #000000;">
-              <div id="invoice_Processing" style="width: 100%; margin-left: auto; margin-right: auto;">
-                <div style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
+              <div style="width: 100%; margin-left: auto; margin-right: auto;">
+                <div id="invoice_Processing" style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
                   <br><br>
                   <div class="row">
                     <div class="col-2"><img src="{{ asset('assets/img/bfdc-logo-2.png') }}" width="60" height="48" /></div>
@@ -256,7 +221,6 @@
                         </thead>
                         <tbody>
                           <?php
-                            $count = 0;
                             $totalAmount_Processing = 0;
                           ?>
                           @foreach ($bills_Receivables_Of_Processing as $ledger)
@@ -265,24 +229,7 @@
                               <td><center>{{ $ledger["amount"] }}</center></td>
                             </tr>
                             <?php
-                              $count++;
                               $totalAmount_Processing += $ledger["amount"];
-                              if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
-                            ?>
-                        </tbody>
-                      </table>
-                      <br><br><br><br><br><br>
-                      <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
-                        <thead>
-                          <tr><td colspan="2"><center><strong> Bills Receivables Of Processing </strong></center></td></tr>
-                          <tr style="width: 100%;">
-                            <th style="text-align: center; width: 27%;">Party Name</th>
-                            <th style="text-align: center; width: 10%;">Balance (TK.)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                              }
                             ?>
                           @endforeach
                           <tr>
@@ -303,12 +250,12 @@
         @if ($bills_Receivables_Of_Land_and_Lease)
           <div id="land" style="display: none;">
             <div style="float:right; margin-right:20%; padding-bottom: 20px;">
-              <button id="download-Land-and-Lease" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
+              <button id="download-Land-and-Lease" onclick="pdf_Land_and_Lease_download()" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
             </div>
             <br> <br>
             <div style="border: 2px solid #000000; background-color:#ffffff; width: 70%; margin-left: auto; margin-right: auto; color: #000000;">
-              <div id="invoice_Land_and_Lease" style="width: 100%; margin-left: auto; margin-right: auto;">
-                <div style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
+              <div style="width: 100%; margin-left: auto; margin-right: auto;">
+                <div id="invoice_Land_and_Lease" style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
                   <br><br>
                   <div class="row">
                     <div class="col-2"><img src="{{ asset('assets/img/bfdc-logo-2.png') }}" width="60" height="48" /></div>
@@ -339,7 +286,6 @@
                         </thead>
                         <tbody>
                           <?php
-                            $count = 0;
                             $totalAmount_Land_and_Lease = 0;
                           ?>
                           @foreach ($bills_Receivables_Of_Land_and_Lease as $ledger)
@@ -348,24 +294,7 @@
                               <td><center>{{ $ledger["amount"] }}</center></td>
                             </tr>
                             <?php
-                              $count++;
                               $totalAmount_Land_and_Lease += $ledger["amount"];
-                              if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
-                            ?>
-                        </tbody>
-                      </table>
-                      <br><br><br><br><br><br>
-                      <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
-                        <thead>
-                          <tr><td colspan="2"><center><strong> Bills Receivables Of Land and Lease </strong></center></td></tr>
-                          <tr style="width: 100%;">
-                            <th style="text-align: center; width: 27%;">Party Name</th>
-                            <th style="text-align: center; width: 10%;">Balance (TK.)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                              }
                             ?>
                           @endforeach
                           <tr>
@@ -386,12 +315,12 @@
         @if ($bills_Receivables_Of_Multichannel)
           <div id="multichannel" style="display: none;">
             <div style="float:right; margin-right:20%; padding-bottom: 20px;">
-              <button id="download-Multichannel" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
+              <button id="download-Multichannel" onclick="pdf_Multichannel_download()" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
             </div>
             <br> <br>
             <div style="border: 2px solid #000000; background-color:#ffffff; width: 70%; margin-left: auto; margin-right: auto; color: #000000;">
-              <div id="invoice_Multichannel" style="width: 100%; margin-left: auto; margin-right: auto;">
-                <div style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
+              <div style="width: 100%; margin-left: auto; margin-right: auto;">
+                <div id="invoice_Multichannel" style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
                   <br><br>
                   <div class="row">
                     <div class="col-2"><img src="{{ asset('assets/img/bfdc-logo-2.png') }}" width="60" height="48" /></div>
@@ -422,7 +351,6 @@
                         </thead>
                         <tbody>
                           <?php
-                            $count = 0;
                             $totalAmount_Multichannel = 0;
                           ?>
                           @foreach ($bills_Receivables_Of_Multichannel as $ledger)
@@ -431,24 +359,7 @@
                               <td><center>{{ $ledger["amount"] }}</center></td>
                             </tr>
                             <?php
-                              $count++;
                               $totalAmount_Multichannel += $ledger["amount"];
-                              if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
-                            ?>
-                        </tbody>
-                      </table>
-                      <br><br><br><br><br><br>
-                      <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
-                        <thead>
-                          <tr><td colspan="2"><center><strong> Bills Receivables Of Multichannel </strong></center></td></tr>
-                          <tr style="width: 100%;">
-                            <th style="text-align: center; width: 27%;">Party Name</th>
-                            <th style="text-align: center; width: 10%;">Balance (TK.)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                              }
                             ?>
                           @endforeach
                           <tr>
@@ -469,12 +380,12 @@
         @if ($bills_Receivables_Of_Water_T_head_Jetty)
           <div id="water_T_head_Jetty" style="display: none;">
             <div style="float:right; margin-right:20%; padding-bottom: 20px;">
-              <button id="download-Water-T-Head-Jetty" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
+              <button id="download-Water-T-Head-Jetty" onclick="pdf_Water_T_head_Jetty_download()" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
             </div>
             <br> <br>
             <div style="border: 2px solid #000000; background-color:#ffffff; width: 70%; margin-left: auto; margin-right: auto; color: #000000;">
-              <div id="invoice_Water_T_head_Jetty" style="width: 100%; margin-left: auto; margin-right: auto;">
-                <div style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
+              <div style="width: 100%; margin-left: auto; margin-right: auto;">
+                <div id="invoice_Water_T_Head_Jetty" style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
                   <br><br>
                   <div class="row">
                     <div class="col-2"><img src="{{ asset('assets/img/bfdc-logo-2.png') }}" width="60" height="48" /></div>
@@ -505,7 +416,6 @@
                         </thead>
                         <tbody>
                           <?php
-                            $count = 0;
                             $totalAmount_Water_T_head_Jetty = 0;
                           ?>
                           @foreach ($bills_Receivables_Of_Water_T_head_Jetty as $ledger)
@@ -514,24 +424,7 @@
                               <td><center>{{ $ledger["amount"] }}</center></td>
                             </tr>
                             <?php
-                              $count++;
                               $totalAmount_Water_T_head_Jetty += $ledger["amount"];
-                              if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
-                            ?>
-                        </tbody>
-                      </table>
-                      <br><br><br><br><br><br>
-                      <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
-                        <thead>
-                          <tr><td colspan="2"><center><strong> Bills Receivables Of Water T-head Jetty </strong></center></td></tr>
-                          <tr style="width: 100%;">
-                            <th style="text-align: center; width: 27%;">Party Name</th>
-                            <th style="text-align: center; width: 10%;">Balance (TK.)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                              }
                             ?>
                           @endforeach
                           <tr>
@@ -552,12 +445,12 @@
         @if ($bills_Receivables_Of_Water)
           <div id="water" style="display: none;">
             <div style="float:right; margin-right:20%; padding-bottom: 20px;">
-              <button id="download-Water" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
+              <button id="download-Water" onclick="pdf_Water_download()" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
             </div>
             <br> <br>
             <div style="border: 2px solid #000000; background-color:#ffffff; width: 70%; margin-left: auto; margin-right: auto; color: #000000;">
-              <div id="invoice_Water" style="width: 100%; margin-left: auto; margin-right: auto;">
-                <div style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
+              <div style="width: 100%; margin-left: auto; margin-right: auto;">
+                <div id="invoice_Water" style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
                   <br><br>
                   <div class="row">
                     <div class="col-2"><img src="{{ asset('assets/img/bfdc-logo-2.png') }}" width="60" height="48" /></div>
@@ -588,7 +481,6 @@
                         </thead>
                         <tbody>
                           <?php
-                            $count = 0;
                             $totalAmount_Water = 0;
                           ?>
                           @foreach ($bills_Receivables_Of_Water as $ledger)
@@ -597,24 +489,7 @@
                               <td><center>{{ $ledger["amount"] }}</center></td>
                             </tr>
                             <?php
-                              $count++;
                               $totalAmount_Water += $ledger["amount"];
-                              if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
-                            ?>
-                        </tbody>
-                      </table>
-                      <br><br><br><br><br><br>
-                      <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
-                        <thead>
-                          <tr><td colspan="2"><center><strong> Bills Receivables Of Water </strong></center></td></tr>
-                          <tr style="width: 100%;">
-                            <th style="text-align: center; width: 27%;">Party Name</th>
-                            <th style="text-align: center; width: 10%;">Balance (TK.)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                              }
                             ?>
                           @endforeach
                           <tr>
@@ -635,12 +510,12 @@
         @if ($bills_Receivables_Of_T_head_Jetty)
           <div id="t_head_Jetty" style="display: none;">
             <div style="float:right; margin-right:20%; padding-bottom: 20px;">
-              <button id="download-T-head-Jetty" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
+              <button id="download-T-head-Jetty" onclick="pdf_T_head_Jetty_download()" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
             </div>
             <br> <br>
             <div style="border: 2px solid #000000; background-color:#ffffff; width: 70%; margin-left: auto; margin-right: auto; color: #000000;">
-              <div id="invoice_T_head_Jetty" style="width: 100%; margin-left: auto; margin-right: auto;">
-                <div style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
+              <div style="width: 100%; margin-left: auto; margin-right: auto;">
+                <div id="invoice_T_head_Jetty" style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
                   <br><br>
                   <div class="row">
                     <div class="col-2"><img src="{{ asset('assets/img/bfdc-logo-2.png') }}" width="60" height="48" /></div>
@@ -671,7 +546,6 @@
                         </thead>
                         <tbody>
                           <?php
-                            $count = 0;
                             $totalAmount_T_head_Jetty = 0;
                           ?>
                           @foreach ($bills_Receivables_Of_T_head_Jetty as $ledger)
@@ -680,24 +554,7 @@
                               <td><center>{{ $ledger["amount"] }}</center></td>
                             </tr>
                             <?php
-                              $count++;
                               $totalAmount_T_head_Jetty += $ledger["amount"];
-                              if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
-                            ?>
-                        </tbody>
-                      </table>
-                      <br><br><br><br><br><br>
-                      <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
-                        <thead>
-                          <tr><td colspan="2"><center><strong> Bills Receivables Of T-head Jetty </strong></center></td></tr>
-                          <tr style="width: 100%;">
-                            <th style="text-align: center; width: 27%;">Party Name</th>
-                            <th style="text-align: center; width: 10%;">Balance (TK.)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                              }
                             ?>
                           @endforeach
                           <tr>
@@ -718,12 +575,12 @@
         @if ($bills_Receivables_Of_Marine_Workshop)
           <div id="marine_Workshop" style="display: none;">
             <div style="float:right; margin-right:20%; padding-bottom: 20px;">
-              <button id="download-Marine-Workshop" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
+              <button id="download-Marine-Workshop" onclick="pdf_Marine_Workshop_download()" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
             </div>
             <br> <br>
             <div style="border: 2px solid #000000; background-color:#ffffff; width: 70%; margin-left: auto; margin-right: auto; color: #000000;">
-              <div id="invoice_Marine_Workshop" style="width: 100%; margin-left: auto; margin-right: auto;">
-                <div style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
+              <div style="width: 100%; margin-left: auto; margin-right: auto;">
+                <div id="invoice_Marine_Workshop" style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
                   <br><br>
                   <div class="row">
                     <div class="col-2"><img src="{{ asset('assets/img/bfdc-logo-2.png') }}" width="60" height="48" /></div>
@@ -754,7 +611,6 @@
                         </thead>
                         <tbody>
                           <?php
-                            $count = 0;
                             $totalAmount_Marine_Workshop = 0;
                           ?>
                           @foreach ($bills_Receivables_Of_Marine_Workshop as $ledger)
@@ -763,24 +619,7 @@
                               <td><center>{{ $ledger["amount"] }}</center></td>
                             </tr>
                             <?php
-                              $count++;
                               $totalAmount_Marine_Workshop += $ledger["amount"];
-                              if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
-                            ?>
-                        </tbody>
-                      </table>
-                      <br><br><br><br><br><br>
-                      <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
-                        <thead>
-                          <tr><td colspan="2"><center><strong> Bills Receivables Of Marine Workshop </strong></center></td></tr>
-                          <tr style="width: 100%;">
-                            <th style="text-align: center; width: 27%;">Party Name</th>
-                            <th style="text-align: center; width: 10%;">Balance (TK.)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                              }
                             ?>
                           @endforeach
                           <tr>
@@ -800,12 +639,12 @@
         @if ($bills_Receivables_Of_Electric)
           <div id="electric" style="display: none;">
             <div style="float:right; margin-right:20%; padding-bottom: 20px;">
-              <button id="download-Electric" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
+              <button id="download-Electric" onclick="pdf_Electric_download()" style="float:right;" class="btn btn-primary px-5 px-sm-15">Download as PDF</button>
             </div>
             <br> <br>
             <div style="border: 2px solid #000000; background-color:#ffffff; width: 70%; margin-left: auto; margin-right: auto; color: #000000;">
-              <div id="invoice_Electric" style="width: 100%; margin-left: auto; margin-right: auto;">
-                <div style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
+              <div style="width: 100%; margin-left: auto; margin-right: auto;">
+                <div id="invoice_Electric" style="width: 80%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
                   <br><br>
                   <div class="row">
                     <div class="col-2"><img src="{{ asset('assets/img/bfdc-logo-2.png') }}" width="60" height="48" /></div>
@@ -836,7 +675,6 @@
                         </thead>
                         <tbody>
                           <?php
-                            $count = 0;
                             $totalAmount_Electric = 0;
                           ?>
                           @foreach ($bills_Receivables_Of_Electric as $ledger)
@@ -845,24 +683,7 @@
                               <td><center>{{ $ledger["amount"] }}</center></td>
                             </tr>
                             <?php
-                              $count++;
                               $totalAmount_Electric += $ledger["amount"];
-                              if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
-                            ?>
-                        </tbody>
-                      </table>
-                      <br><br><br><br><br><br>
-                      <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
-                        <thead>
-                          <tr><td colspan="2"><center><strong> Bills Receivables Of Electric </strong></center></td></tr>
-                          <tr style="width: 100%;">
-                            <th style="text-align: center; width: 27%;">Party Name</th>
-                            <th style="text-align: center; width: 10%;">Balance (TK.)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                              }
                             ?>
                           @endforeach
                           <tr>
@@ -918,33 +739,11 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <?php
-                            $count = 0;
-                          ?>
                           @foreach ($other_Bills_Receivables as $ledger)
                             <tr>
                               <td>&nbsp;&nbsp;{{ $ledger["name"] }}</td>
                               <td><center>{{ $ledger["amount"] }}</center></td>
                             </tr>
-                            <?php
-                              $count++;
-                              if($count === 15 || $count === 32 || $count === 49 || $count === 66 || $count === 83 || $count === 100) {
-                            ?>
-                        </tbody>
-                      </table>
-                      <br><br><br><br><br><br>
-                      <table class="table table-bordered" style="width: 100%; font-size: 12px; border: 1px solid;">
-                        <thead>
-                          <tr><td colspan="2"><center><strong> Other Bills Receivables </strong></center></td></tr>
-                          <tr style="width: 100%;">
-                            <th style="text-align: center; width: 27%;">Party Name</th>
-                            <th style="text-align: center; width: 10%;">Balance (TK.)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                              }
-                            ?>
                           @endforeach
                         </tbody>
                       </table>
@@ -978,169 +777,248 @@
 		<script src="{{ asset('vendors/dayjs/dayjs.min.js') }}"></script>
 		<script src="{{ asset('vendors/choices/choices.min.js') }}"></script>
 		<script src="{{ asset('assets/js/phoenix.js') }}"></script>
+
+  <!-- Invoice PDF -->
   <script>
-    // function htmlToPDF() {
-    //   window.jsPDF = window.jspdf.jsPDF;
-      // const doc = new jsPDF();
-    //   pdf.html(document.getElementById('invoice'), {
-    //     html2canvas: {
-    //         scale: 600 / srcwidth
-    //         //600 is the width of a4 page. 'a4': [595.28, 841.89]
-    //     },
-    //     callback: function () {
-    //         window.open(pdf.output('All_Party_Ledger'));
-    //     }
-    // });
-    // alert("pdf done");
-      // var htmlElement = $('#invoice').html();
-      // doc.fromHTML(htmlElement);
-      // doc.save('All Party Ledger.pdf');
-      // var specialElementHandlers = {
-      //   '#editor': function (element, renderer) {
-      //     return true;
-      //   }
-      // };
+    const calculatePDF = function(pdf_document) {
+      const html_code = `
+        <link rel="preconnect" href="https://fonts.googleapis.com/">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+        <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
+        <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+      `;
+      const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
+      new_window.document.write(html_code);
 
-      // $('#download-button').click(function () {   
-      //   doc.fromHTML($('#invoice').html(), 15, 15, {
-      //     'width': 170,
-      //     'elementHandlers': specialElementHandlers
-      //   });
-      //   doc.save('All-Party-Ledger.pdfpdf');
-      // });
-    // }
+      setTimeout(() => {
+        new_window.print();
+        new_window.close();
+      }, 200);
+    }
+    function pdf_download() {
+      const pdf_document = document.querySelector("#invoice");
+      calculatePDF(pdf_document);
+    };
+  </script>
 
-    // var ledgerData = JSON.parse("{{ json_encode($ledgerData) }}");
-    //   console.log(ledgerData);
+  <!-- Rent_and_Lease PDF -->
+  <script>
+    const calculatePDF_Rent_and_Lease = function(pdf_document) {
+      const html_code = `
+        <link rel="preconnect" href="https://fonts.googleapis.com/">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+        <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
+        <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Rent_and_Lease" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+      `;
+      const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
+      new_window.document.write(html_code);
 
-    document.addEventListener("DOMContentLoaded", function() {
-      const button = document.getElementById('download-button');
-      function generatePDF() {
-        // Choose the element that your content will be rendered to.
-        const element = document.getElementById('invoice');
-        // Choose the element and save the PDF for your user.
-        html2pdf().from(element).save();
-      }
-      button.addEventListener('click', generatePDF);
+      setTimeout(() => {
+        new_window.print();
+        new_window.close();
+      }, 200);
+    }
+    function pdf_Rent_and_Lease_download() {
+      const pdf_document = document.querySelector("#invoice_Rent_and_Lease");
+      calculatePDF_Rent_and_Lease(pdf_document);
+    };
+  </script>
 
-      const button_Rent_and_Lease = document.getElementById('download-Rent-and-Lease');
-      function generatePDF() {
-        // Choose the element that your content will be rendered to.
-        const element = document.getElementById('invoice_Rent_and_Lease');
-        // Choose the element and save the PDF for your user.
-        html2pdf().from(element).save();
-      }
-      button_Rent_and_Lease.addEventListener('click', generatePDF);
+  <!-- Processing PDF -->
+  <script>
+    const calculatePDF_Processing = function(pdf_document) {
+      const html_code = `
+        <link rel="preconnect" href="https://fonts.googleapis.com/">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+        <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
+        <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Processing" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+      `;
+      const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
+      new_window.document.write(html_code);
 
-      const button_Processing = document.getElementById('download-Processing');
-      function generatePDF() {
-        // Choose the element that your content will be rendered to.
-        const element = document.getElementById('invoice_Processing');
-        // Choose the element and save the PDF for your user.
-        html2pdf().from(element).save();
-      }
-      button_Processing.addEventListener('click', generatePDF);
+      setTimeout(() => {
+        new_window.print();
+        new_window.close();
+      }, 200);
+    }
+    function pdf_Processing_download() {
+      const pdf_document = document.querySelector("#invoice_Processing");
+      calculatePDF_Processing(pdf_document);
+    };
+  </script>
 
-      const button_Land_and_Lease = document.getElementById('download-Land-and-Lease');
-      function generatePDF() {
-        // Choose the element that your content will be rendered to.
-        const element = document.getElementById('invoice_Land_and_Lease');
-        // Choose the element and save the PDF for your user.
-        html2pdf().from(element).save();
-      }
-      button_Land_and_Lease.addEventListener('click', generatePDF);
+ <!-- Land_and_Lease PDF -->
+  <script>
+    const calculatePDF_Land_and_Lease = function(pdf_document) {
+      const html_code = `
+        <link rel="preconnect" href="https://fonts.googleapis.com/">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+        <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
+        <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Land_and_Lease" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+      `;
+      const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
+      new_window.document.write(html_code);
 
-      const button_Multichannel = document.getElementById('download-Multichannel');
-      function generatePDF() {
-        // Choose the element that your content will be rendered to.
-        const element = document.getElementById('invoice_Multichannel');
-        // Choose the element and save the PDF for your user.
-        html2pdf().from(element).save();
-      }
-      button_Multichannel.addEventListener('click', generatePDF);
+      setTimeout(() => {
+        new_window.print();
+        new_window.close();
+      }, 200);
+    }
+    function pdf_Land_and_Lease_download() {
+      const pdf_document = document.querySelector("#invoice_Land_and_Lease");
+      calculatePDF_Land_and_Lease(pdf_document);
+    };
+  </script>
 
-      const button_Multichannel_Slipway_Dockyard = document.getElementById('download-Multichannel-Slipway-Dockyard');
-      function generatePDF() {
-        // Choose the element that your content will be rendered to.
-        const element = document.getElementById('invoice_Multichannel_Slipway_Dockyard');
-        // Choose the element and save the PDF for your user.
-        html2pdf().from(element).save();
-      }
-      button_Multichannel_Slipway_Dockyard.addEventListener('click', generatePDF);
+ <!-- Multichannel PDF -->
+  <script>
+    const calculatePDF_Multichannel = function(pdf_document) {
+      const html_code = `
+        <link rel="preconnect" href="https://fonts.googleapis.com/">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+        <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
+        <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Multichannel" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+      `;
+      const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
+      new_window.document.write(html_code);
 
-      const button_Multichannel_Slipway = document.getElementById('download-Multichannel-Slipway');
-      function generatePDF() {
-        // Choose the element that your content will be rendered to.
-        const element = document.getElementById('invoice_Multichannel_Slipway');
-        // Choose the element and save the PDF for your user.
-        html2pdf().from(element).save();
-      }
-      button_Multichannel_Slipway.addEventListener('click', generatePDF);_Slipway_Dockyard
+      setTimeout(() => {
+        new_window.print();
+        new_window.close();
+      }, 200);
+    }
+    function pdf_Multichannel_download() {
+      const pdf_document = document.querySelector("#invoice_Multichannel");
+      calculatePDF_Multichannel(pdf_document);
+    };
+  </script>
 
-      const button_Water_T_Head_Jetty = document.getElementById('download-Water-T-Head-Jetty');
-      function generatePDF() {
-        // Choose the element that your content will be rendered to.
-        const element = document.getElementById('invoice_Water_T_Head_Jetty');
-        // Choose the element and save the PDF for your user.
-        html2pdf().from(element).save();
-      }
-      button_Water_T_Head_Jetty.addEventListener('click', generatePDF);
+ <!-- Water_T_Head_Jetty PDF -->
+  <script>
+    const calculatePDF_Water_T_Head_Jetty = function(pdf_document) {
+      const html_code = `
+        <link rel="preconnect" href="https://fonts.googleapis.com/">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+        <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
+        <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Water_T_Head_Jetty" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+      `;
+      const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
+      new_window.document.write(html_code);
 
-      const button_Water = document.getElementById('download-Water');
-      function generatePDF() {
-        // Choose the element that your content will be rendered to.
-        const element = document.getElementById('invoice_Water');
-        // Choose the element and save the PDF for your user.
-        html2pdf().from(element).save();
-      }
-      button_Water.addEventListener('click', generatePDF);
+      setTimeout(() => {
+        new_window.print();
+        new_window.close();
+      }, 200);
+    }
+    function pdf_Water_T_head_Jetty_download() {
+      const pdf_document = document.querySelector("#invoice_Water_T_Head_Jetty");
+      calculatePDF_Water_T_Head_Jetty(pdf_document);
+    };
+  </script>
 
-      const button_T_head_Jetty = document.getElementById('download-T-head-Jetty');
-      function generatePDF() {
-        // Choose the element that your content will be rendered to.
-        const element = document.getElementById('invoice_T_head_Jetty');
-        // Choose the element and save the PDF for your user.
-        html2pdf().from(element).save();
-      }
-      button_T_head_Jetty.addEventListener('click', generatePDF);
+ <!-- Water PDF -->
+  <script>
+    const calculatePDF_Water = function(pdf_document) {
+      const html_code = `
+        <link rel="preconnect" href="https://fonts.googleapis.com/">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+        <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
+        <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Water" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+      `;
+      const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
+      new_window.document.write(html_code);
 
-      const button_Workshop = document.getElementById('download-Workshop');
-      function generatePDF() {
-        // Choose the element that your content will be rendered to.
-        const element = document.getElementById('invoice_Workshop');
-        // Choose the element and save the PDF for your user.
-        html2pdf().from(element).save();
-      }
-      button_Workshop.addEventListener('click', generatePDF);
+      setTimeout(() => {
+        new_window.print();
+        new_window.close();
+      }, 200);
+    }
+    function pdf_Water_download() {
+      const pdf_document = document.querySelector("#invoice_Water");
+      calculatePDF_Water(pdf_document);
+    };
+  </script>
 
-      const button_Marine_Workshop = document.getElementById('download-Marine-Workshop');
-      function generatePDF() {
-        // Choose the element that your content will be rendered to.
-        const element = document.getElementById('invoice_Marine_Workshop');
-        // Choose the element and save the PDF for your user.
-        html2pdf().from(element).save();
-      }
-      button_Marine_Workshop.addEventListener('click', generatePDF);
+ <!-- T_head_Jetty PDF -->
+  <script>
+    const calculatePDF_T_head_Jetty = function(pdf_document) {
+      const html_code = `
+        <link rel="preconnect" href="https://fonts.googleapis.com/">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+        <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
+        <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_T_head_Jetty" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+      `;
+      const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
+      new_window.document.write(html_code);
 
-      const button_Electric = document.getElementById('download-Electric');
-      function generatePDF() {
-        // Choose the element that your content will be rendered to.
-        const element = document.getElementById('invoice_Electric');
-        // Choose the element and save the PDF for your user.
-        html2pdf().from(element).save();
-      }
-      button_Electric.addEventListener('click', generatePDF);
+      setTimeout(() => {
+        new_window.print();
+        new_window.close();
+      }, 200);
+    }
+    function pdf_T_head_Jetty_download() {
+      const pdf_document = document.querySelector("#invoice_T_head_Jetty");
+      calculatePDF_T_head_Jetty(pdf_document);
+    };
+  </script>
 
-      const button_Other = document.getElementById('download-Other');
-      function generatePDF() {
-        // Choose the element that your content will be rendered to.
-        const element = document.getElementById('invoice_Other');
-        // Choose the element and save the PDF for your user.
-        html2pdf().from(element).save();
-      }
-      button_Other.addEventListener('click', generatePDF);  
-    });
+  <!-- Marine_Workshop PDF -->
+  <script>
+    const calculatePDF_Marine_Workshop = function(pdf_document) {
+      const html_code = `
+        <link rel="preconnect" href="https://fonts.googleapis.com/">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+        <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
+        <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Marine_Workshop" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+      `;
+      const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
+      new_window.document.write(html_code);
 
+      setTimeout(() => {
+        new_window.print();
+        new_window.close();
+      }, 200);
+    }
+    function pdf_Marine_Workshop_download() {
+      const pdf_document = document.querySelector("#invoice_Marine_Workshop");
+      calculatePDF_Marine_Workshop(pdf_document);
+    };
+  </script>
+  
+  <!-- Electric PDF -->
+  <script>
+    const calculatePDF_Electric = function(pdf_document) {
+      const html_code = `
+        <link rel="preconnect" href="https://fonts.googleapis.com/">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+        <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
+        <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Electric" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+      `;
+      const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
+      new_window.document.write(html_code);
+
+      setTimeout(() => {
+        new_window.print();
+        new_window.close();
+      }, 200);
+    }
+    function pdf_Electric_download() {
+      const pdf_document = document.querySelector("#invoice_Electric");
+      calculatePDF_Electric(pdf_document);
+    };
+  </script>
+
+  <script>
     function hideDiv() {
       var dropdown = document.getElementById('myDropdown');
       const allDiv = document.getElementById('all');
