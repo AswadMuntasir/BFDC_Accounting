@@ -3381,64 +3381,85 @@ class CoreAccountingController extends Controller
     }
 
     public function tredingAccountCalculation($ledgerData, $contol_name, $acHeadNames) {
-        $all_data = [];
-        // dd($ledgerData);
-        $count = 0;
-        foreach ($ledgerData as $key => $eachLedgerData) {
-            $extractedData = json_decode($eachLedgerData->ac_head);
-            $filteredExtractedData = [];
-            // dd($extractedData);
-            foreach ($extractedData as $key => $arrayData) {
-                // if($count === 1) {
-                    // if($arrayData->name == "Stock & Stores" && $arrayData->amount != 0 && $count != 106){
-                    //     dd($arrayData, $count);
-                    // }
-                // }
-                if($arrayData->amount != 0) {
-                    // dd($acHeadName);
-                    foreach ($acHeadNames as $key => $acHeadName) {
-                        // dd($acHeadName, $arrayData);
-                        if($arrayData->name == $acHeadName->ac_head_name_eng) {
-                            $arrayData->control_account = $acHeadName->account_name;
-                            $filteredExtractedData[] = $arrayData;
-                        }
-                    }
+        $dailyData = [];
+        foreach ($ledgerData as $data) {
+            $decodedData = json_decode($data->ac_head, true);
+            $dailyData[] = $decodedData; 
+            // dd($decodedData);
+            // $dailyData = array_merge($previous_data, $decodedData); 
+        }
+        $mergedArray = [];
+        foreach($dailyData as $currentArray) {
+            // Iterate through each item in the current array
+            foreach ($currentArray as $item) {
+                // Check if the item with similar criteria already exists in the merged array
+                $existingKey = array_search($item, $mergedArray);
+        
+                if ($existingKey !== false) {
+                    // If exists, add the 'amount' values
+                    $mergedArray[$existingKey]['amount'] += $item['amount'];
+                } else {
+                    // If not exists, add the current item to the merged array
+                    $mergedArray[] = $item;
                 }
             }
-
-            foreach($filteredExtractedData as $data) {
-                unset($data->name);
-            }
-            $all_data[] = $filteredExtractedData;
-            // if($count === 1) {
-            //     dd($filteredExtractedData);
-            // }
-            // dd();
-            $count++;
         }
-        // dd($all_data);
+
+        $newArray = [];
+        $yourArray = $mergedArray;
+        // Loop through the given array
+        $totals = [];
+
+        foreach ($yourArray as $item) {
+            $key = $item['account_group'] . '-' . $item['subsidiary_account_name'] . '-' . $item['name'];
+        
+            // If the key exists in the totals array, update the amount
+            if (isset($totals[$key])) {
+                $totals[$key] += $item['amount'];
+            } else {
+                // Otherwise, add the key to the totals array with the current amount
+                $totals[$key] = $item['amount'];
+            }
+        }
+        
+        // Create the new array using the totals
+        foreach ($totals as $key => $amount) {
+            list($account_group, $subsidiary_account_name, $name) = explode('-', $key);
+        
+            $newArray[] = [
+                'account_group' => $account_group,
+                'subsidiary_account_name' => $subsidiary_account_name,
+                'control_account' => $name,
+                'amount' => $amount,
+            ];
+        }
+        
+        // Sort the new array based on account_group and subsidiary_account_name
+        usort($newArray, function ($a, $b) {
+            if ($a['account_group'] == $b['account_group']) {
+                return strcmp($a['subsidiary_account_name'], $b['subsidiary_account_name']);
+            }
+            return strcmp($a['account_group'], $b['account_group']);
+        });
 
         $mergedData = [];
-        foreach ($all_data as $subArray) {
-            $mergedData = array_merge($mergedData, array_values($subArray)); // Merge objects from sub-array
+        foreach($newArray as $individualNewArray) {
+            foreach($contol_name as $individualControlName) {
+                if($individualControlName['account_name'] === $individualNewArray['control_account']) {
+                    // dd($individualControlName['account_name'], $individualNewArray['name']);
+                    // $mergedData[] = $individualNewArray;
+                    $mergedData[] = (object) [
+                        'account_group' => $individualNewArray['account_group'],
+                        'subsidiary_account_name' => $individualNewArray['subsidiary_account_name'],
+                        'amount' => $individualNewArray['amount'],
+                        'control_account' => $individualNewArray['control_account'],
+                    ];
+                }
+            }
+            
         }
-
-        $collection = collect($mergedData);
-
-        // Group the collection by 'control_account'
-        $grouped = $collection->groupBy('control_account');
-
-        // Sum the 'amount' for each group and transform the data
-        $result = $grouped->map(function ($group) {
-            return (object)[
-                "account_group" => $group->first()->account_group,
-                "subsidiary_account_name" => $group->first()->subsidiary_account_name,
-                "amount" => $group->sum->amount,
-                "control_account" => $group->first()->control_account
-            ];
-        })->values()->toArray();
-        
-        return $result;
+        // dd($mergedData);
+        return $mergedData;
     }
 
     public function balanceSheetView(Request $request)

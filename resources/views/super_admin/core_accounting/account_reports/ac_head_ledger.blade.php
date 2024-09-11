@@ -225,7 +225,7 @@
                 <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
                 <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
                 <div style="width: 100%; margin-left: auto; margin-right: auto;">
-                    <div id="invoice" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
+                    <div id="invoice" style="width: 98%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">
                         ${pdf_document.innerHTML}
                     </div>
                 </div>

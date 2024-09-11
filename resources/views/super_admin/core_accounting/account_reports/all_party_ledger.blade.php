@@ -786,7 +786,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
         <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
         <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
-        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice" style="width: 98%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
       `;
       const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
       new_window.document.write(html_code);
@@ -810,7 +810,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
         <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
         <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
-        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Rent_and_Lease" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Rent_and_Lease" style="width: 98%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
       `;
       const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
       new_window.document.write(html_code);
@@ -834,7 +834,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
         <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
         <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
-        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Processing" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Processing" style="width: 98%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
       `;
       const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
       new_window.document.write(html_code);
@@ -858,7 +858,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
         <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
         <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
-        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Land_and_Lease" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Land_and_Lease" style="width: 98%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
       `;
       const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
       new_window.document.write(html_code);
@@ -882,7 +882,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
         <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
         <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
-        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Multichannel" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Multichannel" style="width: 98%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
       `;
       const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
       new_window.document.write(html_code);
@@ -906,7 +906,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
         <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
         <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
-        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Water_T_Head_Jetty" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Water_T_Head_Jetty" style="width: 98%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
       `;
       const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
       new_window.document.write(html_code);
@@ -930,7 +930,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
         <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
         <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
-        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Water" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Water" style="width: 98%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
       `;
       const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
       new_window.document.write(html_code);
@@ -954,7 +954,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
         <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
         <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
-        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_T_head_Jetty" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_T_head_Jetty" style="width: 98%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
       `;
       const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
       new_window.document.write(html_code);
@@ -978,7 +978,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
         <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
         <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
-        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Marine_Workshop" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Marine_Workshop" style="width: 98%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
       `;
       const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
       new_window.document.write(html_code);
@@ -1002,7 +1002,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
         <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
         <link href="{{ asset('assets/css/theme-rtl.min.css') }}" type="text/css" rel="stylesheet" id="style-rtl">
-        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Electric" style="width: 100%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
+        <div style="width: 100%; margin-left: auto; margin-right: auto;"><div id="invoice_Electric" style="width: 98%; margin-top: 40px; margin-bottom: 20px; margin-left: auto; margin-right: auto;">${pdf_document.innerHTML}</div></div>
       `;
       const new_window = window.open('', '', 'width=600', 'height=800', 'top=0');
       new_window.document.write(html_code);
