@@ -143,10 +143,10 @@
                           <div class="d-flex align-items-center"><span class="nav-link-text">Trial Balance</span></div>
                         </a><!-- more inner pages-->
                       </li>
-                      <li class="nav-item"><a class="nav-link" href="bank-book" data-bs-toggle="" aria-expanded="false">
+                      <!-- <li class="nav-item"><a class="nav-link" href="bank-book" data-bs-toggle="" aria-expanded="false">
                           <div class="d-flex align-items-center"><span class="nav-link-text">Bank Book</span></div>
-                        </a><!-- more inner pages-->
-                      </li>
+                        </a>
+                      </li> -->
                       <li class="nav-item"><a class="nav-link" href="sub-ac-ledger" data-bs-toggle="" aria-expanded="false">
                           <div class="d-flex align-items-center"><span class="nav-link-text">Sub A/C Ledger</span></div>
                         </a><!-- more inner pages-->
@@ -175,14 +175,14 @@
                           <div class="d-flex align-items-center"><span class="nav-link-text">Control A/C Balance</span></div>
                         </a><!-- more inner pages-->
                       </li>
-                      <li class="nav-item"><a class="nav-link" href="bank-reconciliation-statement" data-bs-toggle="" aria-expanded="false">
+                      <!-- <li class="nav-item"><a class="nav-link" href="bank-reconciliation-statement" data-bs-toggle="" aria-expanded="false">
                           <div class="d-flex align-items-center"><span class="nav-link-text">Bank Reconciliation Statement</span></div>
-                        </a><!-- more inner pages-->
-                      </li>
-                      <li class="nav-item"><a class="nav-link" href="ugc-monthly-statement" data-bs-toggle="" aria-expanded="false">
+                        </a>
+                      </li> -->
+                      <!-- <li class="nav-item"><a class="nav-link" href="ugc-monthly-statement" data-bs-toggle="" aria-expanded="false">
                           <div class="d-flex align-items-center"><span class="nav-link-text">UGC Monthly Statement</span></div>
-                        </a><!-- more inner pages-->
-                      </li>
+                        </a>
+                      </li> -->
                       <li class="nav-item"><a class="nav-link" href="cancelled-voucher" data-bs-toggle="" aria-expanded="false">
                           <div class="d-flex align-items-center"><span class="nav-link-text">Cancelled Voucher</span></div>
                         </a><!-- more inner pages-->
@@ -191,10 +191,10 @@
                           <div class="d-flex align-items-center"><span class="nav-link-text">Voucher By Date</span></div>
                         </a><!-- more inner pages-->
                       </li>
-                      <li class="nav-item"><a class="nav-link" href="advance-register" data-bs-toggle="" aria-expanded="false">
+                      <!-- <li class="nav-item"><a class="nav-link" href="advance-register" data-bs-toggle="" aria-expanded="false">
                           <div class="d-flex align-items-center"><span class="nav-link-text">Advance Register</span></div>
-                        </a><!-- more inner pages-->
-                      </li>
+                        </a>
+                      </li> -->
                       <li class="nav-item"><a class="nav-link" href="profit-loss-account" data-bs-toggle="" aria-expanded="false">
                           <div class="d-flex align-items-center"><span class="nav-link-text">Profit & Loss Account</span></div>
                         </a><!-- more inner pages-->
