@@ -1680,7 +1680,7 @@ class CoreAccountingController extends Controller
                     $totals = [];
 
                     foreach ($yourArray as $item) {
-                        $key = $item['account_group'] . '-' . $item['subsidiary_account_name'] . '-' . $item['name'];
+                        $key = $item['account_group'] . '-_-' . $item['subsidiary_account_name'] . '-_-' . $item['name'];
                     
                         // If the key exists in the totals array, update the amount
                         if (isset($totals[$key])) {
@@ -1693,8 +1693,7 @@ class CoreAccountingController extends Controller
                     
                     // Create the new array using the totals
                     foreach ($totals as $key => $amount) {
-                        list($account_group, $subsidiary_account_name, $name) = explode('-', $key);
-                    
+                        list($account_group, $subsidiary_account_name, $name) = explode('-_-', $key);
                         $newArray[] = [
                             'account_group' => $account_group,
                             'subsidiary_account_name' => $subsidiary_account_name,
@@ -1714,7 +1713,7 @@ class CoreAccountingController extends Controller
                     // dd($newArray);
                     $mergedData = $newArray;
                 }
-                // dd($mergedData[0]->ac_head);
+                
                 // $finalResult = json_decode($mergedData[0]->ac_head, true);
                 return view('super_admin.core_accounting.account_reports.trial_balance', [
                     'data' => $mergedData,
