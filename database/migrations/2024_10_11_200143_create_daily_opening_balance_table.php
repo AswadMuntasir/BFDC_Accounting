@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('yearly_oppening_balance', function (Blueprint $table) {
+        Schema::create('daily_opening_balance', function (Blueprint $table) {
             $table->id();
             $table->date('date')->unique();
             $table->text('ac_head')->nullable();
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('yearly_oppening_balance');
+        Schema::dropIfExists('daily_opening_balance');
     }
 };

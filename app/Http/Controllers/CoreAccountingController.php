@@ -13,6 +13,8 @@ use App\Models\party;
 use App\Models\collection_entry;
 use App\Models\voucher_entry;
 use App\Models\daily_data;
+use App\Models\DailyOpeningBalance;
+use App\Models\YearlyOpeningBalance;
 use Illuminate\Support\Facades\DB;
 use DateTime;
 use Illuminate\Support\Arr;
@@ -509,7 +511,10 @@ class CoreAccountingController extends Controller
             ->get()
             ->toArray();
 
-        // dd($controlACNames);
+        $dailyOpening = DailyOpeningBalance::where('date', $voucherDateInput)->pluck('ac_head');
+        $dailyOpeningBalance = json_decode($dailyOpening);
+        
+        // dd($a, $dailyOpening, $openingBalance);
         // dd($fixed_assets_data);
         // ::select('ac_head_id', 'ac_head_name_eng')->get();
         $dailyData = daily_data::where('voucher_date', $voucherDateInput)->pluck('ac_head');
@@ -519,6 +524,40 @@ class CoreAccountingController extends Controller
 
         $drAmountData = json_decode($drAmountJson, true);
         $crAmountData = json_decode($crAmountJson, true);
+
+        $dr_cr_array = [];
+        foreach ($drAmountData as $item) {
+            $dr_cr_array[] = [
+                'name' => $item['name'],
+                'amount' => floatval($item['amount']),
+            ];
+        }
+        
+        foreach ($crAmountData as $item) {
+            $dr_cr_array[] = [
+                'name' => $item['name'],
+                'amount' => -floatval($item['amount']), // Make amounts negative
+            ];
+        }
+
+        $openingBalance = [];
+        if($dailyOpeningBalance === []) {
+            //empty
+        } else {
+            $a = json_decode($dailyOpeningBalance[0]);
+            foreach($a as $item) {
+                $openingBalance[] = (array) $item;
+            }
+        }
+        $dailyOpeningData = $this->matchAndMerge($dr_cr_array, $openingBalance);
+        if($dailyOpeningBalance === []) {
+            $openingDailyData = new DailyOpeningBalance;
+            $openingDailyData->date = $voucherDateInput;
+            $openingDailyData->ac_head = json_encode(array_values($dailyOpeningData));
+            $openingDailyData->save();
+        } else {
+            DailyOpeningBalance::where('date', $voucherDateInput)->update(['ac_head' => json_encode(array_values($dailyOpeningData))]);
+        }
 
         // Transform data to final_data format
         $finalDataArray = [];
@@ -685,6 +724,25 @@ class CoreAccountingController extends Controller
         }
 
         return redirect('vouchers-entry');
+    }
+
+    private function matchAndMerge($array1, $array2) {
+        $unmatched = [];
+    
+        // Combine both arrays for easier iteration
+        $combined = array_merge($array1, $array2);
+        // dd($combined);
+        $result = [];
+        foreach ($combined as $item) {
+            $name = $item['name'];
+            if (isset($result[$name])) {
+                $result[$name]['amount'] += $item['amount'];
+            } else {
+                $result[$name] = $item;
+            }
+        }
+    
+        return $result;
     }
 
     private function dailyDataCalculation($dailyData, $dailyDataJson) {
@@ -1595,8 +1653,8 @@ class CoreAccountingController extends Controller
             $endDate = $request->input('end_date');
             
             if ($request->isMethod('post')) {
-                // $startDateTime = new DateTime($startDate);
-                // $endDateTime = new DateTime($endDate);
+                $startDateTime = new DateTime($startDate);
+                $endDateTime = new DateTime($endDate);
 
                 // // Iterate through each date in the range
                 // while ($startDateTime <= $endDateTime) {
@@ -1627,7 +1685,95 @@ class CoreAccountingController extends Controller
                 //     // Move to the next date
                 //     $startDateTime->modify('+1 day');
                 // }
+
+                // --------------- Trial Fix End ---------------- //
+
+                // while ($startDateTime <= $endDateTime) {
+                //     $currentDate = $startDateTime->format('Y-m-d'); // Format the date as needed
+
+                //     // Fetch voucher entries for the current date
+                //     $voucher_entries = DB::table('voucher_entry')
+                //         ->where('voucher_date', $currentDate)
+                //         ->whereIn('status', ['pending', 'Pending', 'Done'])
+                //         ->select('dr_amount', 'cr_amount', 'voucher_date')
+                //         ->orderBy('voucher_date')
+                //         ->get();
+                    
+                //     $dr_cr_array = [];
+
+                //     foreach ($voucher_entries as $items) {
+                //         $array_items = (array) $items;
+                //         $item_dr_amount = $array_items["dr_amount"];
+                //         $dr_amount = json_decode($item_dr_amount);
+                //         $item_cr_amount = $array_items["cr_amount"];
+                //         $cr_amount = json_decode($item_cr_amount);
+
+                //         foreach ($dr_amount as $item) {
+                //             $array_item = (array) $item;
+                //             $dr_cr_array[] = [
+                //                 'name' => $array_item['name'],
+                //                 'amount' => floatval($array_item['amount']),
+                //             ];
+                //         }
+                        
+                //         foreach ($cr_amount as $item) {
+                //             $array_item = (array) $item;
+                //             $dr_cr_array[] = [
+                //                 'name' => $array_item['name'],
+                //                 'amount' => -floatval($array_item['amount']), // Make amounts negative
+                //             ];
+                //         } 
+                //     }
+                //     $dailyOpeningData = $this->matchAndMerge($dr_cr_array, []);
+                //     $final_data_for_Daily_Opening_Data =  json_encode(array_values($dailyOpeningData));
+
+                //     // Move to the next date
+                //     $final_date = $startDateTime->modify('+1 day');
+
+                //     $openingDailyData = new DailyOpeningBalance;
+                //     $openingDailyData->date = $final_date;
+                //     $openingDailyData->ac_head = $final_data_for_Daily_Opening_Data;
+                //     $openingDailyData->save();
+                //     // Process or store the fetched voucher entries as needed
+
+                // }
+
+                //  -------------------- Daily Opening Banalnce End ----------------- //
+
+                // $startDateTime->modify('+1 day');
+                // $endDateTime->modify('+1 day');
+
+                // $voucher_entries = DB::table('daily_opening_balance')
+                //     ->whereBetween('date', [$startDateTime, $endDateTime])
+                //     ->where('ac_head', '!=', '[]')
+                //     ->select('ac_head')
+                //     ->get();
+
+                // $all_data_array = [];
+                // foreach ($voucher_entries as $items) {
+                //     $array_items = (array) $items;
+                //     $eachItemsData = json_decode($array_items["ac_head"]);
+                //     foreach ($eachItemsData as $item) {
+                //         $array_item = (array) $item;
+                //         $all_data_array[] = [
+                //             'name' => $array_item['name'],
+                //             'amount' => floatval($array_item['amount']),
+                //         ];
+                //     }
+                // }
+
+                // $yearlyOpeningData = $this->matchAndMerge($all_data_array, []);
+                // $final_data_for_Yearly_Opening_Data =  json_encode(array_values($yearlyOpeningData));
+                // // dd($final_data_for_Yearly_Opening_Data);
+
+                // $lastDate = $endDateTime->format('Y-m-d');
+                // // dd($lastDate);
+                // $openingYearlyData = new YearlyOpeningBalance;
+                // $openingYearlyData->date = $lastDate;
+                // $openingYearlyData->ac_head = $final_data_for_Yearly_Opening_Data;
+                // $openingYearlyData->save();
                 
+                // ----------------------- Yearly Opening Banalce End --------------------------- //
 
                 // // // // // $finalResult = $this->dailyDataDispatch($ledgerData, $all_ac_head_names);
 

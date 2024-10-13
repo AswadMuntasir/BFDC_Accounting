@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class DailyOpeningBalance extends Model
 {
     use HasFactory;
-    protected $table = 'daily_oppening_balance';
+    protected $table = 'daily_opening_balance';
 
     protected $fillable = [
         'date',

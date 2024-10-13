@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class YearlyOpeningBalance extends Model
 {
     use HasFactory;
-    protected $table = 'yearly_oppening_balance';
+    protected $table = 'yearly_opening_balance';
 
     protected $fillable = [
         'date',
