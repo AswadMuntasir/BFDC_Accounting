@@ -745,6 +745,25 @@ class CoreAccountingController extends Controller
         return $result;
     }
 
+    private function matchAndRemove($array1, $array2) {
+        $unmatched = [];
+    
+        // Combine both arrays for easier iteration
+        $combined = array_merge($array1, $array2);
+        // dd($combined);
+        $result = [];
+        foreach ($combined as $item) {
+            $name = $item['name'];
+            if (isset($result[$name])) {
+                $result[$name]['amount'] -= $item['amount'];
+            } else {
+                $result[$name] = $item;
+            }
+        }
+    
+        return $result;
+    }
+
     private function dailyDataCalculation($dailyData, $dailyDataJson) {
         $dailyData = json_decode($dailyData[0], true);
         $dailyDataArray = json_decode($dailyDataJson, true);
@@ -835,6 +854,42 @@ class CoreAccountingController extends Controller
 
         $drAmountData = json_decode($voucher_data[0]['dr_amount'], true);
         $crAmountData = json_decode($voucher_data[0]['cr_amount'], true);
+
+        // dd($drAmountData, $crAmountData);
+
+        $dailyOpening = DailyOpeningBalance::where('date', $voucher_data[0]['voucher_date'])->pluck('ac_head');
+        $dailyOpeningBalance = json_decode($dailyOpening);
+        
+        $dr_cr_array = [];
+        foreach ($drAmountData as $item) {
+            $dr_cr_array[] = [
+                'name' => $item['name'],
+                'amount' => floatval($item['amount']),
+            ];
+        }
+        
+        foreach ($crAmountData as $item) {
+            $dr_cr_array[] = [
+                'name' => $item['name'],
+                'amount' => -floatval($item['amount']), // Make amounts negative
+            ];
+        }
+
+        $openingBalance = [];
+        if($dailyOpeningBalance === []) {
+            //empty
+        } else {
+            $a = json_decode($dailyOpeningBalance[0]);
+            foreach($a as $item) {
+                $openingBalance[] = (array) $item;
+            }
+        }
+        
+        $dailyOpeningData = $this->matchAndRemove($openingBalance, $dr_cr_array);
+
+        // dd($dr_cr_array, $openingBalance, $dailyOpeningData);
+        
+        DailyOpeningBalance::where('date', $voucher_data[0]['voucher_date'])->update(['ac_head' => json_encode(array_values($dailyOpeningData))]);
 
         $accountHeads = control_ac::join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
                                     ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name', 'ac_head.ac_head_name_eng')
@@ -1274,7 +1329,49 @@ class CoreAccountingController extends Controller
                 'cr_dr' => $finalDataJson1
             ];
 
-            // return response()->json(['data' => $newEntry]);
+            // dd($newDR, $newCR);
+            $array_dr = (array) $newDR;
+            $array_cr = (array) $newCR;
+            $dailyOpening = DailyOpeningBalance::where('date', $v_date)->pluck('ac_head');
+            $dailyOpeningBalance = json_decode($dailyOpening);
+            
+            $dr_cr_array = [];
+            foreach ($array_dr as $item) {
+                $each_item = (array) $item;
+                $dr_cr_array[] = [
+                    'name' => $each_item['name'],
+                    'amount' => floatval($each_item['amount']),
+                ];
+            }
+            
+            foreach ($array_cr as $item) {
+                $each_item = (array) $item;
+                $dr_cr_array[] = [
+                    'name' => $each_item['name'],
+                    'amount' => -floatval($each_item['amount']), // Make amounts negative
+                ];
+            }
+
+            $openingBalance = [];
+            if($dailyOpeningBalance === []) {
+                //empty
+            } else {
+                $a = json_decode($dailyOpeningBalance[0]);
+                foreach($a as $item) {
+                    $openingBalance[] = (array) $item;
+                }
+            }
+            $dailyOpeningData = $this->matchAndMerge($dr_cr_array, $openingBalance);
+            if($dailyOpeningBalance === []) {
+                $openingDailyData = new DailyOpeningBalance;
+                $openingDailyData->date = $v_date;
+                $openingDailyData->ac_head = json_encode(array_values($dailyOpeningData));
+                $openingDailyData->save();
+            } else {
+                DailyOpeningBalance::where('date', $v_date)->update(['ac_head' => json_encode(array_values($dailyOpeningData))]);
+            }
+
+            // return response()->json(['data' => $array_dr]);
 
             $voucher = new voucher_entry;
             $voucher->voucher_type = "Receipt Voucher";
@@ -1401,7 +1498,48 @@ class CoreAccountingController extends Controller
             // $totalDrAmount = array_sum(array_column($item['dr_amount'], 'collection_amount'));
             // $totalCrAmount = array_sum(array_column($item['cr_amount'], 'collection_amount'));
 
-            // return response()->json(['data' => json_encode($item['dr_amount'])]);
+            $array_dr = (array) $item['dr_amount'];
+            $array_cr = (array) $item['cr_amount'];
+            $dailyOpening = DailyOpeningBalance::where('date', $v_date)->pluck('ac_head');
+            $dailyOpeningBalance = json_decode($dailyOpening);
+            
+            $dr_cr_array = [];
+            foreach ($array_dr as $item) {
+                $each_item = (array) $item;
+                $dr_cr_array[] = [
+                    'name' => $each_item['name'],
+                    'amount' => floatval($each_item['amount']),
+                ];
+            }
+            
+            foreach ($array_cr as $item) {
+                $each_item = (array) $item;
+                $dr_cr_array[] = [
+                    'name' => $each_item['name'],
+                    'amount' => -floatval($each_item['amount']), // Make amounts negative
+                ];
+            }
+
+            $openingBalance = [];
+            if($dailyOpeningBalance === []) {
+                //empty
+            } else {
+                $a = json_decode($dailyOpeningBalance[0]);
+                foreach($a as $item) {
+                    $openingBalance[] = (array) $item;
+                }
+            }
+            $dailyOpeningData = $this->matchAndMerge($dr_cr_array, $openingBalance);
+            if($dailyOpeningBalance === []) {
+                $openingDailyData = new DailyOpeningBalance;
+                $openingDailyData->date = $v_date;
+                $openingDailyData->ac_head = json_encode(array_values($dailyOpeningData));
+                $openingDailyData->save();
+            } else {
+                DailyOpeningBalance::where('date', $v_date)->update(['ac_head' => json_encode(array_values($dailyOpeningData))]);
+            }
+            
+            // return response()->json(['data' => $item['dr_amount']]);
 
             $voucher = new voucher_entry;
             $voucher->voucher_type = "Receipt Voucher";
@@ -2479,11 +2617,23 @@ class CoreAccountingController extends Controller
                         }
                     }
                 }
-                
                 $openningBalance = 0;
+
+                $dailyOpeningBalanceData = $this->getOpeningBalanceData($startDate, $endDate);
+                foreach ($dailyOpeningBalanceData as $dailyOpeningBalance) {
+                    $dailyOpeningBalanceArray = (array) $dailyOpeningBalance;
+                    $allOpeningBalance = json_decode($dailyOpeningBalanceArray['ac_head']);
+                    foreach($allOpeningBalance as $balance) {
+                        if($balance->name === $selectedAccountName) {
+                            $openningBalance+= $balance->amount;
+                        }
+                    }
+                }
+                
+                
                 $sortedLedgerData = $ledgerData->sortBy('voucher_date')->values()->all();
                 // Output the filtered ledger data
-                return view('super_admin.core_accounting.account_reports.ac_head_ledger', ['ledgerData' => $sortedLedgerData, 'accounts' => $accounts, 'selectedAccountName' => $selectedAccountName, 'startDate' => $startDate, 'endDate' => $endDate, 'openningBalance' => $openningBalance]);
+                return view('super_admin.core_accounting.account_reports.ac_head_ledger', ['ledgerData' => $sortedLedgerData, 'accounts' => $accounts, 'selectedAccountName' => $selectedAccountName, 'startDate' => $startDate, 'endDate' => $endDate, 'openingBalance' => $openningBalance]);
             }
     
             return view('super_admin.core_accounting.account_reports.ac_head_ledger', ['accounts' => $accounts, 'ledgerData' => null, 'startDate' => null, 'endDate' => null]);
@@ -2491,6 +2641,89 @@ class CoreAccountingController extends Controller
   
         return redirect("login")->withSuccess('You are not allowed to access');
     }
+
+    function getOpeningBalanceData($startDate, $endDate) {
+        // Convert the start and end date strings to DateTime objects
+        $startDateObj = new DateTime($startDate);
+        $endDateObj = new DateTime($endDate);
+    
+        // Calculate the start of the financial year (July 1st) for the start date year
+        $yearStart = (new DateTime($startDateObj->format('Y') . '-07-01'));
+    
+        // If the start date is not July 1st, adjust year start to previous July 1st
+        if ($startDateObj < $yearStart) {
+            $yearStart->modify('-1 year');
+        }
+    
+        // Prepare the previous year’s start and end dates for `daily_opening_balance`
+        $previousYearStart = (clone $yearStart)->modify('-1 year');
+        $previousYearEnd = (clone $yearStart)->modify('-1 day');  // One day before the current year start
+    
+        // Check if the start date is exactly July 1st of any year
+        if ($startDateObj == $yearStart) {
+            // Fetch data from `yearly_opening_balance` table for the entire date range
+            $data = DB::table('yearly_opening_balance')
+                ->whereBetween('date', [$yearStart->format('Y-m-d'), $endDateObj->format('Y-m-d')])
+                ->where('ac_head', '!=', '[]')
+                ->select('ac_head')
+                ->get();
+        } else {
+            // Fetch data from `daily_opening_balance` for the previous year and up to the day before the start date
+            $dailyData = DB::table('daily_opening_balance')
+                ->whereBetween('date', [$yearStart->format('Y-m-d'), $startDateObj->modify('-1 day')->format('Y-m-d')])
+                ->where('ac_head', '!=', '[]')
+                ->select('ac_head')
+                ->get();
+    
+            // Fetch all yearly data up to the end of the previous year from `yearly_opening_balance`
+            $yearlyData = DB::table('yearly_opening_balance')
+                ->whereBetween('date', [$previousYearStart->format('Y-m-d'), $previousYearEnd->format('Y-m-d')])
+                ->where('ac_head', '!=', '[]')
+                ->select('ac_head')
+                ->get();
+    
+            // Merge the results
+            $data = $dailyData->merge($yearlyData);
+        }
+    
+        return $data;
+    }
+
+    // function getOpeningBalanceData($startdate, $endDate) {
+    //     // Convert the start date string to a DateTime object
+    //     $startDate = new DateTime($startdate);
+    
+    //     $yearStart = $startDate->format('Y') . '-07-01';
+        
+    //     // Check if the start date is a year start and adjust accordingly
+    //     if ($startDate >= new DateTime($yearStart)) {
+    //         $yearStart = $startDate->modify('-1 year')->format('Y') . '-07-01';
+    //     }
+        
+    //     // If the start date is a year start, fetch data from yearly_opening_balance
+    //     if ($startDate == new DateTime($yearStart)) {
+    //         $data = DB::table('yearly_opening_balance')
+    //             ->whereBetween('date', [$yearStart, $endDate])
+    //             ->select('ac_head')
+    //             ->get();
+    //     } else {
+    //         // Fetch data from daily_opening_balance for the previous year
+    //         $previousYearStart = (new DateTime($yearStart))->modify('-1 year')->format('Y') . '-07-01';
+    //         $previousYearEnd = (new DateTime($yearStart))->format('Y') . '-06-30';
+    
+    //         $data = DB::table('daily_opening_balance')
+    //             ->whereBetween('date', [$previousYearStart, $previousYearEnd])
+    //             ->select('ac_head')  // Ensure all selects have the same columns
+    //             ->unionAll(
+    //                 DB::table('daily_opening_balance')
+    //                     ->whereBetween('date', [$yearStart, $endDate])
+    //                     ->select('ac_head')  // Ensure all selects have the same columns
+    //             )
+    //             ->get();
+    //     }
+    
+    //     return $data;
+    // }
 
     function filterByName($array, $keyword)
     {

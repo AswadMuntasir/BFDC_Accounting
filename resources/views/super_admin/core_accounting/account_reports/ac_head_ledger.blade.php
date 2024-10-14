@@ -142,12 +142,24 @@
                     </thead>
                     <tbody>
                       <tr>
-                        <td>2023-07-01</td>
                         <td></td>
-                        <td>Openning Balance</td>
-                        <td>0.00</td>
-                        <td>0.00</td>
-                        <td>0.00</td>
+                        <td></td>
+                        <td>Opening Balance</td>
+                        <td>
+                          <?php echo ($openingBalance > 0) ? number_format($openingBalance, 2) : '0'; ?>
+                        </td>
+                        <td>
+                            <?php echo ($openingBalance < 0) ? number_format(abs($openingBalance), 2) : '0'; ?>
+                        </td>
+                        <td> <?php if($openingBalance > 0) {
+                          $totalDr = $totalDr + (int) $openingBalance;
+                          $total += (int)$openingBalance;
+                        } else {
+                          $totalCr = $totalCr + (int)$openingBalance;
+                          $total -= (int)$openingBalance;
+                        }
+                         ?>
+                          &nbsp; {{ $openingBalance }}</td>
                       </tr>
                       @foreach ($ledgerData as $ledger)
                         @if ($ledger->dr_amount->isNotEmpty() || $ledger->cr_amount->isNotEmpty())
