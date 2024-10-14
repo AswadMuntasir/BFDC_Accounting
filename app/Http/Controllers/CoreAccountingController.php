@@ -1878,38 +1878,38 @@ class CoreAccountingController extends Controller
 
                 //  -------------------- Daily Opening Banalnce End ----------------- //
 
-                $startDateTime->modify('+1 day');
-                $endDateTime->modify('+1 day');
+                // $startDateTime->modify('+1 day');
+                // $endDateTime->modify('+1 day');
 
-                $voucher_entries = DB::table('daily_opening_balance')
-                    ->whereBetween('date', [$startDateTime, $endDateTime])
-                    ->where('ac_head', '!=', '[]')
-                    ->select('ac_head')
-                    ->get();
+                // $voucher_entries = DB::table('daily_opening_balance')
+                //     ->whereBetween('date', [$startDateTime, $endDateTime])
+                //     ->where('ac_head', '!=', '[]')
+                //     ->select('ac_head')
+                //     ->get();
 
-                $all_data_array = [];
-                foreach ($voucher_entries as $items) {
-                    $array_items = (array) $items;
-                    $eachItemsData = json_decode($array_items["ac_head"]);
-                    foreach ($eachItemsData as $item) {
-                        $array_item = (array) $item;
-                        $all_data_array[] = [
-                            'name' => $array_item['name'],
-                            'amount' => floatval($array_item['amount']),
-                        ];
-                    }
-                }
+                // $all_data_array = [];
+                // foreach ($voucher_entries as $items) {
+                //     $array_items = (array) $items;
+                //     $eachItemsData = json_decode($array_items["ac_head"]);
+                //     foreach ($eachItemsData as $item) {
+                //         $array_item = (array) $item;
+                //         $all_data_array[] = [
+                //             'name' => $array_item['name'],
+                //             'amount' => floatval($array_item['amount']),
+                //         ];
+                //     }
+                // }
 
-                $yearlyOpeningData = $this->matchAndMerge($all_data_array, []);
-                $final_data_for_Yearly_Opening_Data =  json_encode(array_values($yearlyOpeningData));
-                // dd($final_data_for_Yearly_Opening_Data);
+                // $yearlyOpeningData = $this->matchAndMerge($all_data_array, []);
+                // $final_data_for_Yearly_Opening_Data =  json_encode(array_values($yearlyOpeningData));
+                // // dd($final_data_for_Yearly_Opening_Data);
 
-                $lastDate = $endDateTime->format('Y-m-d');
-                // dd($lastDate);
-                $openingYearlyData = new YearlyOpeningBalance;
-                $openingYearlyData->date = $lastDate;
-                $openingYearlyData->ac_head = $final_data_for_Yearly_Opening_Data;
-                $openingYearlyData->save();
+                // $lastDate = $endDateTime->format('Y-m-d');
+                // // dd($lastDate);
+                // $openingYearlyData = new YearlyOpeningBalance;
+                // $openingYearlyData->date = $lastDate;
+                // $openingYearlyData->ac_head = $final_data_for_Yearly_Opening_Data;
+                // $openingYearlyData->save();
                 
                 // ----------------------- Yearly Opening Banalce End --------------------------- //
 
