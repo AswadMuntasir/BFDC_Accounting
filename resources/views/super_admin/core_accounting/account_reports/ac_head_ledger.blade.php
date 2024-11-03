@@ -146,16 +146,16 @@
                         <td></td>
                         <td>Opening Balance</td>
                         <td>
-                          <?php echo ($openingBalance > 0) ? $openingBalance : '0'; ?>
+                          0
                         </td>
                         <td>
-                            <?php echo ($openingBalance < 0) ? abs($openingBalance) : '0'; ?>
+                          0
                         </td>
                         <td> <?php if($openingBalance > 0) {
-                          $totalDr = $totalDr + (int) $openingBalance;
+                          $totalDr = $totalDr + 0;
                           $total = (int)$openingBalance;
                         } else {
-                          $totalCr = $totalCr + (int)$openingBalance;
+                          $totalCr = $totalCr + 0;
                           $total = (int)$openingBalance;
                         }
                          ?>
