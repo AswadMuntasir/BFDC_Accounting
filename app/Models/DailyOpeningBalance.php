@@ -13,5 +13,6 @@ class DailyOpeningBalance extends Model
     protected $fillable = [
         'date',
         'ac_head',
+        'party',
     ];
 }

@@ -511,8 +511,12 @@ class CoreAccountingController extends Controller
             ->get()
             ->toArray();
 
-        $dailyOpening = DailyOpeningBalance::where('date', $voucherDateInput)->pluck('ac_head');
-        $dailyOpeningBalance = json_decode($dailyOpening);
+        // $dailyOpening = DailyOpeningBalance::where('date', $voucherDateInput)->pluck('ac_head');
+        // $dailyOpeningBalance = json_decode($dailyOpening);
+
+        $dailyOpening = DailyOpeningBalance::where('date', $voucherDateInput)->select('ac_head', 'party')->get();
+        $bothOpening = json_decode($dailyOpening);
+        $dailyOpeningBalance = (array) $bothOpening[0];
         
         // dd($a, $dailyOpening, $openingBalance);
         // dd($fixed_assets_data);
@@ -541,22 +545,66 @@ class CoreAccountingController extends Controller
         }
 
         $openingBalance = [];
-        if($dailyOpeningBalance === []) {
+        if($dailyOpeningBalance['ac_head'] === []) {
             //empty
         } else {
-            $a = json_decode($dailyOpeningBalance[0]);
+            $a = json_decode($dailyOpeningBalance['ac_head']);
             foreach($a as $item) {
                 $openingBalance[] = (array) $item;
             }
         }
         $dailyOpeningData = $this->matchAndMerge($dr_cr_array, $openingBalance);
-        if($dailyOpeningBalance === []) {
+
+        $selectedAccountName = [
+            "Bills Receivable Of Rent & Lease",
+            "Bills Receivable Of Processing",
+            "Bills Receivable of Fish Processing",
+            "Bills receivable of Fish Processing",
+            "Bills Receivable Of Marine Workshop",
+            "Bills Receivable Of Electric",
+            "Bills Receivable Of  T-head Jetty",
+            "Bills Receivable Of  T-head Jetty",
+            "Bills Receivable Of Multichannel Slipway",
+            "Bills Receivable Of Water  ( T-head Jetty)",
+            "Bills Receivable Of Water T-head jetty",
+            "Bills Receivable Of Water  ( T-head Jetty)",
+            "Bills receivable of Land and Lease",
+            "Bills Receivable Of Water"
+        ];
+
+        $totalAmount = 0;
+        foreach ($dr_cr_array as $item) {
+            if (in_array($item['name'], $selectedAccountName)) {
+                $totalAmount += $item['amount'];
+            }
+        }
+
+        $party_array[] = [
+            'name' => $request->input('party_input'),
+            'amount' => $totalAmount, // Make amounts negative
+        ];
+        // dd($party_array);
+
+        $partyOpeningBalance = [];
+        if($dailyOpeningBalance['party'] === [] || $dailyOpeningBalance['party']) {
+            //empty
+        } else {
+            $a = json_decode($dailyOpeningBalance['party']);
+            foreach($a as $item) {
+                $partyOpeningBalance[] = (array) $item;
+            }
+        }
+        $partyOpeningData = $this->matchAndMerge($party_array, $partyOpeningBalance);
+        dd($party_array, $partyOpeningBalance, $partyOpeningData);
+        // dd($dailyOpeningData, $dr_cr_array, $partyOpeningData);
+        if($dailyOpeningBalance['ac_head'] === [] && $dailyOpeningBalance['party'] === []) {
             $openingDailyData = new DailyOpeningBalance;
             $openingDailyData->date = $voucherDateInput;
             $openingDailyData->ac_head = json_encode(array_values($dailyOpeningData));
+            $openingDailyData->party = json_encode(array_values($partyOpeningData));
             $openingDailyData->save();
         } else {
-            DailyOpeningBalance::where('date', $voucherDateInput)->update(['ac_head' => json_encode(array_values($dailyOpeningData))]);
+            DailyOpeningBalance::where('date', $voucherDateInput)->update(['ac_head' => json_encode(array_values($dailyOpeningData)), 'party' => json_encode(array_values($partyOpeningData))]);
         }
 
         // Transform data to final_data format
@@ -849,7 +897,7 @@ class CoreAccountingController extends Controller
         $output = $numbers;
         $size = count($output);
 
-        // dd($output);
+        // dd($voucher_data[0]['party']);
         $voucher_type = $voucher_data[0]["voucher_type"];
 
         $drAmountData = json_decode($voucher_data[0]['dr_amount'], true);
@@ -857,8 +905,9 @@ class CoreAccountingController extends Controller
 
         // dd($drAmountData, $crAmountData);
 
-        $dailyOpening = DailyOpeningBalance::where('date', $voucher_data[0]['voucher_date'])->pluck('ac_head');
-        $dailyOpeningBalance = json_decode($dailyOpening);
+        $dailyOpening = DailyOpeningBalance::where('date', $voucher_data[0]['voucher_date'])->select('ac_head', 'party')->get();
+        $bothOpening = json_decode($dailyOpening);
+        $dailyOpeningBalance = (array) $bothOpening[0];
         
         $dr_cr_array = [];
         foreach ($drAmountData as $item) {
@@ -876,16 +925,62 @@ class CoreAccountingController extends Controller
         }
 
         $openingBalance = [];
-        if($dailyOpeningBalance === []) {
+        if($dailyOpeningBalance['ac_head'] === []) {
             //empty
         } else {
-            $a = json_decode($dailyOpeningBalance[0]);
+            $a = json_decode($dailyOpeningBalance['ac_head']);
             foreach($a as $item) {
                 $openingBalance[] = (array) $item;
             }
         }
         
         $dailyOpeningData = $this->matchAndRemove($openingBalance, $dr_cr_array);
+
+        if($voucher_data[0]['party']) {
+            // dd('has party',$voucher_data[0]['party']);        
+            $selectedAccountName = [
+                "Bills Receivable Of Rent & Lease",
+                "Bills Receivable Of Processing",
+                "Bills Receivable of Fish Processing",
+                "Bills receivable of Fish Processing",
+                "Bills Receivable Of Marine Workshop",
+                "Bills Receivable Of Electric",
+                "Bills Receivable Of  T-head Jetty",
+                "Bills Receivable Of  T-head Jetty",
+                "Bills Receivable Of Multichannel Slipway",
+                "Bills Receivable Of Water  ( T-head Jetty)",
+                "Bills Receivable Of Water T-head jetty",
+                "Bills Receivable Of Water  ( T-head Jetty)",
+                "Bills receivable of Land and Lease",
+                "Bills Receivable Of Water"
+            ];
+
+            $totalAmount = 0;
+            foreach ($dr_cr_array as $item) {
+                if (in_array($item['name'], $selectedAccountName)) {
+                    $totalAmount += $item['amount'];
+                }
+            }
+
+            $party_array[] = [
+                'name' => $request->$voucher_data[0]['party'],
+                'amount' => $totalAmount, // Make amounts negative
+            ];
+            // dd($party_array);
+
+            $partyOpeningBalance = [];
+            if($dailyOpeningBalance['party'] === [] || $dailyOpeningBalance['party']) {
+                //empty
+            } else {
+                $a = json_decode($dailyOpeningBalance['party']);
+                foreach($a as $item) {
+                    $partyOpeningBalance[] = (array) $item;
+                }
+            }
+            $partyOpeningData = $this->matchAndRemove($partyOpeningBalance, $party_array);
+
+            DailyOpeningBalance::where('date', $voucher_data[0]['voucher_date'])->update(['ac_head' => json_encode(array_values($dailyOpeningData)), 'party' => json_encode(array_values($partyOpeningData))]);
+        }
 
         // dd($dr_cr_array, $openingBalance, $dailyOpeningData);
         
@@ -1913,6 +2008,127 @@ class CoreAccountingController extends Controller
                 
                 // ----------------------- Yearly Opening Banalce End --------------------------- //
 
+                // $parties = DB::table('party')
+                //     ->where('name', 'like', "%Bills Receivable%")
+                //     ->orWhere('name', 'like', "%Bill receivable")
+                //     ->select('name')
+                //     ->orderBy('name')
+                //     ->get();
+                
+                // $selectedAccountName = [
+                //         "Bills Receivable Of Rent & Lease",
+                //         "Bills Receivable Of Processing",
+                //         "Bills Receivable Of Marine Workshop",
+                //         "Bills Receivable Of Electric",
+                //         "Bills Receivable Of Water",
+                //         "Bills Receivable Of  T-head Jetty",
+                //         "Bills Receivable Of  T-head Jetty",
+                //         "Bills Receivable Of Multichannel Slipway",
+                //         "Bills Receivable Of Water  ( T-head Jetty)",
+                //         "Bills Receivable Of Water T-head jetty",
+                //         "Bills Receivable Of Water  ( T-head Jetty)",
+                //         "Bills receivable of Land and Lease"
+                //     ];
+
+                // while ($startDateTime <= $endDateTime) {
+                //     $currentDate = $startDateTime->format('Y-m-d'); // Format the date as needed
+                //     $finalData = [];
+                //     foreach ($parties as $party) {
+                //         $name = $party->name;
+                //         // dd($name);
+
+                //         $ledgerData = DB::table('voucher_entry')
+                //         ->select('voucher_no', 'description', 'voucher_date', 'dr_amount', 'cr_amount')
+                //         ->where('voucher_date', $currentDate)
+                //         ->whereIn('status', ['pending', 'Done', 'Pending'])
+                //         ->where(function ($query) use ($name) {
+                //             $query->where(function ($query) use ($name) {
+                //                 $query->where('voucher_type', 'Journal')
+                //                     ->where('party', $name);
+                //             })->orWhere(function ($query) use ($name) {
+                //                 $query->where('voucher_type', 'Receipt Voucher')
+                //                     ->where(function ($query) use ($name) {
+                //                         $query->where(function ($query) use ($name) {
+                //                             $query->where(function ($query) use ($name) {
+                //                                 $query->where('description', 'not like', 'Multiple vouchers added:%')
+                //                                     ->where('description', 'not like', 'Voucher ID:%')
+                //                                     ->where('party', $name);
+                //                             })->orWhere(function ($query) {
+                //                                 $query->where(function ($query) {
+                //                                     $query->where('description', 'like', 'Multiple vouchers added:%')
+                //                                         ->orWhere('description', 'like', 'Voucher ID:%');
+                //                                 });
+                //                             });
+                //                         });
+                //                     });
+                //             })->orWhere(function ($query) {
+                //                 $query->whereIn('voucher_type', ['Advanced Payment', 'Adjustment']);
+                //             });
+                //         })
+                //         ->get();
+
+                //         $sortedLedgerData = $this->ledgerDataManupulation($ledgerData, $name, $selectedAccountName);
+                //         $thisPratyTotal = 0;
+                //         if($sortedLedgerData !== []) {
+                //             // dd($sortedLedgerData);
+                //             foreach ($sortedLedgerData as $singleLedgerData) {
+                //                 $singleLedgerDataArray = (array) $singleLedgerData;
+                //                 // dd($singleLedgerDataArray, $singleLedgerData);
+                //                 foreach ($singleLedgerDataArray['dr_amount'] as $singleDrAmount) {
+                //                     $thisPratyTotal += $singleDrAmount->amount;
+                //                 }
+                //                 foreach ($singleLedgerDataArray['cr_amount'] as $singleCrAmount) {
+                //                     $thisPratyTotal -= $singleCrAmount->amount;
+                //                 }
+                //             }
+                //             // dd($thisPratyTotal);
+                //         }
+                //         // dd($thisPratyTotal);
+                //         if($thisPratyTotal !== 0) {
+                //             $finalData[] = [
+                //                 'name' => $name,
+                //                 'amount' => $thisPratyTotal,
+                //             ];
+                //         }
+                //     }
+                //     $final_date = $startDateTime->modify('+1 day');
+                //     DailyOpeningBalance::where('date', $final_date)->update(['party' => json_encode($finalData)]);
+                // }
+
+                // ---------------------------- Party Daily Opening Balance End ---------------------- //
+
+                // $startDateTime->modify('+1 day');
+                // $endDateTime->modify('+1 day');
+
+                // $voucher_entries = DB::table('daily_opening_balance')
+                //     ->whereBetween('date', [$startDateTime, $endDateTime])
+                //     ->where('party', '!=', '[]')
+                //     ->select('party')
+                //     ->get();
+
+                // $all_data_array = [];
+                // foreach ($voucher_entries as $items) {
+                //     $array_items = (array) $items;
+                //     $eachItemsData = json_decode($array_items["party"]);
+                //     foreach ($eachItemsData as $item) {
+                //         $array_item = (array) $item;
+                //         $all_data_array[] = [
+                //             'name' => $array_item['name'],
+                //             'amount' => floatval($array_item['amount']),
+                //         ];
+                //     }
+                // }
+
+                // $yearlyOpeningData = $this->matchAndMerge($all_data_array, []);
+                // $final_data_for_Yearly_Opening_Data =  json_encode(array_values($yearlyOpeningData));
+                // // dd($final_data_for_Yearly_Opening_Data);
+
+                // $lastDate = $endDateTime->format('Y-m-d');
+
+                // YearlyOpeningBalance::where('date', $lastDate)->update(['party' => $final_data_for_Yearly_Opening_Data]);
+
+                // ---------------------------- Party Yearly Opening Balance End ---------------------- //
+
                 // // // // // $finalResult = $this->dailyDataDispatch($ledgerData, $all_ac_head_names);
 
                 $ledgerData = DB::table('daily_data')
@@ -2670,7 +2886,7 @@ class CoreAccountingController extends Controller
         } else {
             // Fetch data from `daily_opening_balance` for the previous year and up to the day before the start date
             $dailyData = DB::table('daily_opening_balance')
-                ->whereBetween('date', [$yearStart->format('Y-m-d'), $startDateObj->modify('-1 day')->format('Y-m-d')])
+                ->whereBetween('date', [$yearStart->format('Y-m-d'), $startDateObj->format('Y-m-d')])
                 ->where('ac_head', '!=', '[]')
                 ->select('ac_head')
                 ->get();
@@ -3023,14 +3239,76 @@ class CoreAccountingController extends Controller
                 ];
                 // dd($ledgerData);
                 $sortedLedgerData = $this->ledgerDataManupulation($ledgerData, $name, $selectedAccountName);
+                $openingBalance = 0;
+                $dailyOpeningBalanceData = $this->getPartyOpeningBalanceData($start_date, $end_date);
+                foreach ($dailyOpeningBalanceData as $dailyOpeningBalance) {
+                    $dailyOpeningBalanceArray = (array) $dailyOpeningBalance;
+                    $allOpeningBalance = json_decode($dailyOpeningBalanceArray['party']);
+                    // dd($dailyOpeningBalanceData, $allOpeningBalance);
+                    foreach($allOpeningBalance as $balance) {
+                        if($balance->name === $selectedAccountName) {
+                            $openingBalance+= $balance->amount;
+                        }
+                    }
+                }
+                // if($openingBalance !== 0) {
+                //     dd($openingBalance);
+                // }
                 // dd($sortedLedgerData);
-                return view('super_admin.core_accounting.account_reports.party_ledger')->with('ledgerData', $sortedLedgerData)->with('parties', $parties)->with('partyName', $name)->with('startDate', $start_date)->with('endDate', $end_date);
+                return view('super_admin.core_accounting.account_reports.party_ledger')->with('ledgerData', $sortedLedgerData)->with('parties', $parties)->with('partyName', $name)->with('startDate', $start_date)->with('endDate', $end_date)->with('openingBalance', $openingBalance);
             } else {
                 $parties = party::all();
-                return view('super_admin.core_accounting.account_reports.party_ledger')->with('ledgerData', null)->with('data2', null)->with('parties', $parties);
+                return view('super_admin.core_accounting.account_reports.party_ledger')->with('ledgerData', null)->with('data2', null)->with('parties', $parties)->with('openingBalance', null);
             }
         }
         return redirect("login")->withSuccess('You are not allowed to access');
+    }
+
+    function getPartyOpeningBalanceData($startDate, $endDate) {
+        // Convert the start and end date strings to DateTime objects
+        $startDateObj = new DateTime($startDate);
+        $endDateObj = new DateTime($endDate);
+    
+        // Calculate the start of the financial year (July 1st) for the start date year
+        $yearStart = (new DateTime($startDateObj->format('Y') . '-07-01'));
+    
+        // If the start date is not July 1st, adjust year start to previous July 1st
+        if ($startDateObj < $yearStart) {
+            $yearStart->modify('-1 year');
+        }
+    
+        // Prepare the previous year’s start and end dates for `daily_opening_balance`
+        $previousYearStart = (clone $yearStart)->modify('-1 year');
+        $previousYearEnd = (clone $yearStart)->modify('-1 day');  // One day before the current year start
+    
+        // Check if the start date is exactly July 1st of any year
+        if ($startDateObj == $yearStart) {
+            // Fetch data from `yearly_opening_balance` table for the entire date range
+            $data = DB::table('yearly_opening_balance')
+                ->whereBetween('date', [$yearStart->format('Y-m-d'), $endDateObj->format('Y-m-d')])
+                ->where('party', '!=', '[]')
+                ->select('party')
+                ->get();
+        } else {
+            // Fetch data from `daily_opening_balance` for the previous year and up to the day before the start date
+            $dailyData = DB::table('daily_opening_balance')
+                ->whereBetween('date', [$yearStart->format('Y-m-d'), $startDateObj->format('Y-m-d')])
+                ->where('party', '!=', '[]')
+                ->select('party')
+                ->get();
+    
+            // Fetch all yearly data up to the end of the previous year from `yearly_opening_balance`
+            $yearlyData = DB::table('yearly_opening_balance')
+                ->whereBetween('date', [$previousYearStart->format('Y-m-d'), $previousYearEnd->format('Y-m-d')])
+                ->where('party', '!=', '[]')
+                ->select('party')
+                ->get();
+    
+            // Merge the results
+            $data = $dailyData->merge($yearlyData);
+        }
+    
+        return $data;
     }
 
     public function ledgerDataManupulation($ledgerData, $name1, $selectedAccountName){
