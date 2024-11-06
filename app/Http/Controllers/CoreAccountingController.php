@@ -586,7 +586,7 @@ class CoreAccountingController extends Controller
         // dd($party_array);
 
         $partyOpeningBalance = [];
-        if($dailyOpeningBalance['party'] === [] || $dailyOpeningBalance['party']) {
+        if($dailyOpeningBalance['party'] === [] || $dailyOpeningBalance['party'] === null) {
             //empty
         } else {
             $a = json_decode($dailyOpeningBalance['party']);
@@ -595,7 +595,7 @@ class CoreAccountingController extends Controller
             }
         }
         $partyOpeningData = $this->matchAndMerge($party_array, $partyOpeningBalance);
-        dd($party_array, $partyOpeningBalance, $partyOpeningData);
+        // dd($party_array, $partyOpeningBalance, $partyOpeningData);
         // dd($dailyOpeningData, $dr_cr_array, $partyOpeningData);
         if($dailyOpeningBalance['ac_head'] === [] && $dailyOpeningBalance['party'] === []) {
             $openingDailyData = new DailyOpeningBalance;
@@ -935,9 +935,8 @@ class CoreAccountingController extends Controller
         }
         
         $dailyOpeningData = $this->matchAndRemove($openingBalance, $dr_cr_array);
-
-        if($voucher_data[0]['party']) {
-            // dd('has party',$voucher_data[0]['party']);        
+        // dd(gettype($voucher_data[0]['party']));
+        if($voucher_data[0]['party'] !== "" && $voucher_data[0]['party'] !== "N/A") {
             $selectedAccountName = [
                 "Bills Receivable Of Rent & Lease",
                 "Bills Receivable Of Processing",
@@ -961,18 +960,19 @@ class CoreAccountingController extends Controller
                     $totalAmount += $item['amount'];
                 }
             }
-
+// dd($voucher_data[0]['party']);
             $party_array[] = [
-                'name' => $request->$voucher_data[0]['party'],
+                'name' => $voucher_data[0]['party'],
                 'amount' => $totalAmount, // Make amounts negative
             ];
             // dd($party_array);
 
             $partyOpeningBalance = [];
-            if($dailyOpeningBalance['party'] === [] || $dailyOpeningBalance['party']) {
+            if($dailyOpeningBalance['party'] === [] || $dailyOpeningBalance['party'] === null) {
                 //empty
             } else {
                 $a = json_decode($dailyOpeningBalance['party']);
+                // dd($a, $dailyOpeningBalance);
                 foreach($a as $item) {
                     $partyOpeningBalance[] = (array) $item;
                 }
@@ -1507,6 +1507,9 @@ class CoreAccountingController extends Controller
             $drAmountData = $item['dr_amount'];
             $crAmountData = $item['cr_amount'];
 
+            $drAmountJsonData = json_encode($item['dr_amount']);
+            $crAmountJsonData = json_encode($item['cr_amount']);
+
             // $accountHeads = account_head::select('ac_head_id', 'ac_head_name_eng')->get();
             $dailyData = daily_data::where('voucher_date', $v_date)->pluck('ac_head');
             // Transform data to final_data format
@@ -1568,11 +1571,11 @@ class CoreAccountingController extends Controller
             // return $dailyDataJson;
             if (isset($dailyData[0])) {
                 // Update the existing record
-                daily_data::where('voucher_date', $item['collection_date'])->update(['ac_head' => $dailyDataJson]);
+                daily_data::where('voucher_date', $v_date)->update(['ac_head' => $dailyDataJson]);
             } else {
                 // Create a new record
                 $newDailyData = new daily_data;
-                $newDailyData->voucher_date = $item['collection_date'];
+                $newDailyData->voucher_date = $v_date;
                 $newDailyData->ac_head = $dailyDataJson;
                 $newDailyData->save();
             }
@@ -1633,8 +1636,7 @@ class CoreAccountingController extends Controller
             } else {
                 DailyOpeningBalance::where('date', $v_date)->update(['ac_head' => json_encode(array_values($dailyOpeningData))]);
             }
-            
-            // return response()->json(['data' => $item['dr_amount']]);
+            // return response()->json(['data' => $v_date]);
 
             $voucher = new voucher_entry;
             $voucher->voucher_type = "Receipt Voucher";
@@ -1643,12 +1645,12 @@ class CoreAccountingController extends Controller
             $voucher->type_name = "N/A";
             $voucher->type_cheque = "N/A";
             $voucher->type_date = "N/A";
-            $voucher->voucher_date = $item['collection_date'];
+            $voucher->voucher_date = $v_date;
             $voucher->party = "N/A";
             $voucher->receiver = "N/A";
             $voucher->description = $description;
-            $voucher->dr_amount = json_encode($item['dr_amount']); // Convert to JSON string
-            $voucher->cr_amount = json_encode($item['cr_amount']); // Convert to JSON string
+            $voucher->dr_amount = $drAmountJsonData; // Convert to JSON string
+            $voucher->cr_amount = $crAmountJsonData; // Convert to JSON string
             $voucher->cr_dr = $finalDataJson1;
             $voucher->total_dr_amount = $totalDrAmount;
             $voucher->total_cr_amount = $totalCrAmount;

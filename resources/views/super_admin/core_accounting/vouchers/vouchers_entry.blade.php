@@ -517,8 +517,8 @@
             $("#party_input_div").show();
             $("#party_input").prop("disabled", false);
           } else if($( "#voucher_type_input" ).val() === "Payment Voucher"){
-            $("#party_input_div").hide();
-            $("#party_input").prop("disabled", true);
+            $("#party_input_div").show();
+            $("#party_input").prop("disabled", false);
             $("#total_tax_input_div" ).hide();
             $("#total_tax_input").prop("disabled", true);
             $("#total_vat_input_div" ).hide();
