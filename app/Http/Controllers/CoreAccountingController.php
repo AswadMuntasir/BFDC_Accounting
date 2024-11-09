@@ -27,47 +27,47 @@ class CoreAccountingController extends Controller
     /* Subsidiary Accounts CRUD START */
     public function subsidiaryAccountsView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             $subsidiary_ac = subsidiary_ac::orderBy('created_at', 'desc')->get();
 
             return view('super_admin.core_accounting.account_setups.subsidiary_account', compact('subsidiary_ac'));
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
     public function subsidiary_ac_post(Request $request)
     {
         // dd($request);
-        $request->validate([  
-            'accounts_group_input'=>'required',  
-            'subsidiary_ac_id_input'=>'required',  
-            'subsidiary_ac_name_input'=>'required'
-        ]);  
-        
-        $subsidiary_ac = new subsidiary_ac;  
-        $subsidiary_ac->accounts_group = $request->get('accounts_group_input');  
-        $subsidiary_ac->account_id = $request->get('subsidiary_ac_id_input');  
+        $request->validate([
+            'accounts_group_input' => 'required',
+            'subsidiary_ac_id_input' => 'required',
+            'subsidiary_ac_name_input' => 'required'
+        ]);
+
+        $subsidiary_ac = new subsidiary_ac;
+        $subsidiary_ac->accounts_group = $request->get('accounts_group_input');
+        $subsidiary_ac->account_id = $request->get('subsidiary_ac_id_input');
         $subsidiary_ac->account_name = $request->get('subsidiary_ac_name_input');
-        $subsidiary_ac->save();  
+        $subsidiary_ac->save();
 
         return redirect('subsidiary-accounts');
     }
 
     public function subsidiary_ac_update(Request $request)
     {
-        $request->validate([  
-            'id_update'=>'required',
-            'accounts_group_update'=>'required',  
-            'subsidiary_ac_id_update'=>'required',  
-            'subsidiary_ac_name_update'=>'required'
+        $request->validate([
+            'id_update' => 'required',
+            'accounts_group_update' => 'required',
+            'subsidiary_ac_id_update' => 'required',
+            'subsidiary_ac_name_update' => 'required'
         ]);
-        
+
         $subsidiary_ac = subsidiary_ac::find($request->get('id_update'));
-        $subsidiary_ac->accounts_group = $request->get('accounts_group_update');  
-        $subsidiary_ac->account_id = $request->get('subsidiary_ac_id_update');  
+        $subsidiary_ac->accounts_group = $request->get('accounts_group_update');
+        $subsidiary_ac->account_id = $request->get('subsidiary_ac_id_update');
         $subsidiary_ac->account_name = $request->get('subsidiary_ac_name_update');
-        $subsidiary_ac->save();  
+        $subsidiary_ac->save();
 
         return redirect('subsidiary-accounts');
     }
@@ -80,62 +80,62 @@ class CoreAccountingController extends Controller
     }
 
     /* Subsidiary Accounts CRUD ENDS */
-    
+
     /* Control Accounts CRUD */
     public function controlAccountsView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             $subsidiary_ac = subsidiary_ac::select('accounts_group', 'account_name')->get();
             $control_ac = control_ac::orderBy('created_at', 'desc')->get();
             return view('super_admin.core_accounting.account_setups.control_accounts')->with('subsidiary_acs', $subsidiary_ac)->with('control_acs', $control_ac);
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
     public function control_ac_post(Request $request)
     {
         // dd($request);
-        $request->validate([  
-            'sub_ac_name_input'=>'required',  
-            'accounts_group_input'=>'required',  
-            'is_ugc_control_ac'=>'required',
-            'is_ugc_priority_input'=>'required',  
-            'control_ac_name_input'=>'required',  
-            'control_ac_code_input'=>'required'
-        ]);  
-        
-        $control_ac = new control_ac;  
-        $control_ac->accounts_group = $request->get('accounts_group_input');  
-        $control_ac->subsidiary_account_name = $request->get('sub_ac_name_input');  
+        $request->validate([
+            'sub_ac_name_input' => 'required',
+            'accounts_group_input' => 'required',
+            'is_ugc_control_ac' => 'required',
+            'is_ugc_priority_input' => 'required',
+            'control_ac_name_input' => 'required',
+            'control_ac_code_input' => 'required'
+        ]);
+
+        $control_ac = new control_ac;
+        $control_ac->accounts_group = $request->get('accounts_group_input');
+        $control_ac->subsidiary_account_name = $request->get('sub_ac_name_input');
         $control_ac->account_id = $request->get('control_ac_code_input');
-        $control_ac->account_name = $request->get('control_ac_name_input');  
-        $control_ac->ugc_priority = $request->get('is_ugc_priority_input');  
+        $control_ac->account_name = $request->get('control_ac_name_input');
+        $control_ac->ugc_priority = $request->get('is_ugc_priority_input');
         $control_ac->is_ugc_control_ac = $request->get('is_ugc_control_ac');
-        $control_ac->save();  
+        $control_ac->save();
 
         return redirect('control-accounts');
     }
 
     public function control_ac_update(Request $request)
     {
-        $request->validate([  
-            'sub_ac_name_update'=>'required',  
-            'accounts_group_update'=>'required',  
-            'is_ugc_control_ac_update'=>'required',
-            'is_ugc_priority_update'=>'required',  
-            'control_ac_name_update'=>'required',  
-            'control_ac_code_update'=>'required'
+        $request->validate([
+            'sub_ac_name_update' => 'required',
+            'accounts_group_update' => 'required',
+            'is_ugc_control_ac_update' => 'required',
+            'is_ugc_priority_update' => 'required',
+            'control_ac_name_update' => 'required',
+            'control_ac_code_update' => 'required'
         ]);
-        
+
         $control_ac = control_ac::find($request->get('id_update'));
-        $control_ac->accounts_group = $request->get('accounts_group_update');  
-        $control_ac->subsidiary_account_name = $request->get('sub_ac_name_update');  
+        $control_ac->accounts_group = $request->get('accounts_group_update');
+        $control_ac->subsidiary_account_name = $request->get('sub_ac_name_update');
         $control_ac->account_id = $request->get('control_ac_code_update');
-        $control_ac->account_name = $request->get('control_ac_name_update');  
-        $control_ac->ugc_priority = $request->get('is_ugc_priority_update');  
+        $control_ac->account_name = $request->get('control_ac_name_update');
+        $control_ac->ugc_priority = $request->get('is_ugc_priority_update');
         $control_ac->is_ugc_control_ac = $request->get('is_ugc_control_ac_update');
-        $control_ac->save();  
+        $control_ac->save();
 
         return redirect('control-accounts');
     }
@@ -152,15 +152,15 @@ class CoreAccountingController extends Controller
     /* Account Head CRUD */
     public function accountsHeadSetupView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             $control_ac = control_ac::all();
             $account_head = account_head::orderBy('created_at', 'desc')->get();
             $control_ac_join = control_ac::select('ac_head.id', 'control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name', 'ac_head.ac_head_id', 'ac_head.ac_head_name_eng', 'ac_head.ac_head_name_ben', 'ac_head.opening_balance', 'ac_head.opening_balance_type', 'ac_head.initialization_date', 'ac_head.is_ugc_ac_head', 'ac_head.is_status')
-        	->join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
-        	->get();
+                ->join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
+                ->get();
             return view('super_admin.core_accounting.account_setups.accounts_head_setup')->with('account_heads', $account_head)->with('control_acs', $control_ac)->with('control_ac_join', $control_ac_join);
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
@@ -176,19 +176,19 @@ class CoreAccountingController extends Controller
             "date_of_initialization_input" => "required",
             "is_ugc_ac_head" => "required",
             "is_status" => "required"
-        ]);  
-        
-        $account_head = new account_head;  							
-        $account_head->control_ac_id = $request->get('control_ac_name_input');  
-        $account_head->ac_head_id = $request->get('ac_head_id_input');  
+        ]);
+
+        $account_head = new account_head;
+        $account_head->control_ac_id = $request->get('control_ac_name_input');
+        $account_head->ac_head_id = $request->get('ac_head_id_input');
         $account_head->ac_head_name_eng = $request->get('ac_head_name_english_input');
-        $account_head->ac_head_name_ben = $request->get('ac_head_name_bengali_input');  
-        $account_head->opening_balance = $request->get('opening_balance_input');  
+        $account_head->ac_head_name_ben = $request->get('ac_head_name_bengali_input');
+        $account_head->opening_balance = $request->get('opening_balance_input');
         $account_head->opening_balance_type = $request->get('opening_balance_type_input');
-        $account_head->initialization_date = $request->get('date_of_initialization_input');  
-        $account_head->is_ugc_ac_head = $request->get('is_ugc_ac_head');  
+        $account_head->initialization_date = $request->get('date_of_initialization_input');
+        $account_head->is_ugc_ac_head = $request->get('is_ugc_ac_head');
         $account_head->is_status = $request->get('is_status');
-        $account_head->save();  
+        $account_head->save();
 
         return redirect('accounts-head-setup');
     }
@@ -196,7 +196,7 @@ class CoreAccountingController extends Controller
     public function account_head_update(Request $request)
     {
         dd($request);
-        $request->validate([  
+        $request->validate([
             "control_ac_name_update" => "required",
             "ac_head_id_update" => "required",
             "ac_head_name_english_update" => "required",
@@ -206,18 +206,18 @@ class CoreAccountingController extends Controller
             "is_ugc_ac_head_update" => "required",
             "is_status_update" => "required"
         ]);
-        
+
         $account_head = account_head::find($request->get('id_update'));
-        $account_head->control_ac_id = $request->get('control_ac_name_input');  
-        $account_head->ac_head_id = $request->get('ac_head_id_input');  
+        $account_head->control_ac_id = $request->get('control_ac_name_input');
+        $account_head->ac_head_id = $request->get('ac_head_id_input');
         $account_head->ac_head_name_eng = $request->get('ac_head_name_english_input');
-        $account_head->ac_head_name_ben = $request->get('ac_head_name_bengali_input');  
-        $account_head->opening_balance = $request->get('opening_balance_input');  
+        $account_head->ac_head_name_ben = $request->get('ac_head_name_bengali_input');
+        $account_head->opening_balance = $request->get('opening_balance_input');
         $account_head->opening_balance_type = $request->get('opening_balance_type_input');
-        $account_head->initialization_date = $request->get('date_of_initialization_input');  
-        $account_head->is_ugc_ac_head = $request->get('is_ugc_ac_head');  
+        $account_head->initialization_date = $request->get('date_of_initialization_input');
+        $account_head->is_ugc_ac_head = $request->get('is_ugc_ac_head');
         $account_head->is_status = $request->get('is_status');
-        $account_head->save();  
+        $account_head->save();
 
         return redirect('accounts-head-setup');
     }
@@ -234,11 +234,11 @@ class CoreAccountingController extends Controller
     /* Office Chief CRUD */
     public function officeChiefSetupView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             $office_chief = office_chief::all();
             return view('super_admin.core_accounting.account_setups.office_chief_setup')->with('office_chiefs', $office_chief);
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
@@ -248,27 +248,27 @@ class CoreAccountingController extends Controller
         $request->validate([
             "department_input" => "required",
             "office_chief_code_input" => "required"
-        ]);  
-        
-        $office_chief = new office_chief;  							
-        $office_chief->department = $request->get('department_input');  
+        ]);
+
+        $office_chief = new office_chief;
+        $office_chief->department = $request->get('department_input');
         $office_chief->office_chief_code = $request->get('office_chief_code_input');
-        $office_chief->save();  
+        $office_chief->save();
 
         return redirect('office-chief-setup');
     }
 
     public function office_chief_update(Request $request)
     {
-        $request->validate([  
+        $request->validate([
             "control_ac_name_update" => "required",
             "ac_head_id_update" => "required"
         ]);
-        
+
         $office_chief = office_chief::find($request->get('id_update'));
-        $office_chief->department = $request->get('department_update');  
-        $office_chief->office_chief_code = $request->get('office_chief_code_update'); 
-        $office_chief->save();  
+        $office_chief->department = $request->get('department_update');
+        $office_chief->office_chief_code = $request->get('office_chief_code_update');
+        $office_chief->save();
 
         return redirect('office-chief-setup');
     }
@@ -284,21 +284,21 @@ class CoreAccountingController extends Controller
 
     public function linkHeadsSetupView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('super_admin.core_accounting.account_setups.link_heads_setup');
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
     /* Party CRUD */
     public function partySetupView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             $party = party::all();
             return view('super_admin.core_accounting.account_setups.party_setup')->with('partys', $party);
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
@@ -308,45 +308,45 @@ class CoreAccountingController extends Controller
         $request->validate([
             "name_input" => "required",
             "party_type_input" => "required"
-        ]);  
-        
-        $party = new party;  							
-        $party->name = $request->get('name_input');  
+        ]);
+
+        $party = new party;
+        $party->name = $request->get('name_input');
         $party->email = $request->get('email_input');
-        $party->contact_person = $request->get('contact_person_input');  
+        $party->contact_person = $request->get('contact_person_input');
         $party->contact_number = $request->get('contact_number_input');
-        $party->vat_number = $request->get('vat_number_input');  
+        $party->vat_number = $request->get('vat_number_input');
         $party->party_type = $request->get('party_type_input');
-        $party->address = $request->get('address_input');  
+        $party->address = $request->get('address_input');
         $party->opening_balance_date = $request->get('opening_balance_date_input');
-        $party->opening_balance_type = $request->get('opening_balance_type_input');  
+        $party->opening_balance_type = $request->get('opening_balance_type_input');
         $party->opening_balance = $request->get('opening_balance_input');
         $party->description = $request->get('description_input');
-        $party->save();  
+        $party->save();
 
         return redirect('party-setup');
     }
 
     public function party_update(Request $request)
     {
-        $request->validate([  
+        $request->validate([
             "name_input" => "required",
             "party_type_input" => "required"
         ]);
-        
+
         $party = party::find($request->get('id_update'));
-        $party->name = $request->get('name_input');  
+        $party->name = $request->get('name_input');
         $party->email = $request->get('email_input');
-        $party->contact_person = $request->get('contact_person_input');  
+        $party->contact_person = $request->get('contact_person_input');
         $party->contact_number = $request->get('contact_number_input');
-        $party->vat_number = $request->get('vat_number_input');  
+        $party->vat_number = $request->get('vat_number_input');
         $party->party_type = $request->get('party_type_input');
-        $party->address = $request->get('address_input');  
+        $party->address = $request->get('address_input');
         $party->opening_balance_date = $request->get('opening_balance_date_input');
-        $party->opening_balance_type = $request->get('opening_balance_type_input');  
+        $party->opening_balance_type = $request->get('opening_balance_type_input');
         $party->opening_balance = $request->get('opening_balance_input');
         $party->description = $request->get('description_input');
-        $party->save();  
+        $party->save();
 
         return redirect('party-setup');
     }
@@ -363,28 +363,28 @@ class CoreAccountingController extends Controller
     // Budget
     public function budgetEntryView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('super_admin.core_accounting.budget.budget_entry');
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
     // Collection
     public function collectionEntryView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             $collection_entries = collection_entry::all();
             $account_heads = account_head::all();
             $parties = party::all();
-            
+
             return view('super_admin.core_accounting.collections.collection_entry', [
                 'collection_entries' => $collection_entries,
                 'parties' => $parties,
                 'account_heads' => $account_heads,
             ]);
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
@@ -397,45 +397,47 @@ class CoreAccountingController extends Controller
             "collection_type_input" => "required",
             "collection_amount_input" => "required"
         ]);
-        
+
         $collection_entry = new collection_entry;
         $collection_entry->collection_date = $request->get('collection_date_input');
-        $collection_entry->bill_section = $request->get('bill_section_input');  
+        $collection_entry->bill_section = $request->get('bill_section_input');
         $collection_entry->customer_name = $request->get('customer_name_input');
-        $collection_entry->collection_type = $request->get('collection_type_input');  
+        $collection_entry->collection_type = $request->get('collection_type_input');
         $collection_entry->type_name = $request->get('type_name_input');
         $collection_entry->type_cheque = $request->get('type_cheque_input');
         $collection_entry->type_date = $request->get('type_date_input');
         $collection_entry->collection_amount = $request->get('collection_amount_input');
-        $collection_entry->description = $request->get('description_input');  
+        $collection_entry->description = $request->get('description_input');
         $collection_entry->dr_amount = $request->get('dr_amount_table_ta');
         $collection_entry->cr_amount = $request->get('cr_amount_table_ta');
-        $collection_entry->save();  
+        $collection_entry->save();
 
         return redirect('collection-entry');
     }
 
-    public function collection_entry_delete(Request $request) {
+    public function collection_entry_delete(Request $request)
+    {
         collection_entry::where('id', $request->get('id_delete'))->delete();
 
         return redirect('collection-entry');
     }
 
-    public function view_details_page($id) {
+    public function view_details_page($id)
+    {
         // dd($id);
-        if(Auth::check()){
+        if (Auth::check()) {
             $collection_entry = collection_entry::findOrFail($id);
             // dd($collection_entry);
             return view('super_admin.core_accounting.collections.pdf_collection_entry')->with('collection_entry', $collection_entry);
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
     // Vouchers
     public function vouchersEntryView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             $voucher_entries = voucher_entry::where('status', '!=', 'Multiple')->orderByDesc('id')->get();
             $account_heads = account_head::all();
             $data = DB::table('voucher_entry')
@@ -451,7 +453,7 @@ class CoreAccountingController extends Controller
                 $nextVoucherNo = $prefix . '_' . $number;
                 $row->next_voucher_no = $number;
             };
-            
+
             $parties = party::all();
             return view('super_admin.core_accounting.vouchers.vouchers_entry', [
                 'voucher_entry' => $voucher_entries,
@@ -460,25 +462,27 @@ class CoreAccountingController extends Controller
                 'nextVoucherNo' => $data,
             ]);
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
-    public function voucher_details_page($id) {
-        if(Auth::check()){
+    public function voucher_details_page($id)
+    {
+        if (Auth::check()) {
             $voucher_entry = voucher_entry::findOrFail($id);
             return view('super_admin.core_accounting.vouchers.pdf_voucher_entry')->with('voucher_entry', $voucher_entry);
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
-    public function voucher_entry_pdf($id) {
-        if(Auth::check()){
+    public function voucher_entry_pdf($id)
+    {
+        if (Auth::check()) {
             $voucher_entry = voucher_entry::findOrFail($id);
             return view('super_admin.core_accounting.vouchers.voucher_entry_pdf_file')->with('voucher_entry', $voucher_entry);
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
@@ -493,10 +497,10 @@ class CoreAccountingController extends Controller
             "cr_amount_table_ta" => "required",
         ]);
         $voucherDateInput = $request->input('voucher_date_input');
-        
+
         $accountHeads = control_ac::join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
-        ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'ac_head.ac_head_name_eng')
-        ->get();
+            ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'ac_head.ac_head_name_eng')
+            ->get();
 
         $fixed_assets_data = DB::table('control_ac')
             ->join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
@@ -517,7 +521,7 @@ class CoreAccountingController extends Controller
         $dailyOpening = DailyOpeningBalance::where('date', $voucherDateInput)->select('ac_head', 'party')->get();
         $bothOpening = json_decode($dailyOpening);
         $dailyOpeningBalance = (array) $bothOpening[0];
-        
+
         // dd($a, $dailyOpening, $openingBalance);
         // dd($fixed_assets_data);
         // ::select('ac_head_id', 'ac_head_name_eng')->get();
@@ -536,7 +540,7 @@ class CoreAccountingController extends Controller
                 'amount' => floatval($item['amount']),
             ];
         }
-        
+
         foreach ($crAmountData as $item) {
             $dr_cr_array[] = [
                 'name' => $item['name'],
@@ -545,11 +549,11 @@ class CoreAccountingController extends Controller
         }
 
         $openingBalance = [];
-        if($dailyOpeningBalance['ac_head'] === []) {
+        if ($dailyOpeningBalance['ac_head'] === []) {
             //empty
         } else {
             $a = json_decode($dailyOpeningBalance['ac_head']);
-            foreach($a as $item) {
+            foreach ($a as $item) {
                 $openingBalance[] = (array) $item;
             }
         }
@@ -586,18 +590,18 @@ class CoreAccountingController extends Controller
         // dd($party_array);
 
         $partyOpeningBalance = [];
-        if($dailyOpeningBalance['party'] === [] || $dailyOpeningBalance['party'] === null) {
+        if ($dailyOpeningBalance['party'] === [] || $dailyOpeningBalance['party'] === null) {
             //empty
         } else {
             $a = json_decode($dailyOpeningBalance['party']);
-            foreach($a as $item) {
+            foreach ($a as $item) {
                 $partyOpeningBalance[] = (array) $item;
             }
         }
         $partyOpeningData = $this->matchAndMerge($party_array, $partyOpeningBalance);
         // dd($party_array, $partyOpeningBalance, $partyOpeningData);
         // dd($dailyOpeningData, $dr_cr_array, $partyOpeningData);
-        if($dailyOpeningBalance['ac_head'] === [] && $dailyOpeningBalance['party'] === []) {
+        if ($dailyOpeningBalance['ac_head'] === [] && $dailyOpeningBalance['party'] === []) {
             $openingDailyData = new DailyOpeningBalance;
             $openingDailyData->date = $voucherDateInput;
             $openingDailyData->ac_head = json_encode(array_values($dailyOpeningData));
@@ -700,22 +704,22 @@ class CoreAccountingController extends Controller
         $newJson = json_encode($newArray);
 
         // dd($dailyData, $newJson);
-        if(isset($dailyData[0])) {
+        if (isset($dailyData[0])) {
             $newJson = $this->dailyDataCalculation($dailyData, $newJson);
             // dd($dailyDataJson);
         }
 
         $voucher = new voucher_entry;
         $voucher->voucher_type = $request->get('voucher_type_input');
-        if($request->get('voucher_type_input') == "Journal"){
+        if ($request->get('voucher_type_input') == "Journal") {
             $voucher->voucher_no = "j_" . $request->get('voucher_no_input');
-        } else if($request->get('voucher_type_input') == "Advanced Payment"){
+        } else if ($request->get('voucher_type_input') == "Advanced Payment") {
             $voucher->voucher_no = "a_" . $request->get('voucher_no_input');
-        } else if($request->get('voucher_type_input') == "Payment Voucher"){
+        } else if ($request->get('voucher_type_input') == "Payment Voucher") {
             $voucher->voucher_no = "p_" . $request->get('voucher_no_input');
-        } else if($request->get('voucher_type_input') == "Receipt Voucher"){
+        } else if ($request->get('voucher_type_input') == "Receipt Voucher") {
             $voucher->voucher_no = "r_" . $request->get('voucher_no_input');
-        } else if($request->get('voucher_type_input') == "Adjustment"){
+        } else if ($request->get('voucher_type_input') == "Adjustment") {
             $voucher->voucher_no = "a_" . $request->get('voucher_no_input');
         }
         $voucher->type = $request->get('type_input');
@@ -739,8 +743,8 @@ class CoreAccountingController extends Controller
         $daily_control = false;
 
         if (isset($dailyData[0])) {
-            
-            if(isset($fixedAssetData[0])) {
+
+            if (isset($fixedAssetData[0])) {
                 $dailyFixedAssetData = json_decode($fixedAssetData[0], true);
                 // dd($dailyFixedAssetData, $fixedAssetDailyData[0]['dr_amount']);
                 // dd($dailyFixedAssetData, $fixedAssetDailyData, "Have data");
@@ -774,9 +778,10 @@ class CoreAccountingController extends Controller
         return redirect('vouchers-entry');
     }
 
-    private function matchAndMerge($array1, $array2) {
+    private function matchAndMerge($array1, $array2)
+    {
         $unmatched = [];
-    
+
         // Combine both arrays for easier iteration
         $combined = array_merge($array1, $array2);
         // dd($combined);
@@ -789,13 +794,14 @@ class CoreAccountingController extends Controller
                 $result[$name] = $item;
             }
         }
-    
+
         return $result;
     }
 
-    private function matchAndRemove($array1, $array2) {
+    private function matchAndRemove($array1, $array2)
+    {
         $unmatched = [];
-    
+
         // Combine both arrays for easier iteration
         $combined = array_merge($array1, $array2);
         // dd($combined);
@@ -808,11 +814,12 @@ class CoreAccountingController extends Controller
                 $result[$name] = $item;
             }
         }
-    
+
         return $result;
     }
 
-    private function dailyDataCalculation($dailyData, $dailyDataJson) {
+    private function dailyDataCalculation($dailyData, $dailyDataJson)
+    {
         $dailyData = json_decode($dailyData[0], true);
         $dailyDataArray = json_decode($dailyDataJson, true);
 
@@ -854,7 +861,7 @@ class CoreAccountingController extends Controller
 
     public function vouchersSearchingView(Request $request)
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             if ($request->isMethod('post')) {
                 $finYear = $request->input('fin_year_input');
                 $finMonth = $request->input('fin_month_input');
@@ -883,7 +890,7 @@ class CoreAccountingController extends Controller
                 return view('super_admin.core_accounting.vouchers.vouchers_searching', ['voucherList' => null]);
             }
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
@@ -908,7 +915,7 @@ class CoreAccountingController extends Controller
         $dailyOpening = DailyOpeningBalance::where('date', $voucher_data[0]['voucher_date'])->select('ac_head', 'party')->get();
         $bothOpening = json_decode($dailyOpening);
         $dailyOpeningBalance = (array) $bothOpening[0];
-        
+
         $dr_cr_array = [];
         foreach ($drAmountData as $item) {
             $dr_cr_array[] = [
@@ -916,7 +923,7 @@ class CoreAccountingController extends Controller
                 'amount' => floatval($item['amount']),
             ];
         }
-        
+
         foreach ($crAmountData as $item) {
             $dr_cr_array[] = [
                 'name' => $item['name'],
@@ -925,18 +932,18 @@ class CoreAccountingController extends Controller
         }
 
         $openingBalance = [];
-        if($dailyOpeningBalance['ac_head'] === []) {
+        if ($dailyOpeningBalance['ac_head'] === []) {
             //empty
         } else {
             $a = json_decode($dailyOpeningBalance['ac_head']);
-            foreach($a as $item) {
+            foreach ($a as $item) {
                 $openingBalance[] = (array) $item;
             }
         }
-        
+
         $dailyOpeningData = $this->matchAndRemove($openingBalance, $dr_cr_array);
         // dd(gettype($voucher_data[0]['party']));
-        if($voucher_data[0]['party'] !== "" && $voucher_data[0]['party'] !== "N/A") {
+        if ($voucher_data[0]['party'] !== "" && $voucher_data[0]['party'] !== "N/A") {
             $selectedAccountName = [
                 "Bills Receivable Of Rent & Lease",
                 "Bills Receivable Of Processing",
@@ -960,7 +967,7 @@ class CoreAccountingController extends Controller
                     $totalAmount += $item['amount'];
                 }
             }
-// dd($voucher_data[0]['party']);
+            // dd($voucher_data[0]['party']);
             $party_array[] = [
                 'name' => $voucher_data[0]['party'],
                 'amount' => $totalAmount, // Make amounts negative
@@ -968,12 +975,12 @@ class CoreAccountingController extends Controller
             // dd($party_array);
 
             $partyOpeningBalance = [];
-            if($dailyOpeningBalance['party'] === [] || $dailyOpeningBalance['party'] === null) {
+            if ($dailyOpeningBalance['party'] === [] || $dailyOpeningBalance['party'] === null) {
                 //empty
             } else {
                 $a = json_decode($dailyOpeningBalance['party']);
                 // dd($a, $dailyOpeningBalance);
-                foreach($a as $item) {
+                foreach ($a as $item) {
                     $partyOpeningBalance[] = (array) $item;
                 }
             }
@@ -983,19 +990,19 @@ class CoreAccountingController extends Controller
         }
 
         // dd($dr_cr_array, $openingBalance, $dailyOpeningData);
-        
+
         DailyOpeningBalance::where('date', $voucher_data[0]['voucher_date'])->update(['ac_head' => json_encode(array_values($dailyOpeningData))]);
 
         $accountHeads = control_ac::join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
-                                    ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name', 'ac_head.ac_head_name_eng')
-                                    ->get();
-        
+            ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name', 'ac_head.ac_head_name_eng')
+            ->get();
+
         $fixed_assets_data = DB::table('control_ac')
             ->join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
             ->select('ac_head.ac_head_name_eng')
             ->whereIn('control_ac.subsidiary_account_name', ['Fixed Assets'])
             ->get();
-        
+
         $dailyData = daily_data::where('voucher_date', $voucher_data[0]['voucher_date'])->pluck('ac_head');
         $dailyControlData = daily_data::where('voucher_date', $voucher_data[0]['voucher_date'])->pluck('control_ac');
         // $desiredAcHead = $accountHeads->Where('ac_head_name_eng', $drAmountData['name'])->first();
@@ -1068,12 +1075,11 @@ class CoreAccountingController extends Controller
 
         $sortedData = $this->consolidateData($dailyDataArray);
 
-        // dd($convertedData, $dailyDataArray, $sortedData);
         foreach ($convertedData as $item2) {
             // Find corresponding item in data1 based on account_group, subsidiary_account_name, and name
             foreach ($sortedData as $item1) {
                 if ($item1["account_group"] === $item2["account_group"] && $item1["subsidiary_account_name"] === $item2["subsidiary_account_name"] && $item1["name"] === $item2["name"]) {
-                    if($item1["amount"] >= 0) {
+                    if ($item1["amount"] >= 0) {
                         $latestConvertedData[] = [
                             "account_group" => $item2["account_group"],
                             "subsidiary_account_name" => $item2["subsidiary_account_name"],
@@ -1097,15 +1103,15 @@ class CoreAccountingController extends Controller
         // dd($convertedData, $latestConvertedData, $finalizedData);
         daily_data::where('voucher_date', $voucher_data[0]['voucher_date'])->update(['ac_head' => json_encode($finalizedData)]);
         // dd($voucher_data, $dailyData);
-        if($size > 0) {
-            if($voucher_type == "Receipt Voucher") {
+        if ($size > 0) {
+            if ($voucher_type == "Receipt Voucher") {
                 collection_entry::whereIn('id', $output)->update(['status' => 'visible']);
-            } else if($voucher_type == "Journal") {
+            } else if ($voucher_type == "Journal") {
                 voucher_entry::whereIn('voucher_no', $output)->update(['status' => 'Pending']);
             }
         }
         voucher_entry::where('id', $request->get('id_delete'))->delete();
-        
+
         return redirect('vouchers-entry');
     }
 
@@ -1146,11 +1152,11 @@ class CoreAccountingController extends Controller
 
     public function cashCollectionVoucherView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             $collection_entry = collection_entry::where('status', 'visible')->get();
             return view('super_admin.core_accounting.vouchers.cash_collection_voucher')->with('collection_entry', $collection_entry);
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
@@ -1200,17 +1206,16 @@ class CoreAccountingController extends Controller
 
         // $lastVoucherNo = voucher_entry::max('voucher_no');
         // $nextVoucherNo = $lastVoucherNo ? $lastVoucherNo + 1 : 1;
-        $data2 = voucher_entry:: where('voucher_no', 'LIKE', 'r_%')
+        $data2 = voucher_entry::where('voucher_no', 'LIKE', 'r_%')
             ->orderByRaw('CAST(SUBSTRING(voucher_no, 3) AS UNSIGNED) DESC')
             ->first();
         $highestVoucherNo = $data2->voucher_no;
-            // return response()->json(['data' => $highestVoucherNo]);
+        // return response()->json(['data' => $highestVoucherNo]);
         $number = 0;
 
-        if($highestVoucherNo) {
+        if ($highestVoucherNo) {
             $lastVoucherNo = $highestVoucherNo;
-        }
-        else {
+        } else {
             $lastVoucherNo = "r_0";
         }
         $prefix = substr($lastVoucherNo, 0, 1);
@@ -1280,15 +1285,15 @@ class CoreAccountingController extends Controller
             $totalCrAmount = 0;
             // return $data[0];
             $accountHeads = control_ac::join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
-                                    ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name', 'ac_head.ac_head_name_eng')
-                                    ->get();
+                ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name', 'ac_head.ac_head_name_eng')
+                ->get();
             // dd($accountHeads);
 
             foreach ($data as &$item) {
                 $dailyData = daily_data::where('voucher_date', $item['collection_date'])->pluck('ac_head');
                 $item['cr_amount'] = json_decode($item['cr_amount'], true);
                 $item['dr_amount'] = json_decode($item['dr_amount'], true);
-                
+
                 $v_date = $item['collection_date'];
                 array_push($dr_arr, $item['dr_amount']);
                 array_push($cr_arr, $item['cr_amount']);
@@ -1350,7 +1355,7 @@ class CoreAccountingController extends Controller
                 $dailyDataJson = json_encode($dailyDataArray);
                 // dd($dailyData, $dailyDataJson);
                 // return $finalDataJson;
-                if(isset($dailyData[0])) {
+                if (isset($dailyData[0])) {
                     $dailyDataJson = $this->dailyDataCalculation($dailyData, $dailyDataJson);
                     // dd($dailyDataJson);
                 }
@@ -1398,7 +1403,7 @@ class CoreAccountingController extends Controller
                     $totalDrAmount += (int)$item["amount"];
                 }
             }
-    
+
             foreach ($cr_arr as $subArray) {
                 foreach ($subArray as $item) {
                     $totalCrAmount += (int)$item["amount"];
@@ -1408,7 +1413,7 @@ class CoreAccountingController extends Controller
             // dd($totalDrAmount, $totalCrAmount);
             // return response()->json(['data' => $totalDrAmount, 'data2' => $totalCrAmount]);
 
-            $description = 'Multiple vouchers added: ' . implode(', ', $data->pluck('id')->map(function($id) {
+            $description = 'Multiple vouchers added: ' . implode(', ', $data->pluck('id')->map(function ($id) {
                 return 'memo-' . $id;
             })->toArray());
             // $totalDrAmount = array_sum(array_column($updatedDrAmount, 'collection_amount'));
@@ -1429,7 +1434,7 @@ class CoreAccountingController extends Controller
             $array_cr = (array) $newCR;
             $dailyOpening = DailyOpeningBalance::where('date', $v_date)->pluck('ac_head');
             $dailyOpeningBalance = json_decode($dailyOpening);
-            
+
             $dr_cr_array = [];
             foreach ($array_dr as $item) {
                 $each_item = (array) $item;
@@ -1438,7 +1443,7 @@ class CoreAccountingController extends Controller
                     'amount' => floatval($each_item['amount']),
                 ];
             }
-            
+
             foreach ($array_cr as $item) {
                 $each_item = (array) $item;
                 $dr_cr_array[] = [
@@ -1448,16 +1453,16 @@ class CoreAccountingController extends Controller
             }
 
             $openingBalance = [];
-            if($dailyOpeningBalance === []) {
+            if ($dailyOpeningBalance === []) {
                 //empty
             } else {
                 $a = json_decode($dailyOpeningBalance[0]);
-                foreach($a as $item) {
+                foreach ($a as $item) {
                     $openingBalance[] = (array) $item;
                 }
             }
             $dailyOpeningData = $this->matchAndMerge($dr_cr_array, $openingBalance);
-            if($dailyOpeningBalance === []) {
+            if ($dailyOpeningBalance === []) {
                 $openingDailyData = new DailyOpeningBalance;
                 $openingDailyData->date = $v_date;
                 $openingDailyData->ac_head = json_encode(array_values($dailyOpeningData));
@@ -1495,9 +1500,9 @@ class CoreAccountingController extends Controller
         } elseif ($data->count() === 1) {
             // Single data selected
             $accountHeads = control_ac::join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
-                                    ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name', 'ac_head.ac_head_name_eng')
-                                    ->get();
-                                    
+                ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name', 'ac_head.ac_head_name_eng')
+                ->get();
+
             $item = $data->first();
             $item['cr_amount'] = json_decode($item['cr_amount'], true);
             $item['dr_amount'] = json_decode($item['dr_amount'], true);
@@ -1564,7 +1569,7 @@ class CoreAccountingController extends Controller
             $dailyDataJson = json_encode($dailyDataArray);
             // dd($dailyData, $dailyDataJson);
             $finalDataJson1 = $finalDataJson;
-            if(isset($dailyData[0])) {
+            if (isset($dailyData[0])) {
                 $dailyDataJson = $this->dailyDataCalculation($dailyData, $dailyDataJson);
                 // dd($dailyDataJson);
             }
@@ -1600,7 +1605,7 @@ class CoreAccountingController extends Controller
             $array_cr = (array) $item['cr_amount'];
             $dailyOpening = DailyOpeningBalance::where('date', $v_date)->pluck('ac_head');
             $dailyOpeningBalance = json_decode($dailyOpening);
-            
+
             $dr_cr_array = [];
             foreach ($array_dr as $item) {
                 $each_item = (array) $item;
@@ -1609,7 +1614,7 @@ class CoreAccountingController extends Controller
                     'amount' => floatval($each_item['amount']),
                 ];
             }
-            
+
             foreach ($array_cr as $item) {
                 $each_item = (array) $item;
                 $dr_cr_array[] = [
@@ -1619,16 +1624,16 @@ class CoreAccountingController extends Controller
             }
 
             $openingBalance = [];
-            if($dailyOpeningBalance === []) {
+            if ($dailyOpeningBalance === []) {
                 //empty
             } else {
                 $a = json_decode($dailyOpeningBalance[0]);
-                foreach($a as $item) {
+                foreach ($a as $item) {
                     $openingBalance[] = (array) $item;
                 }
             }
             $dailyOpeningData = $this->matchAndMerge($dr_cr_array, $openingBalance);
-            if($dailyOpeningBalance === []) {
+            if ($dailyOpeningBalance === []) {
                 $openingDailyData = new DailyOpeningBalance;
                 $openingDailyData->date = $v_date;
                 $openingDailyData->ac_head = json_encode(array_values($dailyOpeningData));
@@ -1670,14 +1675,14 @@ class CoreAccountingController extends Controller
 
     public function journalVoucherView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             $status = 'Multiple';
             $voucher_entry = voucher_entry::where('voucher_type', 'Journal')
-                                ->where('status', $status)
-                                ->get();
+                ->where('status', $status)
+                ->get();
             return view('super_admin.core_accounting.vouchers.journal_voucher')->with("voucher_entry", $voucher_entry)->with("status", $status);
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
@@ -1805,7 +1810,7 @@ class CoreAccountingController extends Controller
 
         // dd(json_encode($newCR), $newDR);
 
-        $description = 'Multiple Journal vouchers added: ' . implode(', ', $data->pluck('voucher_no')->map(function($id) {
+        $description = 'Multiple Journal vouchers added: ' . implode(', ', $data->pluck('voucher_no')->map(function ($id) {
             return 'memo-' . $id;
         })->toArray());
         // $totalDrAmount = array_sum(array_column($updatedDrAmount, 'amount'));
@@ -1837,7 +1842,8 @@ class CoreAccountingController extends Controller
         return redirect('journal-voucher');
     }
 
-    public function journal_voucher_delete(Request $request) {
+    public function journal_voucher_delete(Request $request)
+    {
         $voucher_data = voucher_entry::where('voucher_no', $request->get('id_delete'))->get();
 
         preg_match_all('/\bmemo-([a-zA-Z0-9._-]+)\b/', $voucher_data[0]["description"], $matches);
@@ -1849,34 +1855,34 @@ class CoreAccountingController extends Controller
         // dd($output);
         $voucher_type = $voucher_data[0]["voucher_type"];
 
-        if($size > 0) {
-            if($voucher_type == "Receipt Voucher") {
+        if ($size > 0) {
+            if ($voucher_type == "Receipt Voucher") {
                 collection_entry::whereIn('id', $output)->update(['status' => 'visible']);
-            } else if($voucher_type == "Journal") {
+            } else if ($voucher_type == "Journal") {
                 voucher_entry::whereIn('voucher_no', $output)->update(['status' => 'Pending']);
             }
         }
         voucher_entry::where('voucher_no', $request->get('id_delete'))->delete();
-        
+
         return redirect('journal-voucher');
-    } 
+    }
 
     public function chequeApprovedView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('super_admin.core_accounting.vouchers.cheque_approved');
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
     // Account Reports
     public function chartOfAccountsView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('super_admin.core_accounting.account_reports.chart_of_accounts');
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
@@ -1886,7 +1892,7 @@ class CoreAccountingController extends Controller
         if (Auth::check()) {
             $startDate = $request->input('start_date');
             $endDate = $request->input('end_date');
-            
+
             if ($request->isMethod('post')) {
                 $startDateTime = new DateTime($startDate);
                 $endDateTime = new DateTime($endDate);
@@ -1933,7 +1939,7 @@ class CoreAccountingController extends Controller
                 //         ->select('dr_amount', 'cr_amount', 'voucher_date')
                 //         ->orderBy('voucher_date')
                 //         ->get();
-                    
+
                 //     $dr_cr_array = [];
 
                 //     foreach ($voucher_entries as $items) {
@@ -1950,7 +1956,7 @@ class CoreAccountingController extends Controller
                 //                 'amount' => floatval($array_item['amount']),
                 //             ];
                 //         }
-                        
+
                 //         foreach ($cr_amount as $item) {
                 //             $array_item = (array) $item;
                 //             $dr_cr_array[] = [
@@ -2007,7 +2013,7 @@ class CoreAccountingController extends Controller
                 // $openingYearlyData->date = $lastDate;
                 // $openingYearlyData->ac_head = $final_data_for_Yearly_Opening_Data;
                 // $openingYearlyData->save();
-                
+
                 // ----------------------- Yearly Opening Banalce End --------------------------- //
 
                 // $parties = DB::table('party')
@@ -2016,7 +2022,7 @@ class CoreAccountingController extends Controller
                 //     ->select('name')
                 //     ->orderBy('name')
                 //     ->get();
-                
+
                 // $selectedAccountName = [
                 //         "Bills Receivable Of Rent & Lease",
                 //         "Bills Receivable Of Processing",
@@ -2145,7 +2151,7 @@ class CoreAccountingController extends Controller
                     // $acHeadData = $dataArray['ac_head'];
                     foreach ($ledgerData as $data) {
                         $decodedData = json_decode($data->ac_head, true);
-                        $dailyData[] = $decodedData; 
+                        $dailyData[] = $decodedData;
                         // $dailyData = array_merge($previous_data, $decodedData); 
                     }
                     // Initialize an empty array to store formatted data
@@ -2156,16 +2162,16 @@ class CoreAccountingController extends Controller
                     $dailyData = [];
                     foreach ($ledgerData as $data) {
                         $decodedData = json_decode($data->ac_head, true);
-                        $dailyData[] = $decodedData; 
+                        $dailyData[] = $decodedData;
                         // $dailyData = array_merge($previous_data, $decodedData); 
                     }
                     $mergedArray = [];
-                    foreach($dailyData as $currentArray) {
+                    foreach ($dailyData as $currentArray) {
                         // Iterate through each item in the current array
                         foreach ($currentArray as $item) {
                             // Check if the item with similar criteria already exists in the merged array
                             $existingKey = array_search($item, $mergedArray);
-                    
+
                             if ($existingKey !== false) {
                                 // If exists, add the 'amount' values
                                 $mergedArray[$existingKey]['amount'] += $item['amount'];
@@ -2183,7 +2189,7 @@ class CoreAccountingController extends Controller
 
                     foreach ($yourArray as $item) {
                         $key = $item['account_group'] . '-_-' . $item['subsidiary_account_name'] . '-_-' . $item['name'];
-                    
+
                         // If the key exists in the totals array, update the amount
                         if (isset($totals[$key])) {
                             $totals[$key] += $item['amount'];
@@ -2192,7 +2198,7 @@ class CoreAccountingController extends Controller
                             $totals[$key] = $item['amount'];
                         }
                     }
-                    
+
                     // Create the new array using the totals
                     foreach ($totals as $key => $amount) {
                         list($account_group, $subsidiary_account_name, $name) = explode('-_-', $key);
@@ -2203,7 +2209,7 @@ class CoreAccountingController extends Controller
                             'amount' => $amount,
                         ];
                     }
-                    
+
                     // Sort the new array based on account_group and subsidiary_account_name
                     usort($newArray, function ($a, $b) {
                         if ($a['account_group'] == $b['account_group']) {
@@ -2215,7 +2221,7 @@ class CoreAccountingController extends Controller
                     // dd($newArray);
                     $mergedData = $newArray;
                 }
-                
+
                 // $finalResult = json_decode($mergedData[0]->ac_head, true);
                 return view('super_admin.core_accounting.account_reports.trial_balance', [
                     'data' => $mergedData,
@@ -2232,7 +2238,8 @@ class CoreAccountingController extends Controller
         }
     }
 
-    private function dailyDataDispatch($ledgerData, $all_ac_head_names){
+    private function dailyDataDispatch($ledgerData, $all_ac_head_names)
+    {
         $mergedData = [];
         $dailyData = [];
         foreach ($ledgerData as $data) {
@@ -2259,7 +2266,7 @@ class CoreAccountingController extends Controller
                 'amount' => $sum,
             ];
         }
-            
+
         foreach ($all_ac_head_names as $firstItem) {
             foreach ($result as $secondItem) {
                 if ($firstItem['ac_head_id'] === $secondItem['id']) {
@@ -2299,13 +2306,13 @@ class CoreAccountingController extends Controller
             ->select('accounts_group', 'subsidiary_account_name', 'account_name')
             ->get()
             ->toArray();
-            
+
         $ledgerData = DB::table('voucher_entry')
             ->whereBetween('voucher_date', [$startDate, $endDate])
             ->select('voucher_no', 'description', 'dr_amount', 'cr_amount', 'voucher_date')
             ->whereIn('status', ['pending', 'Done'])
             ->get();
-            // dd($ledgerData, $startDate, $endDate);
+        // dd($ledgerData, $startDate, $endDate);
 
         $final_data = [];
 
@@ -2320,13 +2327,13 @@ class CoreAccountingController extends Controller
         foreach ($ledgerData as $items) {
             $drAmount = json_decode($items->dr_amount);
             $crAmount = json_decode($items->cr_amount);
-            foreach($drAmount as $individualDR) {
+            foreach ($drAmount as $individualDR) {
                 $fixedAssetAcHead = $fixed_assets_data->Where('ac_head_name_eng', $individualDR->name)->first();
                 if ($fixedAssetAcHead) {
                     $fixedAsset_DR_amount = intval($fixedAsset_DR_amount) + intval($individualDR->amount);
                 }
             }
-            foreach($crAmount as $individualCR) {
+            foreach ($crAmount as $individualCR) {
                 $fixedAssetAcHead = $fixed_assets_data->Where('ac_head_name_eng', $individualCR->name)->first();
                 if ($fixedAssetAcHead) {
                     $fixedAsset_DR_amount = intval($fixedAsset_DR_amount) + intval($individualCR->amount);
@@ -2352,13 +2359,13 @@ class CoreAccountingController extends Controller
                 ->where('subsidiary_ac.account_name', '=', $all_contol_name['subsidiary_account_name'])
                 ->get()
                 ->toArray();
-            
+
             $filteredLedgerData = $this->ledgerDataManupulation($ledgerData, "", $acHeadNames);
             // if($filteredLedgerData !== []) {
             //     dd($filteredLedgerData);
             // }
             $totals = [];
-            
+
             foreach ($acHeadNames as $name) {
                 $total = 0;
                 foreach ($filteredLedgerData as $entry) {
@@ -2367,14 +2374,14 @@ class CoreAccountingController extends Controller
                             $total += floatval($dr->amount);
                         }
                     }
-            
+
                     foreach ($entry->cr_amount as $cr) {
                         if ($cr->name === $name) {
                             $total -= floatval($cr->amount);
                         }
                     }
                 }
-            
+
                 $totals[] = [
                     "name" => $name,
                     "amount" => $total
@@ -2428,7 +2435,7 @@ class CoreAccountingController extends Controller
 
         foreach ($final_data as $item) {
             $key = $item['account_group'] . $item['subsidiary_account_name'] . $item['name'] . $item['amount'];
-            
+
             if (!isset($uniqueData[$key])) {
                 $uniqueData[$key] = $item;
             }
@@ -2449,16 +2456,16 @@ class CoreAccountingController extends Controller
 
     public function bankBookView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('super_admin.core_accounting.account_reports.bank_book');
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
     public function subACLedgerView(Request $request)
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             // Retrieve subsidiary account details for the dropdown
             $subsidiaryAccounts = subsidiary_ac::all();
 
@@ -2476,7 +2483,7 @@ class CoreAccountingController extends Controller
                     ->get()
                     ->pluck('ac_head_name_eng')
                     ->toArray();
-                
+
                 $controlACNames = account_head::distinct()
                     ->select('ac_head.ac_head_name_eng', 'control_ac.account_name')
                     ->join('control_ac', 'ac_head.control_ac_id', '=', 'control_ac.account_id')
@@ -2484,40 +2491,40 @@ class CoreAccountingController extends Controller
                     ->where('subsidiary_ac.account_name', '=', $subsidiaryAcId)
                     ->get()
                     ->toArray();
-                    // dd($controlACNames);
-                    
+                // dd($controlACNames);
+
                 $ledgerData = DB::table('voucher_entry')
                     ->whereBetween('voucher_date', [$startDate, $endDate])
                     ->select('voucher_no', 'description', 'dr_amount', 'cr_amount', 'voucher_date')
                     ->whereIn('status', ['pending', 'Done'])
                     ->get();
-                
+
                 $filteredLedgerData = $this->ledgerDataManupulation($ledgerData, "", $acHeadNames);
 
                 $totals = [];
                 foreach ($acHeadNames as $name) {
                     $total = 0;
-                
+
                     foreach ($filteredLedgerData as $entry) {
                         foreach ($entry->dr_amount as $dr) {
                             if ($dr->name === $name) {
                                 $total += floatval($dr->amount);
                             }
                         }
-                
+
                         foreach ($entry->cr_amount as $cr) {
                             if ($cr->name === $name) {
                                 $total -= floatval($cr->amount);
                             }
                         }
                     }
-                
+
                     $totals[] = [
                         "name" => $name,
                         "amount" => $total
                     ];
                 }
-                
+
                 // Remove entries with zero amounts
                 $totals = array_filter($totals, function ($item) {
                     return floatval($item["amount"]) != 0;
@@ -2587,7 +2594,7 @@ class CoreAccountingController extends Controller
 
     public function controlACLedgerView(Request $request)
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             // Retrieve control account details for the dropdown
             $accounts = control_ac::pluck('account_name')->toArray();
 
@@ -2608,7 +2615,7 @@ class CoreAccountingController extends Controller
                     ->whereIn('status', ['pending', 'Done'])
                     ->get();
                 // dd($ledgerData);
-                
+
                 $filteredLedgerData = $this->ledgerDataManupulation($ledgerData, "", $ac_head_names);
                 $filteredLedgerData2 = [];
 
@@ -2660,32 +2667,32 @@ class CoreAccountingController extends Controller
                 $totals = [];
                 foreach ($ac_head_names as $name) {
                     $total = 0;
-                
+
                     foreach ($filteredLedgerData2 as $entry) {
                         foreach ($entry["dr_amount"] as $dr) {
                             if ($dr["name"] === $name) {
                                 $total += floatval($dr["amount"]);
                             }
                         }
-                
+
                         foreach ($entry["cr_amount"] as $cr) {
                             if ($cr["name"] === $name) {
                                 $total -= floatval($cr["amount"]);
                             }
                         }
                     }
-                
+
                     $totals[] = [
                         "name" => $name,
                         "amount" => $total
                     ];
                 }
-                
+
                 // Remove entries with zero amounts
                 $totals = array_filter($totals, function ($item) {
                     return floatval($item["amount"]) != 0;
                 });
-                
+
                 // Convert the result into a list of associative arrays
                 // $result = array_values($totals);
                 // dd($totals);
@@ -2705,11 +2712,11 @@ class CoreAccountingController extends Controller
         if (Auth::check()) {
             // Retrieve AC Head names for the dropdown
             $accounts = account_head::pluck('ac_head_name_eng')->toArray();
-    
+
             $selectedAccountName = $request->input('ac_head_name_eng');
             $startDate = $request->input('start_date');
             $endDate = $request->input('end_date');
-    
+
             if ($request->isMethod('post')) {
                 $ledgerData = DB::table('voucher_entry')
                     ->whereBetween('voucher_date', [$startDate, $endDate])
@@ -2722,16 +2729,16 @@ class CoreAccountingController extends Controller
                     $item->dr_amount = collect(json_decode($item->dr_amount))->filter(function ($amount) use ($selectedAccountName) {
                         return $amount->name === $selectedAccountName;
                     })->values();
-                
+
                     $item->cr_amount = collect(json_decode($item->cr_amount))->filter(function ($amount) use ($selectedAccountName) {
                         return $amount->name === $selectedAccountName;
                     })->values();
-                
+
                     // Check if both dr_amount and cr_amount are empty, and exclude the row if they are
                     if (empty($item->dr_amount) && empty($item->cr_amount)) {
                         return null;
                     }
-                
+
                     return $item;
                 })->filter(); // Remove null values from the resulting collection
                 $ledgerData = $filteredLedgerData;
@@ -2796,11 +2803,11 @@ class CoreAccountingController extends Controller
                                     // If there's no match, set $drAmount to an empty array
                                     $crAmount = [];
                                 }
-                
+
                                 // Convert dr_amount and cr_amount to collections
                                 $drAmountCollection = collect($drAmount);
                                 $crAmountCollection = collect($crAmount);
-                
+
                                 return [
                                     'voucher_no' => $item_voucher_no,
                                     'description' => "Memo-" . $item->id,
@@ -2815,11 +2822,11 @@ class CoreAccountingController extends Controller
                                 if (is_object($item) && property_exists($item, 'voucher_no')) {
                                     return $item->voucher_no !== $item_voucher_no;
                                 }
-                                
+
                                 // If $item is not an object or does not have a 'voucher_no' property, keep it
                                 return true;
                             });
-                
+
                             // Add the items from $filtered_r_Data to $ledgerData
                             $ledgerData = $filteredCollection->concat($filtered_r_Data->all());
 
@@ -2827,7 +2834,7 @@ class CoreAccountingController extends Controller
                                 if (is_array($element)) {
                                     // Convert the array to an object
                                     $object = (object) $element;
-                                    
+
                                     // Replace the old array with the new object
                                     $ledgerData[$key] = $object;
                                 }
@@ -2841,42 +2848,43 @@ class CoreAccountingController extends Controller
                 foreach ($dailyOpeningBalanceData as $dailyOpeningBalance) {
                     $dailyOpeningBalanceArray = (array) $dailyOpeningBalance;
                     $allOpeningBalance = json_decode($dailyOpeningBalanceArray['ac_head']);
-                    foreach($allOpeningBalance as $balance) {
-                        if($balance->name === $selectedAccountName) {
-                            $openningBalance+= $balance->amount;
+                    foreach ($allOpeningBalance as $balance) {
+                        if ($balance->name === $selectedAccountName) {
+                            $openningBalance += $balance->amount;
                         }
                     }
                 }
-                
-                
+
+
                 $sortedLedgerData = $ledgerData->sortBy('voucher_date')->values()->all();
                 // Output the filtered ledger data
                 return view('super_admin.core_accounting.account_reports.ac_head_ledger', ['ledgerData' => $sortedLedgerData, 'accounts' => $accounts, 'selectedAccountName' => $selectedAccountName, 'startDate' => $startDate, 'endDate' => $endDate, 'openingBalance' => $openningBalance]);
             }
-    
+
             return view('super_admin.core_accounting.account_reports.ac_head_ledger', ['accounts' => $accounts, 'ledgerData' => null, 'startDate' => null, 'endDate' => null]);
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
-    function getOpeningBalanceData($startDate, $endDate) {
+    function getOpeningBalanceData($startDate, $endDate)
+    {
         // Convert the start and end date strings to DateTime objects
         $startDateObj = new DateTime($startDate);
         $endDateObj = new DateTime($endDate);
-    
+
         // Calculate the start of the financial year (July 1st) for the start date year
         $yearStart = (new DateTime($startDateObj->format('Y') . '-07-01'));
-    
+
         // If the start date is not July 1st, adjust year start to previous July 1st
         if ($startDateObj < $yearStart) {
             $yearStart->modify('-1 year');
         }
-    
+
         // Prepare the previous year’s start and end dates for `daily_opening_balance`
         $previousYearStart = (clone $yearStart)->modify('-1 year');
         $previousYearEnd = (clone $yearStart)->modify('-1 day');  // One day before the current year start
-    
+
         // Check if the start date is exactly July 1st of any year
         if ($startDateObj == $yearStart) {
             // Fetch data from `yearly_opening_balance` table for the entire date range
@@ -2892,32 +2900,32 @@ class CoreAccountingController extends Controller
                 ->where('ac_head', '!=', '[]')
                 ->select('ac_head')
                 ->get();
-    
+
             // Fetch all yearly data up to the end of the previous year from `yearly_opening_balance`
             $yearlyData = DB::table('yearly_opening_balance')
                 ->whereBetween('date', [$previousYearStart->format('Y-m-d'), $previousYearEnd->format('Y-m-d')])
                 ->where('ac_head', '!=', '[]')
                 ->select('ac_head')
                 ->get();
-    
+
             // Merge the results
             $data = $dailyData->merge($yearlyData);
         }
-    
+
         return $data;
     }
 
     // function getOpeningBalanceData($startdate, $endDate) {
     //     // Convert the start date string to a DateTime object
     //     $startDate = new DateTime($startdate);
-    
+
     //     $yearStart = $startDate->format('Y') . '-07-01';
-        
+
     //     // Check if the start date is a year start and adjust accordingly
     //     if ($startDate >= new DateTime($yearStart)) {
     //         $yearStart = $startDate->modify('-1 year')->format('Y') . '-07-01';
     //     }
-        
+
     //     // If the start date is a year start, fetch data from yearly_opening_balance
     //     if ($startDate == new DateTime($yearStart)) {
     //         $data = DB::table('yearly_opening_balance')
@@ -2928,7 +2936,7 @@ class CoreAccountingController extends Controller
     //         // Fetch data from daily_opening_balance for the previous year
     //         $previousYearStart = (new DateTime($yearStart))->modify('-1 year')->format('Y') . '-07-01';
     //         $previousYearEnd = (new DateTime($yearStart))->format('Y') . '-06-30';
-    
+
     //         $data = DB::table('daily_opening_balance')
     //             ->whereBetween('date', [$previousYearStart, $previousYearEnd])
     //             ->select('ac_head')  // Ensure all selects have the same columns
@@ -2939,7 +2947,7 @@ class CoreAccountingController extends Controller
     //             )
     //             ->get();
     //     }
-    
+
     //     return $data;
     // }
 
@@ -2953,8 +2961,9 @@ class CoreAccountingController extends Controller
             return isset($item->name) && $item->name === $keyword;
         });
     }
-    public function allPartyLedgerView(Request $request){
-        if(Auth::check()){
+    public function allPartyLedgerView(Request $request)
+    {
+        if (Auth::check()) {
             if ($request->isMethod('post')) {
                 $start_date = $request->start_date;
                 $end_date = $request->end_date;
@@ -2990,44 +2999,44 @@ class CoreAccountingController extends Controller
                     $name = $eachParty->name;
 
                     $ledgerData = DB::table('voucher_entry')
-                    ->select('voucher_no', 'description', 'voucher_date', 'dr_amount', 'cr_amount')
-                    ->whereBetween('voucher_date', [$start_date, $end_date])
-                    ->whereIn('status', ['pending', 'Done', 'Pending'])
-                    ->where(function ($query) use ($name) {
-                        $query->where(function ($query) use ($name) {
-                            $query->where('voucher_type', 'Journal')
-                                ->where('party', $name);
-                        })->orWhere(function ($query) use ($name) {
-                            $query->where('voucher_type', 'Receipt Voucher')
-                                ->where(function ($query) use ($name) {
-                                    $query->where(function ($query) use ($name) {
+                        ->select('voucher_no', 'description', 'voucher_date', 'dr_amount', 'cr_amount')
+                        ->whereBetween('voucher_date', [$start_date, $end_date])
+                        ->whereIn('status', ['pending', 'Done', 'Pending'])
+                        ->where(function ($query) use ($name) {
+                            $query->where(function ($query) use ($name) {
+                                $query->where('voucher_type', 'Journal')
+                                    ->where('party', $name);
+                            })->orWhere(function ($query) use ($name) {
+                                $query->where('voucher_type', 'Receipt Voucher')
+                                    ->where(function ($query) use ($name) {
                                         $query->where(function ($query) use ($name) {
-                                            $query->where('description', 'not like', 'Multiple vouchers added:%')
-                                                ->where('description', 'not like', 'Voucher ID:%')
-                                                ->where('party', $name);
-                                        })->orWhere(function ($query) {
-                                            $query->where(function ($query) {
-                                                $query->where('description', 'like', 'Multiple vouchers added:%')
-                                                    ->orWhere('description', 'like', 'Voucher ID:%');
+                                            $query->where(function ($query) use ($name) {
+                                                $query->where('description', 'not like', 'Multiple vouchers added:%')
+                                                    ->where('description', 'not like', 'Voucher ID:%')
+                                                    ->where('party', $name);
+                                            })->orWhere(function ($query) {
+                                                $query->where(function ($query) {
+                                                    $query->where('description', 'like', 'Multiple vouchers added:%')
+                                                        ->orWhere('description', 'like', 'Voucher ID:%');
+                                                });
                                             });
                                         });
                                     });
-                                });
-                        })->orWhere(function ($query) {
-                            $query->whereIn('voucher_type', ['Advanced Payment', 'Adjustment']);
-                        });
-                    })
-                    ->get();
-                    
+                            })->orWhere(function ($query) {
+                                $query->whereIn('voucher_type', ['Advanced Payment', 'Adjustment']);
+                            });
+                        })
+                        ->get();
+
                     $sortedLedgerData = $this->ledgerDataManupulation($ledgerData, $name, $selectedAccountName);
-                    
+
                     if ($sortedLedgerData) {
                         // dd(gettype($sortedLedgerData[0]));
                         $totalAmount = 0;
 
                         foreach ($sortedLedgerData as $item) {
                             // dd(count($item->cr_amount));
-                            
+
                             // Check if cr_amount has items (credit)
                             if (count($item->cr_amount) > 0) {
                                 // dd(empty($item->cr_amount));
@@ -3071,44 +3080,44 @@ class CoreAccountingController extends Controller
                 $bills_Receivables_Of_Workshop = [];
                 $bills_Receivables_Of_Marine_Workshop = [];
                 $other_Bills_Receivables = [];
-        
+
                 foreach ($allResults as &$entry) {
                     $group = preg_replace('/[\[\]()]/', '', $entry["name"]);
                     $standard_group = $this->standardize_group_name($group); //Group Checks are done in this function 
                     $entry["group"] = $standard_group;
 
-                    if($standard_group === "Bills Receivables Of Processing") {
-                        $bills_Receivables_Of_Processing[] = $entry; 
-                    } else if($entry["group"] === "Bills Receivables of Processing") {
+                    if ($standard_group === "Bills Receivables Of Processing") {
                         $bills_Receivables_Of_Processing[] = $entry;
-                    } else if($standard_group === "Bills Receivables Rent & Lease") {
+                    } else if ($entry["group"] === "Bills Receivables of Processing") {
+                        $bills_Receivables_Of_Processing[] = $entry;
+                    } else if ($standard_group === "Bills Receivables Rent & Lease") {
                         $bills_Receivables_Of_Rent_and_Lease[] = $entry;
-                    } else if($standard_group === "Bills Receivables of Land and Lease") {
+                    } else if ($standard_group === "Bills Receivables of Land and Lease") {
                         $bills_Receivables_Of_Land_and_Lease[] = $entry;
-                    } else if($standard_group === "Bills Receivables Of Multichannel") {
+                    } else if ($standard_group === "Bills Receivables Of Multichannel") {
                         $bills_Receivables_Of_Multichannel[] = $entry;
-                    } else if($standard_group === "Bills Receivables Of Multichannel Slipway") {
+                    } else if ($standard_group === "Bills Receivables Of Multichannel Slipway") {
                         $bills_Receivables_Of_Multichannel[] = $entry;
-                    } else if($standard_group === "Bills Receivables Of Multichannel Slipway Dockyard") {
+                    } else if ($standard_group === "Bills Receivables Of Multichannel Slipway Dockyard") {
                         $bills_Receivables_Of_Multichannel[] = $entry;
-                    } else if($standard_group === "Bills Receivables Of T-head Jetty") {
+                    } else if ($standard_group === "Bills Receivables Of T-head Jetty") {
                         $bills_Receivables_Of_T_head_Jetty[] = $entry;
-                    } else if($standard_group === "Bills Receivables Of Water") {
+                    } else if ($standard_group === "Bills Receivables Of Water") {
                         $bills_Receivables_Of_Water[] = $entry;
-                    } else if($standard_group === "Bills Receivables Of Water T-head Jetty") {
+                    } else if ($standard_group === "Bills Receivables Of Water T-head Jetty") {
                         $bills_Receivables_Of_Water_T_head_Jetty[] = $entry;
-                    } else if($standard_group === "Bills Receivables Of Electric") {
+                    } else if ($standard_group === "Bills Receivables Of Electric") {
                         $bills_Receivables_Of_Electric[] = $entry;
-                    } else if($standard_group === "Bills Receivables Of Workshop") {
+                    } else if ($standard_group === "Bills Receivables Of Workshop") {
                         $bills_Receivables_Of_Marine_Workshop[] = $entry;
-                    } else if($standard_group === "Bills Receivables Of Marine Workshop") {
+                    } else if ($standard_group === "Bills Receivables Of Marine Workshop") {
                         $bills_Receivables_Of_Marine_Workshop[] = $entry;
                     } else {
                         $other_Bills_Receivables[] = $entry;
                     }
                 }
                 // dd($bills_Receivables_Of_Processing, $bills_Receivables_Of_Rent_and_Lease, $bills_Receivables_Of_Land_and_Lease, $bills_Receivables_Of_Multichannel, $bills_Receivables_Of_Multichannel_Slipway, $bills_Receivables_Of_Multichannel_Slipway_Dockyard, $bills_Receivables_Of_T_head_Jetty, $bills_Receivables_Of_Water, $bills_Receivables_Of_Water_T_head_Jetty, $bills_Receivables_Of_Electric, $bills_Receivables_Of_Workshop, $bills_Receivables_Of_Marine_Workshop, $other_Bills_Receivables);
-                
+
                 // Sort array by standardized group names
                 usort($allResults, function ($a, $b) {
                     return strcmp($a["group"], $b["group"]);
@@ -3124,7 +3133,8 @@ class CoreAccountingController extends Controller
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
-    function standardize_group_name($name) {
+    function standardize_group_name($name)
+    {
         $name = strtolower($name);
         $group_names = [
             "Bill receivable of Processing" => "Bills Receivables Of Processing",
@@ -3176,7 +3186,7 @@ class CoreAccountingController extends Controller
             "Bill receivable of Marine Workshop" => "Bills Receivables Of Marine Workshop",
             "Bills Receivable Of Marine Workshop" => "Bills Receivables Of Marine Workshop"
         ];
-    
+
         foreach ($group_names as $key => $standard) {
             if (strpos($name, strtolower($key)) !== false) {
                 return $standard;
@@ -3187,7 +3197,7 @@ class CoreAccountingController extends Controller
     }
     public function partyLedgerView(Request $request)
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             if ($request->isMethod('post')) {
                 $parties = party::all();
                 $name = $request->name1;
@@ -3247,9 +3257,9 @@ class CoreAccountingController extends Controller
                     $dailyOpeningBalanceArray = (array) $dailyOpeningBalance;
                     $allOpeningBalance = json_decode($dailyOpeningBalanceArray['party']);
                     // dd($dailyOpeningBalanceData, $allOpeningBalance);
-                    foreach($allOpeningBalance as $balance) {
-                        if($balance->name === $selectedAccountName) {
-                            $openingBalance+= $balance->amount;
+                    foreach ($allOpeningBalance as $balance) {
+                        if ($balance->name === $selectedAccountName) {
+                            $openingBalance += $balance->amount;
                         }
                     }
                 }
@@ -3266,23 +3276,24 @@ class CoreAccountingController extends Controller
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
-    function getPartyOpeningBalanceData($startDate, $endDate) {
+    function getPartyOpeningBalanceData($startDate, $endDate)
+    {
         // Convert the start and end date strings to DateTime objects
         $startDateObj = new DateTime($startDate);
         $endDateObj = new DateTime($endDate);
-    
+
         // Calculate the start of the financial year (July 1st) for the start date year
         $yearStart = (new DateTime($startDateObj->format('Y') . '-07-01'));
-    
+
         // If the start date is not July 1st, adjust year start to previous July 1st
         if ($startDateObj < $yearStart) {
             $yearStart->modify('-1 year');
         }
-    
+
         // Prepare the previous year’s start and end dates for `daily_opening_balance`
         $previousYearStart = (clone $yearStart)->modify('-1 year');
         $previousYearEnd = (clone $yearStart)->modify('-1 day');  // One day before the current year start
-    
+
         // Check if the start date is exactly July 1st of any year
         if ($startDateObj == $yearStart) {
             // Fetch data from `yearly_opening_balance` table for the entire date range
@@ -3298,22 +3309,23 @@ class CoreAccountingController extends Controller
                 ->where('party', '!=', '[]')
                 ->select('party')
                 ->get();
-    
+
             // Fetch all yearly data up to the end of the previous year from `yearly_opening_balance`
             $yearlyData = DB::table('yearly_opening_balance')
                 ->whereBetween('date', [$previousYearStart->format('Y-m-d'), $previousYearEnd->format('Y-m-d')])
                 ->where('party', '!=', '[]')
                 ->select('party')
                 ->get();
-    
+
             // Merge the results
             $data = $dailyData->merge($yearlyData);
         }
-    
+
         return $data;
     }
 
-    public function ledgerDataManupulation($ledgerData, $name1, $selectedAccountName){
+    public function ledgerDataManupulation($ledgerData, $name1, $selectedAccountName)
+    {
         $filteredData = [];
         foreach ($ledgerData as $key => $item) {
             $numbers = [];
@@ -3329,7 +3341,7 @@ class CoreAccountingController extends Controller
                 }
                 // dd($numbers);
                 if ($numbers) {
-                    if($name1 != "") {
+                    if ($name1 != "") {
                         $r_data_table = DB::table('collection_entry')
                             ->whereIn('id', $numbers)
                             ->select('id', 'dr_amount', 'cr_amount', 'collection_date')
@@ -3342,13 +3354,13 @@ class CoreAccountingController extends Controller
                             ->get();
                         // dd($name1);
                     }
-                    
+
                     // dd($r_data_table);
                     $filtered_r_Data = $r_data_table->map(function ($item) use ($selectedAccountName, $item_voucher_no) {
                         // Decode the JSON strings in dr_amount and cr_amount columns
                         $drAmount = json_decode($item->dr_amount);
                         $crAmount = json_decode($item->cr_amount);
-                        
+
                         // Check if any name in $selectedAccountName exists in $drAmount
                         $dr_hasMatch = false;
                         // dd($drAmount);
@@ -3370,7 +3382,7 @@ class CoreAccountingController extends Controller
                         }
                         // $crAmount = $this->filterByName($crAmount, $selectedAccountName);
                         $cr_hasMatch = false;
-                        
+
                         foreach ($crAmount as $item1) {
                             if (in_array(strtolower($item1->name), array_map('strtolower', $selectedAccountName))) {
                                 // dd($item1);
@@ -3394,7 +3406,7 @@ class CoreAccountingController extends Controller
                         // if($item->id == "25") {
                         //     dd($crAmount);
                         // }
-                        
+
                         // dd($drAmount);
                         // Convert dr_amount and cr_amount to collections
                         $drAmountCollection = collect($drAmount);
@@ -3417,11 +3429,11 @@ class CoreAccountingController extends Controller
                         if (is_object($item) && property_exists($item, 'voucher_no')) {
                             return $item->voucher_no !== $item_voucher_no;
                         }
-                        
+
                         // If $item is not an object or does not have a 'voucher_no' property, keep it
                         return true;
                     });
-        
+
                     // Add the items from $filtered_r_Data to $ledgerData
                     $ledgerData = $filteredCollection->concat($filtered_r_Data->all());
 
@@ -3429,7 +3441,7 @@ class CoreAccountingController extends Controller
                         if (is_array($element)) {
                             // Convert the array to an object
                             $object = (object) $element;
-                            
+
                             // Replace the old array with the new object
                             $ledgerData[$key] = $object;
                         }
@@ -3443,7 +3455,7 @@ class CoreAccountingController extends Controller
                 preg_match_all('/memo-(\d+)/', $item->description, $matches);
                 $numbers = array_merge($numbers, $matches[1]);
                 if ($numbers) {
-                    if($name1 != "") {
+                    if ($name1 != "") {
                         $r_data_table = DB::table('collection_entry')
                             ->whereIn('id', $numbers)
                             ->select('id', 'dr_amount', 'cr_amount', 'collection_date')
@@ -3455,12 +3467,12 @@ class CoreAccountingController extends Controller
                             ->select('id', 'dr_amount', 'cr_amount', 'collection_date')
                             ->get();
                     }
-                        // $selectedAccountName = ["Bills Receivable of Marine Workshop", "Bills Receivable of Multichannel Slipway", "Bills Receivable of T-Head Jetty", "Bills Receivable of Processing", "Bills Receivable of Rent Lease", "Bills Receivable of Electricity", "Bills Receivable of Water", "Bills Receivable of Water (T-Head Jetty)"];
+                    // $selectedAccountName = ["Bills Receivable of Marine Workshop", "Bills Receivable of Multichannel Slipway", "Bills Receivable of T-Head Jetty", "Bills Receivable of Processing", "Bills Receivable of Rent Lease", "Bills Receivable of Electricity", "Bills Receivable of Water", "Bills Receivable of Water (T-Head Jetty)"];
                     $filtered_r_Data = $r_data_table->map(function ($item) use ($selectedAccountName, $item_voucher_no) {
                         // Decode the JSON strings in dr_amount and cr_amount columns
                         $drAmount = json_decode($item->dr_amount);
                         $crAmount = json_decode($item->cr_amount);
-        
+
                         // Check if the search keyword exists in either dr_amount or cr_amount
                         // $drAmount = $this->filterByName($drAmount, $selectedAccountName);
                         // Check if any name in $selectedAccountName exists in $drAmount
@@ -3501,7 +3513,7 @@ class CoreAccountingController extends Controller
                             // If there's no match, set $drAmount to an empty array
                             $crAmount = [];
                         }
-        
+
                         // Convert dr_amount and cr_amount to collections
                         $drAmountCollection = collect($drAmount);
                         $crAmountCollection = collect($crAmount);
@@ -3519,11 +3531,11 @@ class CoreAccountingController extends Controller
                         if (is_object($item) && property_exists($item, 'voucher_no')) {
                             return $item->voucher_no !== $item_voucher_no;
                         }
-                        
+
                         // If $item is not an object or does not have a 'voucher_no' property, keep it
                         return true;
                     });
-        
+
                     // Add the items from $filtered_r_Data to $ledgerData
                     $ledgerData = $filteredCollection->concat($filtered_r_Data->all());
 
@@ -3531,7 +3543,7 @@ class CoreAccountingController extends Controller
                         if (is_array($element)) {
                             // Convert the array to an object
                             $object = (object) $element;
-                            
+
                             // Replace the old array with the new object
                             $ledgerData[$key] = $object;
                         }
@@ -3544,7 +3556,7 @@ class CoreAccountingController extends Controller
                     ->where('voucher_no', $item->voucher_no)
                     ->select('voucher_no', 'dr_amount', 'cr_amount', 'description', 'voucher_date')
                     ->get();
-                
+
 
                 // dd($a_data_table);
                 $item_voucher_no = $item->voucher_no;
@@ -3574,7 +3586,7 @@ class CoreAccountingController extends Controller
                         // If there's no match, set $drAmount to an empty array
                         $drAmount = [];
                     }
-                    
+
                     $cr_hasMatch = false;
 
                     foreach ($crAmount as $item1) {
@@ -3593,7 +3605,7 @@ class CoreAccountingController extends Controller
                         // If there's no match, set $drAmount to an empty array
                         $crAmount = [];
                     }
-    
+
                     // Convert dr_amount and cr_amount to collections
                     $drAmountCollection = json_decode(collect($drAmount));
                     $crAmountCollection = json_decode(collect($crAmount));
@@ -3612,11 +3624,11 @@ class CoreAccountingController extends Controller
                     if (is_object($item) && property_exists($item, 'voucher_no')) {
                         return $item->voucher_no !== $item_voucher_no;
                     }
-                    
+
                     // If $item is not an object or does not have a 'voucher_no' property, keep it
                     return true;
                 });
-    
+
                 // Add the items from $filtered_r_Data to $ledgerData
                 $ledgerData = $filteredCollection->concat($filtered_r_Data->all());
 
@@ -3624,7 +3636,7 @@ class CoreAccountingController extends Controller
                     if (is_array($element)) {
                         // Convert the array to an object
                         $object = (object) $element;
-                        
+
                         // Replace the old array with the new object
                         $ledgerData[$key] = $object;
                     }
@@ -3636,59 +3648,59 @@ class CoreAccountingController extends Controller
 
                 // $selectedAccountName = ["Bills Receivable of Marine Workshop", "Bills Receivable of Multichannel Slipway", "Bills Receivable of T-Head Jetty", "Bills Receivable of Processing", "Bills Receivable of Rent Lease", "Bills Receivable of Electricity", "Bills Receivable of Water", "Bills Receivable of Water (T-Head Jetty)"];
 
-                    // Decode the JSON strings in dr_amount and cr_amount columns
-                    $drAmount = json_decode($item->dr_amount);
-                    $crAmount = json_decode($item->cr_amount);
-                    
-                    // Check if any name in $selectedAccountName exists in $drAmount
-                    $dr_hasMatch = false;
+                // Decode the JSON strings in dr_amount and cr_amount columns
+                $drAmount = json_decode($item->dr_amount);
+                $crAmount = json_decode($item->cr_amount);
 
-                    foreach ($drAmount as $item1) {
-                        if (in_array(strtolower($item1->name), array_map('strtolower', $selectedAccountName))) {
-                            $dr_hasMatch = true;
-                            break;
-                        }
-                    }
+                // Check if any name in $selectedAccountName exists in $drAmount
+                $dr_hasMatch = false;
 
-                    if ($dr_hasMatch) {
-                        // Filter $drAmount based on $selectedAccountName
-                        $drAmount = array_filter($drAmount, function ($item1) use ($selectedAccountName) {
-                            return in_array($item1->name, $selectedAccountName);
-                        });
-                    } else {
-                        // If there's no match, set $drAmount to an empty array
-                        $drAmount = [];
+                foreach ($drAmount as $item1) {
+                    if (in_array(strtolower($item1->name), array_map('strtolower', $selectedAccountName))) {
+                        $dr_hasMatch = true;
+                        break;
                     }
-                    // $crAmount = $this->filterByName($crAmount, $selectedAccountName);
-                    $cr_hasMatch = false;
+                }
 
-                    foreach ($crAmount as $item1) {
-                        if (in_array(strtolower($item1->name), array_map('strtolower', $selectedAccountName))) {
-                            $cr_hasMatch = true;
-                            break;
-                        }
-                    }
+                if ($dr_hasMatch) {
+                    // Filter $drAmount based on $selectedAccountName
+                    $drAmount = array_filter($drAmount, function ($item1) use ($selectedAccountName) {
+                        return in_array($item1->name, $selectedAccountName);
+                    });
+                } else {
+                    // If there's no match, set $drAmount to an empty array
+                    $drAmount = [];
+                }
+                // $crAmount = $this->filterByName($crAmount, $selectedAccountName);
+                $cr_hasMatch = false;
 
-                    if ($cr_hasMatch) {
-                        // Filter $drAmount based on $selectedAccountName
-                        $crAmount = array_filter($crAmount, function ($item) use ($selectedAccountName) {
-                            return in_array($item->name, $selectedAccountName);
-                        });
-                    } else {
-                        // If there's no match, set $drAmount to an empty array
-                        $crAmount = [];
+                foreach ($crAmount as $item1) {
+                    if (in_array(strtolower($item1->name), array_map('strtolower', $selectedAccountName))) {
+                        $cr_hasMatch = true;
+                        break;
                     }
-                    
-                    // Convert dr_amount and cr_amount to collections
-                    $drAmountCollection = collect($drAmount);
-                    $crAmountCollection = collect($crAmount);
-                    $filtered_r_Data[] = [
-                        'voucher_no' => $item_voucher_no,
-                        'description' => $item->description,
-                        'dr_amount' => $drAmountCollection,
-                        'cr_amount' => $crAmountCollection,
-                        'voucher_date' => $item->voucher_date,
-                    ];
+                }
+
+                if ($cr_hasMatch) {
+                    // Filter $drAmount based on $selectedAccountName
+                    $crAmount = array_filter($crAmount, function ($item) use ($selectedAccountName) {
+                        return in_array($item->name, $selectedAccountName);
+                    });
+                } else {
+                    // If there's no match, set $drAmount to an empty array
+                    $crAmount = [];
+                }
+
+                // Convert dr_amount and cr_amount to collections
+                $drAmountCollection = collect($drAmount);
+                $crAmountCollection = collect($crAmount);
+                $filtered_r_Data[] = [
+                    'voucher_no' => $item_voucher_no,
+                    'description' => $item->description,
+                    'dr_amount' => $drAmountCollection,
+                    'cr_amount' => $crAmountCollection,
+                    'voucher_date' => $item->voucher_date,
+                ];
                 // dd($filtered_r_Data);
 
                 $filteredCollection = $ledgerData->filter(function ($item) use ($item_voucher_no) {
@@ -3696,13 +3708,13 @@ class CoreAccountingController extends Controller
                     if (is_object($item) && property_exists($item, 'voucher_no')) {
                         return $item->voucher_no !== $item_voucher_no;
                     }
-                    
+
                     // If $item is not an object or does not have a 'voucher_no' property, keep it
                     return true;
                 });
 
                 // dd($filteredCollection);
-    
+
                 // Add the items from $filtered_r_Data to $ledgerData
                 $ledgerData = $filteredCollection->concat($filtered_r_Data);
 
@@ -3710,7 +3722,7 @@ class CoreAccountingController extends Controller
                     if (is_array($element)) {
                         // Convert the array to an object
                         $object = (object) $element;
-                        
+
                         // Replace the old array with the new object
                         $ledgerData[$key] = $object;
                     }
@@ -3718,64 +3730,64 @@ class CoreAccountingController extends Controller
                 $filteredData = $ledgerData;
                 // dd($ledgerData);
             } else if (strpos($item->voucher_no, 'r_') !== false) {
-                if(strpos($item->description, 'Multiple vouchers added:') !== true) {
-                    if(strpos($item->description, 'Voucher ID: ') !== true) {
+                if (strpos($item->description, 'Multiple vouchers added:') !== true) {
+                    if (strpos($item->description, 'Voucher ID: ') !== true) {
                         $item_voucher_no = $item->voucher_no;
                         // $selectedAccountName = ["Bills Receivable of Marine Workshop", "Bills Receivable of Multichannel Slipway", "Bills Receivable of T-Head Jetty", "Bills Receivable of Processing", "Bills Receivable of Rent Lease", "Bills Receivable of Electricity", "Bills Receivable of Water", "Bills Receivable of Water (T-Head Jetty)"];
 
-                            // Decode the JSON strings in dr_amount and cr_amount columns
-                            $drAmount = json_decode($item->dr_amount);
-                            $crAmount = json_decode($item->cr_amount);
-                            
-                            // Check if any name in $selectedAccountName exists in $drAmount
-                            $dr_hasMatch = false;
+                        // Decode the JSON strings in dr_amount and cr_amount columns
+                        $drAmount = json_decode($item->dr_amount);
+                        $crAmount = json_decode($item->cr_amount);
 
-                            foreach ($drAmount as $item1) {
-                                if (in_array(strtolower($item1->name), array_map('strtolower', $selectedAccountName))) {
-                                    $dr_hasMatch = true;
-                                    break;
-                                }
-                            }
+                        // Check if any name in $selectedAccountName exists in $drAmount
+                        $dr_hasMatch = false;
 
-                            if ($dr_hasMatch) {
-                                // Filter $drAmount based on $selectedAccountName
-                                $drAmount = array_filter($drAmount, function ($item1) use ($selectedAccountName) {
-                                    return in_array($item1->name, $selectedAccountName);
-                                });
-                            } else {
-                                // If there's no match, set $drAmount to an empty array
-                                $drAmount = [];
+                        foreach ($drAmount as $item1) {
+                            if (in_array(strtolower($item1->name), array_map('strtolower', $selectedAccountName))) {
+                                $dr_hasMatch = true;
+                                break;
                             }
-                            // $crAmount = $this->filterByName($crAmount, $selectedAccountName);
-                            $cr_hasMatch = false;
+                        }
 
-                            foreach ($crAmount as $item1) {
-                                if (in_array(strtolower($item1->name), array_map('strtolower', $selectedAccountName))) {
-                                    $cr_hasMatch = true;
-                                    break;
-                                }
-                            }
+                        if ($dr_hasMatch) {
+                            // Filter $drAmount based on $selectedAccountName
+                            $drAmount = array_filter($drAmount, function ($item1) use ($selectedAccountName) {
+                                return in_array($item1->name, $selectedAccountName);
+                            });
+                        } else {
+                            // If there's no match, set $drAmount to an empty array
+                            $drAmount = [];
+                        }
+                        // $crAmount = $this->filterByName($crAmount, $selectedAccountName);
+                        $cr_hasMatch = false;
 
-                            if ($cr_hasMatch) {
-                                // Filter $drAmount based on $selectedAccountName
-                                $crAmount = array_filter($crAmount, function ($item) use ($selectedAccountName) {
-                                    return in_array($item->name, $selectedAccountName);
-                                });
-                            } else {
-                                // If there's no match, set $drAmount to an empty array
-                                $crAmount = [];
+                        foreach ($crAmount as $item1) {
+                            if (in_array(strtolower($item1->name), array_map('strtolower', $selectedAccountName))) {
+                                $cr_hasMatch = true;
+                                break;
                             }
-                            
-                            // Convert dr_amount and cr_amount to collections
-                            $drAmountCollection = collect($drAmount);
-                            $crAmountCollection = collect($crAmount);
-                            $filtered_r_Data[] = [
-                                'voucher_no' => $item_voucher_no,
-                                'description' => $item->description,
-                                'dr_amount' => $drAmountCollection,
-                                'cr_amount' => $crAmountCollection,
-                                'voucher_date' => $item->voucher_date,
-                            ];
+                        }
+
+                        if ($cr_hasMatch) {
+                            // Filter $drAmount based on $selectedAccountName
+                            $crAmount = array_filter($crAmount, function ($item) use ($selectedAccountName) {
+                                return in_array($item->name, $selectedAccountName);
+                            });
+                        } else {
+                            // If there's no match, set $drAmount to an empty array
+                            $crAmount = [];
+                        }
+
+                        // Convert dr_amount and cr_amount to collections
+                        $drAmountCollection = collect($drAmount);
+                        $crAmountCollection = collect($crAmount);
+                        $filtered_r_Data[] = [
+                            'voucher_no' => $item_voucher_no,
+                            'description' => $item->description,
+                            'dr_amount' => $drAmountCollection,
+                            'cr_amount' => $crAmountCollection,
+                            'voucher_date' => $item->voucher_date,
+                        ];
                         // dd($filtered_r_Data);
 
                         $filteredCollection = $ledgerData->filter(function ($item) use ($item_voucher_no) {
@@ -3783,11 +3795,11 @@ class CoreAccountingController extends Controller
                             if (is_object($item) && property_exists($item, 'voucher_no')) {
                                 return $item->voucher_no !== $item_voucher_no;
                             }
-                            
+
                             // If $item is not an object or does not have a 'voucher_no' property, keep it
                             return true;
                         });
-            
+
                         // Add the items from $filtered_r_Data to $ledgerData
                         $ledgerData = $filteredCollection->concat($filtered_r_Data);
 
@@ -3795,7 +3807,7 @@ class CoreAccountingController extends Controller
                             if (is_array($element)) {
                                 // Convert the array to an object
                                 $object = (object) $element;
-                                
+
                                 // Replace the old array with the new object
                                 $ledgerData[$key] = $object;
                             }
@@ -3841,87 +3853,88 @@ class CoreAccountingController extends Controller
         // dd($dataArray);
         $dataCollection = collect($dataArray);
         // dd($dataCollection);
-        
+
         $sortedLedgerData = $dataCollection->sortBy('voucher_date')->values()->all();
         // dd($sortedLedgerData);
         return $sortedLedgerData;
     }
 
-    public function transformElement($element) {
+    public function transformElement($element)
+    {
         // Remove "id" and "status"
         unset($element["id"], $element["status"]);
-        
+
         // Rename "collection_date" to "voucher_date"
         $element["voucher_date"] = $element["collection_date"];
         unset($element["collection_date"]);
-        
+
         // Rename "customer_name" to "party"
         $element["party"] = $element["customer_name"];
         unset($element["customer_name"]);
-        
+
         return $element;
     }
 
     public function controlACSummaryView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('super_admin.core_accounting.account_reports.control_ac_summary');
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
     public function controlACBalanceView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('super_admin.core_accounting.account_reports.control_ac_balance');
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
     public function bankReconciliationStatementView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('super_admin.core_accounting.account_reports.bank_reconciliation_statement');
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
     public function ugcMonthlyStatementView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('super_admin.core_accounting.account_reports.ugc_monthly_statement');
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
     public function cancelledVoucherView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('super_admin.core_accounting.account_reports.cancelled_voucher');
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
     public function voucherByDateView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('super_admin.core_accounting.account_reports.voucher_by_date');
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
     public function advanceRegisterView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('super_admin.core_accounting.account_reports.advance_register');
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
@@ -3931,7 +3944,7 @@ class CoreAccountingController extends Controller
         if (Auth::check()) {
             $startDate = $request->input('start_date');
             $endDate = $request->input('end_date');
-    
+
             if ($request->isMethod('post')) {
                 // Retrieve form input values
                 $startDate = $request->input('start_date');
@@ -3940,9 +3953,9 @@ class CoreAccountingController extends Controller
                 $final_data = $this->profitLossCalculation($startDate, $endDate);
                 // dd($final_data);
                 return view('super_admin.core_accounting.account_reports.profit_loss_account', [
-                        'data' => $final_data,
-                        'startDate' => $startDate,
-                        'endtDate' => $endDate
+                    'data' => $final_data,
+                    'startDate' => $startDate,
+                    'endtDate' => $endDate
                 ]);
             } else {
                 return view('super_admin.core_accounting.account_reports.profit_loss_account', [
@@ -3952,13 +3965,14 @@ class CoreAccountingController extends Controller
                 ]);
             }
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
-    public function profitLossCalculation($startDate, $endDate) {
+    public function profitLossCalculation($startDate, $endDate)
+    {
         $sub_ac = ['Others Income', 'Non-operating Expenses', 'Administrative Expenditure'];
-        $sub_ac_trading = ['Sales and Services', 'Services', 'Operational Expenditure'];  
+        $sub_ac_trading = ['Sales and Services', 'Services', 'Operational Expenditure'];
 
         $final_data = $this->tradingAccountCalculation($startDate, $endDate, $sub_ac);
         $final_trading_data = $this->tradingAccountCalculation($startDate, $endDate, $sub_ac_trading);
@@ -3966,7 +3980,7 @@ class CoreAccountingController extends Controller
         foreach ($final_trading_data as $key => $value) {
             $final_trading_amount = $final_trading_amount + $value->amount;
         }
-        
+
         $tradingProfit = (object)[
             'account_group' => 'Income',
             'subsidiary_account_name' => 'Others Income',
@@ -3975,7 +3989,7 @@ class CoreAccountingController extends Controller
         ];
 
         $consolidatedData = array_merge([$tradingProfit], $final_data);
-        
+
         return $consolidatedData;
     }
 
@@ -3984,7 +3998,7 @@ class CoreAccountingController extends Controller
         if (Auth::check()) {
             $startDate = $request->input('start_date');
             $endDate = $request->input('end_date');
-    
+
             if ($request->isMethod('post')) {
                 // Retrieve form input values
                 $startDate = $request->input('start_date');
@@ -3995,9 +4009,9 @@ class CoreAccountingController extends Controller
                 $final_data = $this->tradingAccountCalculation($startDate, $endDate, $sub_ac);
                 // dd($final_data);
                 return view('super_admin.core_accounting.account_reports.tranding_account', [
-                        'data' => $final_data,
-                        'startDate' => $startDate,
-                        'endtDate' => $endDate
+                    'data' => $final_data,
+                    'startDate' => $startDate,
+                    'endtDate' => $endDate
                 ]);
             } else {
                 return view('super_admin.core_accounting.account_reports.tranding_account', [
@@ -4007,11 +4021,12 @@ class CoreAccountingController extends Controller
                 ]);
             }
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
-    public function tradingAccountCalculation($startDate, $endDate, $sub_ac) {
+    public function tradingAccountCalculation($startDate, $endDate, $sub_ac)
+    {
         $all_contol_names = control_ac::distinct()
             ->select('accounts_group', 'subsidiary_account_name', 'account_name')
             ->whereIn('subsidiary_account_name', $sub_ac)
@@ -4026,11 +4041,11 @@ class CoreAccountingController extends Controller
             ->get();
 
         $acHeadNames = DB::table('ac_head')
-                ->select('ac_head.ac_head_name_eng', 'control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name')
-                ->join('control_ac', 'ac_head.control_ac_id', '=', 'control_ac.account_id')
-                ->whereIn('control_ac.subsidiary_account_name', $sub_ac)
-                ->get()
-                ->toArray();
+            ->select('ac_head.ac_head_name_eng', 'control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name')
+            ->join('control_ac', 'ac_head.control_ac_id', '=', 'control_ac.account_id')
+            ->whereIn('control_ac.subsidiary_account_name', $sub_ac)
+            ->get()
+            ->toArray();
 
         $filteredLedgerData = $this->tredingAccountCalculation($ledgerData, $all_contol_names, $acHeadNames);
         // dd($filteredLedgerData, $acHeadNames);
@@ -4038,21 +4053,22 @@ class CoreAccountingController extends Controller
         return $filteredLedgerData;
     }
 
-    public function tredingAccountCalculation($ledgerData, $contol_name, $acHeadNames) {
+    public function tredingAccountCalculation($ledgerData, $contol_name, $acHeadNames)
+    {
         $dailyData = [];
         foreach ($ledgerData as $data) {
             $decodedData = json_decode($data->ac_head, true);
-            $dailyData[] = $decodedData; 
+            $dailyData[] = $decodedData;
             // dd($decodedData);
             // $dailyData = array_merge($previous_data, $decodedData); 
         }
         $mergedArray = [];
-        foreach($dailyData as $currentArray) {
+        foreach ($dailyData as $currentArray) {
             // Iterate through each item in the current array
             foreach ($currentArray as $item) {
                 // Check if the item with similar criteria already exists in the merged array
                 $existingKey = array_search($item, $mergedArray);
-        
+
                 if ($existingKey !== false) {
                     // If exists, add the 'amount' values
                     $mergedArray[$existingKey]['amount'] += $item['amount'];
@@ -4070,7 +4086,7 @@ class CoreAccountingController extends Controller
 
         foreach ($yourArray as $item) {
             $key = $item['account_group'] . '-' . $item['subsidiary_account_name'] . '-' . $item['name'];
-        
+
             // If the key exists in the totals array, update the amount
             if (isset($totals[$key])) {
                 $totals[$key] += $item['amount'];
@@ -4079,11 +4095,11 @@ class CoreAccountingController extends Controller
                 $totals[$key] = $item['amount'];
             }
         }
-        
+
         // Create the new array using the totals
         foreach ($totals as $key => $amount) {
             list($account_group, $subsidiary_account_name, $name) = explode('-', $key);
-        
+
             $newArray[] = [
                 'account_group' => $account_group,
                 'subsidiary_account_name' => $subsidiary_account_name,
@@ -4091,7 +4107,7 @@ class CoreAccountingController extends Controller
                 'amount' => $amount,
             ];
         }
-        
+
         // Sort the new array based on account_group and subsidiary_account_name
         usort($newArray, function ($a, $b) {
             if ($a['account_group'] == $b['account_group']) {
@@ -4101,9 +4117,9 @@ class CoreAccountingController extends Controller
         });
 
         $mergedData = [];
-        foreach($newArray as $individualNewArray) {
-            foreach($contol_name as $individualControlName) {
-                if($individualControlName['account_name'] === $individualNewArray['control_account']) {
+        foreach ($newArray as $individualNewArray) {
+            foreach ($contol_name as $individualControlName) {
+                if ($individualControlName['account_name'] === $individualNewArray['control_account']) {
                     // dd($individualControlName['account_name'], $individualNewArray['name']);
                     // $mergedData[] = $individualNewArray;
                     $mergedData[] = (object) [
@@ -4114,7 +4130,6 @@ class CoreAccountingController extends Controller
                     ];
                 }
             }
-            
         }
         // dd($mergedData);
         return $mergedData;
@@ -4122,7 +4137,7 @@ class CoreAccountingController extends Controller
 
     public function balanceSheetView(Request $request)
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             if ($request->isMethod('post')) {
                 $startDate = $request->input('start_date');
                 $endDate = $request->input('end_date');
@@ -4160,7 +4175,7 @@ class CoreAccountingController extends Controller
                     ],
                 ];
                 // dd($profit_loss_data, $profit_loss_formattedData);
-        
+
                 $records = ($request->isMethod('post'))
                     ? voucher_entry::whereBetween('voucher_date', [$startDate, $endDate])->get()
                     : voucher_entry::all();
@@ -4169,36 +4184,36 @@ class CoreAccountingController extends Controller
                 $combine_data = DB::table('control_ac')
                     ->join('ac_head', 'control_ac.account_id', '=', 'ac_head.control_ac_id')
                     ->select('control_ac.accounts_group', 'control_ac.subsidiary_account_name', 'control_ac.account_name', 'ac_head.ac_head_name_eng')
-                    ->whereIn('control_ac.subsidiary_account_name', ['Current Assets', 'Other Investments', 'Capital & Liabilities','Grant in Aid', 'Current Libilities', 'Provision For Adjustment'])
+                    ->whereIn('control_ac.subsidiary_account_name', ['Current Assets', 'Other Investments', 'Capital & Liabilities', 'Grant in Aid', 'Current Libilities', 'Provision For Adjustment'])
                     ->get();
 
-                $sub_ac = ['Current Assets', 'Other Investments', 'Capital & Liabilities','Grant in Aid', 'Current Libilities', 'Provision For Adjustment'];
+                $sub_ac = ['Current Assets', 'Other Investments', 'Capital & Liabilities', 'Grant in Aid', 'Current Libilities', 'Provision For Adjustment'];
 
                 $final_main_data = $this->tradingAccountCalculation($startDate, $endDate, $sub_ac);
 
                 $fixed_assets_data = DB::table('daily_data')
-                        ->whereBetween('voucher_date', [$startDate, $endDate])
-                        ->whereNotNull('control_ac')
-                        ->select('control_ac')
-                        ->get();
+                    ->whereBetween('voucher_date', [$startDate, $endDate])
+                    ->whereNotNull('control_ac')
+                    ->select('control_ac')
+                    ->get();
                 $final_fixed_assets_data = [];
                 $final_fixed_assets_dr = 0;
                 $final_fixed_assets_cr = 0;
-                foreach($fixed_assets_data as $dada) {
-                    if($dada->control_ac != null) {
+                foreach ($fixed_assets_data as $dada) {
+                    if ($dada->control_ac != null) {
                         $final_fixed_assets = json_decode($dada->control_ac);
 
                         // dd("Done");
                     }
                 }
                 // dd($fixed_assets_data);
-        
+
                 $drAmountSum = [];
                 $crAmountSum = [];
                 $totalDrAmount = 0;
                 $totalCrAmount = 0;
                 $result = [];
-        
+
                 foreach ($records as $record) {
                     $drAmount = json_decode($record->dr_amount, true);
                     $crAmount = json_decode($record->cr_amount, true);
@@ -4206,26 +4221,26 @@ class CoreAccountingController extends Controller
                     foreach ($drAmount as $item) {
                         $name = $item['name'];
                         $amount = intval($item['amount']);
-        
+
                         if (isset($drAmountSum[$name])) {
                             $drAmountSum[$name] += $amount;
                         } else {
                             $drAmountSum[$name] = $amount;
                         }
-        
+
                         $totalDrAmount += $amount;
                     }
-        
+
                     foreach ($crAmount as $item) {
                         $name = $item['name'];
                         $amount = intval($item['amount']);
-        
+
                         if (isset($crAmountSum[$name])) {
                             $crAmountSum[$name] += $amount;
                         } else {
                             $crAmountSum[$name] = $amount;
                         }
-        
+
                         $totalCrAmount += $amount;
                     }
                 }
@@ -4234,7 +4249,7 @@ class CoreAccountingController extends Controller
                     $crAmount = isset($crAmountSum[$name]) ? $crAmountSum[$name] : 0;
                     $result[] = ['name' => $name, 'drAmount' => $drAmount, 'crAmount' => $crAmount];
                 }
-                
+
                 // Add the remaining crAmount entries that do not have a corresponding drAmount entry
                 foreach ($crAmountSum as $name => $crAmount) {
                     if (!isset($drAmountSum[$name])) {
@@ -4264,17 +4279,16 @@ class CoreAccountingController extends Controller
                 $totalCrAmount2 = 0;
                 $idextcount = 0;
                 foreach ($fixed_assets_data as $item2) {
-                    if($item2->control_ac === null) {
+                    if ($item2->control_ac === null) {
                         break;
                     } else if ($item2->control_ac === 0) {
                         break;
-                    }
-                    else {
+                    } else {
                         $item3 = json_decode($item2->control_ac);
                         // if($idextcount > 0){
                         //     dd($item3);
                         // }
-                        
+
                         $totalDrAmount2 += $item3->dr_amount;
                         $totalCrAmount2 += $item3->cr_amount;
                         $idextcount++;
@@ -4288,12 +4302,12 @@ class CoreAccountingController extends Controller
                 ];
 
                 // dd($fixed_assets_output);
-                
+
                 $final_data = [];
-                
+
                 foreach ($combine_data as $item) {
                     $accountName = $item->account_name;
-                
+
                     if (isset($final_data[$accountName])) {
                         // dd($final_data[$accountName], $item->drAmount);
                         // If account_name already exists in final_data, add the values
@@ -4308,7 +4322,7 @@ class CoreAccountingController extends Controller
                         ];
                     }
                 }
-                
+
                 $combinedItems = array_values($final_data);
 
                 // dd($combinedItems);
@@ -4328,7 +4342,7 @@ class CoreAccountingController extends Controller
                     'endtDate' => $endDate
                 ]);
             } else {
-    
+
                 return view('super_admin.core_accounting.account_reports.balancesheet', [
                     'data' => '',
                     'fixed_assets_data' => '',
@@ -4338,25 +4352,25 @@ class CoreAccountingController extends Controller
                 ]);
             }
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
     public function advanceSummaryView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('super_admin.core_accounting.account_reports.advance_summary');
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 
     public function profitMarginView()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('super_admin.core_accounting.account_reports.profit_margin');
         }
-  
+
         return redirect("login")->withSuccess('You are not allowed to access');
     }
 }
