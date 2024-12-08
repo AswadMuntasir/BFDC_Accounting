@@ -1897,35 +1897,35 @@ class CoreAccountingController extends Controller
                 $startDateTime = new DateTime($startDate);
                 $endDateTime = new DateTime($endDate);
 
-                // // Iterate through each date in the range
-                // while ($startDateTime <= $endDateTime) {
-                //     $currentDate = $startDateTime->format('Y-m-d'); // Format the date as needed
+                // Iterate through each date in the range
+                while ($startDateTime <= $endDateTime) {
+                    $currentDate = $startDateTime->format('Y-m-d'); // Format the date as needed
 
-                //     // Fetch and process data for the current date
-                //     $trailBalanceSavedata = $this->trialBalanceSaveInDailyData($currentDate, $currentDate);
-                //     $trailBalanceSavedataJson = json_encode($trailBalanceSavedata["final_data"]);
-                //     $trailBalanceSaveControl_AC = $trailBalanceSavedata["fixedAssetDailyData"];
-                //     // dd();
-                //     // Create a new daily_data entry for the current date
-                //     $newDailyData = new daily_data;
-                //     $newDailyData->voucher_date = $currentDate;
-                //     $newDailyData->ac_head = $trailBalanceSavedataJson;
-                //     $newDailyData->control_ac = json_encode($trailBalanceSaveControl_AC[0]);
-                //     $newDailyData->save();
+                    // Fetch and process data for the current date
+                    $trailBalanceSavedata = $this->trialBalanceSaveInDailyData($currentDate, $currentDate);
+                    $trailBalanceSavedataJson = json_encode($trailBalanceSavedata["final_data"]);
+                    $trailBalanceSaveControl_AC = $trailBalanceSavedata["fixedAssetDailyData"];
+                    // dd();
+                    // Create a new daily_data entry for the current date
+                    $newDailyData = new daily_data;
+                    $newDailyData->voucher_date = $currentDate;
+                    $newDailyData->ac_head = $trailBalanceSavedataJson;
+                    $newDailyData->control_ac = json_encode($trailBalanceSaveControl_AC[0]);
+                    $newDailyData->save();
 
-                //     // Fetch voucher entries for the current date
-                //     $voucher_entries = DB::table('voucher_entry')
-                //         ->where('voucher_date', $currentDate)
-                //         ->whereIn('status', ['pending', 'Pending', 'Done'])
-                //         ->select('dr_amount', 'cr_amount', 'voucher_date')
-                //         ->orderBy('voucher_date')
-                //         ->get();
+                    // Fetch voucher entries for the current date
+                    $voucher_entries = DB::table('voucher_entry')
+                        ->where('voucher_date', $currentDate)
+                        ->whereIn('status', ['pending', 'Pending', 'Done'])
+                        ->select('dr_amount', 'cr_amount', 'voucher_date')
+                        ->orderBy('voucher_date')
+                        ->get();
 
-                //     // Process or store the fetched voucher entries as needed
+                    // Process or store the fetched voucher entries as needed
 
-                //     // Move to the next date
-                //     $startDateTime->modify('+1 day');
-                // }
+                    // Move to the next date
+                    $startDateTime->modify('+1 day');
+                }
 
                 // --------------- Trial Fix End ---------------- //
 
