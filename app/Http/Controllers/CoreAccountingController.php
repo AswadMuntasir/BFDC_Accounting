@@ -1898,39 +1898,20 @@ class CoreAccountingController extends Controller
                 $endDateTime = new DateTime($endDate);
 
                 // Iterate through each date in the range
-                while ($startDateTime <= $endDateTime) {
-                    $currentDate = $startDateTime->format('Y-m-d'); // Format the date as needed
-
-                    // Fetch and process data for the current date
-                    $trailBalanceSavedata = $this->trialBalanceSaveInDailyData($currentDate, $currentDate);
-                    $trailBalanceSavedataJson = json_encode($trailBalanceSavedata["final_data"]);
-                    $trailBalanceSaveControl_AC = $trailBalanceSavedata["fixedAssetDailyData"];
-                    // dd();
-                    // Create a new daily_data entry for the current date
-                    $newDailyData = new daily_data;
-                    $newDailyData->voucher_date = $currentDate;
-                    $newDailyData->ac_head = $trailBalanceSavedataJson;
-                    $newDailyData->control_ac = json_encode($trailBalanceSaveControl_AC[0]);
-                    $newDailyData->save();
-
-                    // Fetch voucher entries for the current date
-                    $voucher_entries = DB::table('voucher_entry')
-                        ->where('voucher_date', $currentDate)
-                        ->whereIn('status', ['pending', 'Pending', 'Done'])
-                        ->select('dr_amount', 'cr_amount', 'voucher_date')
-                        ->orderBy('voucher_date')
-                        ->get();
-
-                    // Process or store the fetched voucher entries as needed
-
-                    // Move to the next date
-                    $startDateTime->modify('+1 day');
-                }
-
-                // --------------- Trial Fix End ---------------- //
-
                 // while ($startDateTime <= $endDateTime) {
                 //     $currentDate = $startDateTime->format('Y-m-d'); // Format the date as needed
+
+                //     // Fetch and process data for the current date
+                //     $trailBalanceSavedata = $this->trialBalanceSaveInDailyData($currentDate, $currentDate);
+                //     $trailBalanceSavedataJson = json_encode($trailBalanceSavedata["final_data"]);
+                //     $trailBalanceSaveControl_AC = $trailBalanceSavedata["fixedAssetDailyData"];
+                //     // dd();
+                //     // Create a new daily_data entry for the current date
+                //     $newDailyData = new daily_data;
+                //     $newDailyData->voucher_date = $currentDate;
+                //     $newDailyData->ac_head = $trailBalanceSavedataJson;
+                //     $newDailyData->control_ac = json_encode($trailBalanceSaveControl_AC[0]);
+                //     $newDailyData->save();
 
                 //     // Fetch voucher entries for the current date
                 //     $voucher_entries = DB::table('voucher_entry')
@@ -1940,44 +1921,63 @@ class CoreAccountingController extends Controller
                 //         ->orderBy('voucher_date')
                 //         ->get();
 
-                //     $dr_cr_array = [];
-
-                //     foreach ($voucher_entries as $items) {
-                //         $array_items = (array) $items;
-                //         $item_dr_amount = $array_items["dr_amount"];
-                //         $dr_amount = json_decode($item_dr_amount);
-                //         $item_cr_amount = $array_items["cr_amount"];
-                //         $cr_amount = json_decode($item_cr_amount);
-
-                //         foreach ($dr_amount as $item) {
-                //             $array_item = (array) $item;
-                //             $dr_cr_array[] = [
-                //                 'name' => $array_item['name'],
-                //                 'amount' => floatval($array_item['amount']),
-                //             ];
-                //         }
-
-                //         foreach ($cr_amount as $item) {
-                //             $array_item = (array) $item;
-                //             $dr_cr_array[] = [
-                //                 'name' => $array_item['name'],
-                //                 'amount' => -floatval($array_item['amount']), // Make amounts negative
-                //             ];
-                //         }
-                //     }
-                //     $dailyOpeningData = $this->matchAndMerge($dr_cr_array, []);
-                //     $final_data_for_Daily_Opening_Data =  json_encode(array_values($dailyOpeningData));
-
-                //     // Move to the next date
-                //     $final_date = $startDateTime->modify('+1 day');
-
-                //     $openingDailyData = new DailyOpeningBalance;
-                //     $openingDailyData->date = $final_date;
-                //     $openingDailyData->ac_head = $final_data_for_Daily_Opening_Data;
-                //     $openingDailyData->save();
                 //     // Process or store the fetched voucher entries as needed
 
+                //     // Move to the next date
+                //     $startDateTime->modify('+1 day');
                 // }
+
+                // --------------- Trial Fix End ---------------- //
+
+                while ($startDateTime <= $endDateTime) {
+                    $currentDate = $startDateTime->format('Y-m-d'); // Format the date as needed
+
+                    // Fetch voucher entries for the current date
+                    $voucher_entries = DB::table('voucher_entry')
+                        ->where('voucher_date', $currentDate)
+                        ->whereIn('status', ['pending', 'Pending', 'Done'])
+                        ->select('dr_amount', 'cr_amount', 'voucher_date')
+                        ->orderBy('voucher_date')
+                        ->get();
+
+                    $dr_cr_array = [];
+
+                    foreach ($voucher_entries as $items) {
+                        $array_items = (array) $items;
+                        $item_dr_amount = $array_items["dr_amount"];
+                        $dr_amount = json_decode($item_dr_amount);
+                        $item_cr_amount = $array_items["cr_amount"];
+                        $cr_amount = json_decode($item_cr_amount);
+
+                        foreach ($dr_amount as $item) {
+                            $array_item = (array) $item;
+                            $dr_cr_array[] = [
+                                'name' => $array_item['name'],
+                                'amount' => floatval($array_item['amount']),
+                            ];
+                        }
+
+                        foreach ($cr_amount as $item) {
+                            $array_item = (array) $item;
+                            $dr_cr_array[] = [
+                                'name' => $array_item['name'],
+                                'amount' => -floatval($array_item['amount']), // Make amounts negative
+                            ];
+                        }
+                    }
+                    $dailyOpeningData = $this->matchAndMerge($dr_cr_array, []);
+                    $final_data_for_Daily_Opening_Data =  json_encode(array_values($dailyOpeningData));
+
+                    // Move to the next date
+                    $final_date = $startDateTime->modify('+1 day');
+
+                    $openingDailyData = new DailyOpeningBalance;
+                    $openingDailyData->date = $final_date;
+                    $openingDailyData->ac_head = $final_data_for_Daily_Opening_Data;
+                    $openingDailyData->save();
+                    // Process or store the fetched voucher entries as needed
+
+                }
 
                 //  -------------------- Daily Opening Banalnce End ----------------- //
 
