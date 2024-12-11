@@ -1898,34 +1898,34 @@ class CoreAccountingController extends Controller
                 $endDateTime = new DateTime($endDate);
 
                 // Iterate through each date in the range
-                // while ($startDateTime <= $endDateTime) {
-                //     $currentDate = $startDateTime->format('Y-m-d'); // Format the date as needed
+                while ($startDateTime <= $endDateTime) {
+                    $currentDate = $startDateTime->format('Y-m-d'); // Format the date as needed
 
-                //     // Fetch and process data for the current date
-                //     $trailBalanceSavedata = $this->trialBalanceSaveInDailyData($currentDate, $currentDate);
-                //     $trailBalanceSavedataJson = json_encode($trailBalanceSavedata["final_data"]);
-                //     $trailBalanceSaveControl_AC = $trailBalanceSavedata["fixedAssetDailyData"];
-                //     // dd();
-                //     // Create a new daily_data entry for the current date
-                //     $newDailyData = new daily_data;
-                //     $newDailyData->voucher_date = $currentDate;
-                //     $newDailyData->ac_head = $trailBalanceSavedataJson;
-                //     $newDailyData->control_ac = json_encode($trailBalanceSaveControl_AC[0]);
-                //     $newDailyData->save();
+                    // Fetch and process data for the current date
+                    $trailBalanceSavedata = $this->trialBalanceSaveInDailyData($currentDate, $currentDate);
+                    $trailBalanceSavedataJson = json_encode($trailBalanceSavedata["final_data"]);
+                    $trailBalanceSaveControl_AC = $trailBalanceSavedata["fixedAssetDailyData"];
+                    // dd();
+                    // Create a new daily_data entry for the current date
+                    $newDailyData = new daily_data;
+                    $newDailyData->voucher_date = $currentDate;
+                    $newDailyData->ac_head = $trailBalanceSavedataJson;
+                    $newDailyData->control_ac = json_encode($trailBalanceSaveControl_AC[0]);
+                    $newDailyData->save();
 
-                //     // Fetch voucher entries for the current date
-                //     $voucher_entries = DB::table('voucher_entry')
-                //         ->where('voucher_date', $currentDate)
-                //         ->whereIn('status', ['pending', 'Pending', 'Done'])
-                //         ->select('dr_amount', 'cr_amount', 'voucher_date')
-                //         ->orderBy('voucher_date')
-                //         ->get();
+                    // Fetch voucher entries for the current date
+                    $voucher_entries = DB::table('voucher_entry')
+                        ->where('voucher_date', $currentDate)
+                        ->whereIn('status', ['pending', 'Pending', 'Done'])
+                        ->select('dr_amount', 'cr_amount', 'voucher_date')
+                        ->orderBy('voucher_date')
+                        ->get();
 
-                //     // Process or store the fetched voucher entries as needed
+                    // Process or store the fetched voucher entries as needed
 
-                //     // Move to the next date
-                //     $startDateTime->modify('+1 day');
-                // }
+                    // Move to the next date
+                    $startDateTime->modify('+1 day');
+                }
 
                 // --------------- Trial Fix End ---------------- //
 
@@ -3184,7 +3184,51 @@ class CoreAccountingController extends Controller
             "Bills Receivables Marine Workshop" => "Bills Receivables Of Marine Workshop",
             "Bills Receivables Of Marine Workshop" => "Bills Receivables Of Marine Workshop",
             "Bill receivable of Marine Workshop" => "Bills Receivables Of Marine Workshop",
-            "Bills Receivable Of Marine Workshop" => "Bills Receivables Of Marine Workshop"
+            "Bills Receivable Of Marine Workshop" => "Bills Receivables Of Marine Workshop",
+            "Bill Receivable Of Processing" => "Bills Receivables Of Processing",
+            "Bill Receivables Of Processing" => "Bills Receivables Of Processing",
+            "Bill Receivable of Fish Processing" => "Bills Receivables of Processing",
+            "Bill Receivables of Fish Processing" => "Bills Receivables of Processing",
+            "Bill Receivables of Fish Processing" => "Bills Receivables of Processing,",
+            "Bill receivable of Fish Processing" => "Bills Receivables of Processing",
+            "Bill receivable of Rent and Lease" => "Bills Receivables Rent & Lease",
+            "Bill Receivable Of Rent & Lease" => "Bills Receivables Rent & Lease",
+            "Bill Receivable of Rent and Lease" => "Bills Receivables Rent & Lease",
+            "Bill Receivabe of Rent & Lease" => "Bills Receivables Rent & Lease",
+            "Bill Receivable of  Rent & Lease" => "Bills Receivables Rent & Lease",
+            "Bill Receivables Rent & Lease" => "Bills Receivables Rent & Lease",
+            "Bill Receivales Rent & Lease" => "Bills Receivables Rent & Lease",
+            "Bill receivable of Land and Lease" => "Bills Receivables of Land and Lease",
+            "Bill Receivables of Land and Lease" => "Bills Receivables of Land and Lease",
+            "Bill Receivable of Multichannel" => "Bills Receivables Of Multichannel",
+            "Bill Receivables Of Multichannel" => "Bills Receivables Of Multichannel",
+            "Bill Receivable Of Multichannel Slipway" => "Bills Receivables Of Multichannel Slipway",
+            "Bill Receivables Of Multichannel Slipway" => "Bills Receivables Of Multichannel Slipway",
+            "Bill Receivable of Multichannel Slipway Dockyard" => "Bills Receivables Of Multichannel Slipway Dockyard",
+            "Bill Receivables Of Multichannel Slipway Dockyard" => "Bills Receivables Of Multichannel Slipway Dockyard",
+            "bill receivable of T head Jetty" => "Bills Receivables Of T-head Jetty",
+            "Bill Receivable Of T-head Jetty" => "Bills Receivables Of T-head Jetty",
+            "Bill receivable of T-head Jetty " => "Bills Receivables Of T-head Jetty",
+            "Bill Receivables of T - head Jetty" => "Bills Receivables Of T-head Jetty",
+            "Bill receivable Of  T-head Jetty" => "Bills Receivables Of T-head Jetty",
+            "Bill Receivables Of T-head Jetty" => "Bills Receivables Of T-head Jetty",
+            "Bill Receivable of Water T-head Jetty" => "Bills Receivables Of Water T-head Jetty",
+            "Bill Receivables of Water T - head Jetty" => "Bills Receivables Of Water T-head Jetty",
+            "Bill Receivables Water T-head Jetty" => "Bills Receivables Of Water T-head Jetty",
+            "Bill Receivables Of Water T-head Jetty" => "Bills Receivables Of Water T-head Jetty",
+            "Bill receivable of Water" => "Bills Receivables Of Water",
+            "Bill Receivable Of Water " => "Bills Receivables Of Water",
+            "Bill Receivables Electric" => "Bills Receivables Of Electric",
+            "Bill Receivables Of Electric" => "Bills Receivables Of Electric",
+            "Bill Receivable Of Electric" => "Bills Receivables Of Electric",
+            "Bill Receivables Of workshop" => "Bills Receivables Of Marine Workshop",
+            "Bill Receivables of workshop" => "Bills Receivables Of Marine Workshop",
+            "Bill receivables of workshop" => "Bills Receivables Of Marine Workshop",
+            "Bill receivable of workshop" => "Bills Receivables Of Marine Workshop",
+            "bill receivable of workshop" => "Bills Receivables Of Marine Workshop",
+            "Bill Receivables Marine Workshop" => "Bills Receivables Of Marine Workshop",
+            "Bill Receivables Of Marine Workshop" => "Bills Receivables Of Marine Workshop",
+            "Bill Receivable Of Marine Workshop" => "Bills Receivables Of Marine Workshop"
         ];
 
         foreach ($group_names as $key => $standard) {
