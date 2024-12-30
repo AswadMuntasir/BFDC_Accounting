@@ -2969,8 +2969,8 @@ class CoreAccountingController extends Controller
                 $end_date = $request->end_date;
 
                 $parties = DB::table('party')
-                    ->where('name', 'like', "%Bills Receivable%")
-                    ->orWhere('name', 'like', "%Bill receivable")
+                    ->whereRaw("LOWER(name) like '%bills receivable%'")
+                    ->orWhereRaw("LOWER(name) like '%bill receivable%'")
                     ->select('name')
                     ->orderBy('name')
                     ->get();
@@ -3004,7 +3004,7 @@ class CoreAccountingController extends Controller
                         ->whereIn('status', ['pending', 'Done', 'Pending'])
                         ->where(function ($query) use ($name) {
                             $query->where(function ($query) use ($name) {
-                                $query->where('voucher_type', 'Journal')
+                                $query->whereIn('voucher_type', ['Journal', 'Payment Voucher'])
                                     ->where('party', $name);
                             })->orWhere(function ($query) use ($name) {
                                 $query->where('voucher_type', 'Receipt Voucher')
@@ -3028,8 +3028,23 @@ class CoreAccountingController extends Controller
                         })
                         ->get();
 
+                    // if ($name === 'Hello There (Bills receivable of marine workshop)') {
+                    //     dd($ledgerData);
+                    // }
                     $sortedLedgerData = $this->ledgerDataManupulation($ledgerData, $name, $selectedAccountName);
+                    foreach ($sortedLedgerData as $item) {
+                        $convertedItem = (object) $item; // Convert array to object
 
+                        if (is_array($convertedItem->dr_amount)) {
+                            $convertedItem->dr_amount = new Collection($convertedItem->dr_amount);
+                        }
+
+                        if (is_array($convertedItem->cr_amount)) {
+                            $convertedItem->cr_amount = new Collection($convertedItem->cr_amount);
+                        }
+
+                        $convertedData[] = $convertedItem;
+                    }
                     if ($sortedLedgerData) {
                         // dd(gettype($sortedLedgerData[0]));
                         $totalAmount = 0;
@@ -3050,7 +3065,6 @@ class CoreAccountingController extends Controller
 
                             // Check if dr_amount has items (debit)
                             if (count($item->dr_amount) > 0) {
-                                // dd(empty($item->dr_amount));
                                 $drAmountArray = $item->dr_amount->toArray();
                                 if (array_key_exists(0, $drAmountArray)) {
                                     $totalAmount += intval($item->dr_amount[0]->amount); // Subtract debit amount (negate)
@@ -3255,7 +3269,7 @@ class CoreAccountingController extends Controller
                     ->whereIn('status', ['pending', 'Done', 'Pending'])
                     ->where(function ($query) use ($name) {
                         $query->where(function ($query) use ($name) {
-                            $query->where('voucher_type', 'Journal')
+                            $query->whereIn('voucher_type', ['Journal', 'Payment Voucher'])
                                 ->where('party', $name);
                         })->orWhere(function ($query) use ($name) {
                             $query->where('voucher_type', 'Receipt Voucher')
