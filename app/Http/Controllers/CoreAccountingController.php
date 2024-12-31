@@ -2971,10 +2971,11 @@ class CoreAccountingController extends Controller
                 $parties = DB::table('party')
                     ->whereRaw("LOWER(name) like '%bills receivable%'")
                     ->orWhereRaw("LOWER(name) like '%bill receivable%'")
+                    ->orWhereRaw("LOWER(name) like '%bills receivales%'")
                     ->select('name')
                     ->orderBy('name')
                     ->get();
-                // dd($parties);
+                // dd($parties);Bills Receivales Rent & Lease
 
                 $selectedAccountName = [
                     "Bills Receivable Of Rent & Lease",
