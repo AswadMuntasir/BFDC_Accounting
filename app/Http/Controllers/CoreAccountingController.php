@@ -2972,6 +2972,7 @@ class CoreAccountingController extends Controller
                     ->whereRaw("LOWER(name) like '%bills receivable%'")
                     ->orWhereRaw("LOWER(name) like '%bill receivable%'")
                     ->orWhereRaw("LOWER(name) like '%bills receivales%'")
+                    ->orWhereRaw("LOWER(name) like '%bills receivabe%'")
                     ->select('name')
                     ->orderBy('name')
                     ->get();
