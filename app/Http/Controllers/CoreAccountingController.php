@@ -1889,6 +1889,7 @@ class CoreAccountingController extends Controller
 
     public function trialBalanceView(Request $request)
     {
+        ini_set('max_execution_time', 3600);
         if (Auth::check()) {
             $startDate = $request->input('start_date');
             $endDate = $request->input('end_date');
@@ -2075,7 +2076,7 @@ class CoreAccountingController extends Controller
                 //         })
                 //         ->get();
 
-                //         $sortedLedgerData = $this->ledgerDataManupulation($ledgerData, $name, $selectedAccountName);
+                //         $sortedLedgerData = $this->ledgerDataManupulation($ledgerData, $name, $selectedAccountName); // Add Date range
                 //         $thisPratyTotal = 0;
                 //         if($sortedLedgerData !== []) {
                 //             // dd($sortedLedgerData);
@@ -2360,7 +2361,7 @@ class CoreAccountingController extends Controller
                 ->get()
                 ->toArray();
 
-            $filteredLedgerData = $this->ledgerDataManupulation($ledgerData, "", $acHeadNames);
+            $filteredLedgerData = $this->ledgerDataManupulation($ledgerData, "", $acHeadNames, $startDate, $endDate);
             // if($filteredLedgerData !== []) {
             //     dd($filteredLedgerData);
             // }
@@ -2465,6 +2466,7 @@ class CoreAccountingController extends Controller
 
     public function subACLedgerView(Request $request)
     {
+        ini_set('max_execution_time', 3600);
         if (Auth::check()) {
             // Retrieve subsidiary account details for the dropdown
             $subsidiaryAccounts = subsidiary_ac::all();
@@ -2499,7 +2501,7 @@ class CoreAccountingController extends Controller
                     ->whereIn('status', ['pending', 'Done'])
                     ->get();
 
-                $filteredLedgerData = $this->ledgerDataManupulation($ledgerData, "", $acHeadNames);
+                $filteredLedgerData = $this->ledgerDataManupulation($ledgerData, "", $acHeadNames, $startDate, $endDate);
 
                 $totals = [];
                 foreach ($acHeadNames as $name) {
@@ -2594,6 +2596,7 @@ class CoreAccountingController extends Controller
 
     public function controlACLedgerView(Request $request)
     {
+        ini_set('max_execution_time', 3600);
         if (Auth::check()) {
             // Retrieve control account details for the dropdown
             $accounts = control_ac::pluck('account_name')->toArray();
@@ -2616,7 +2619,7 @@ class CoreAccountingController extends Controller
                     ->get();
                 // dd($ledgerData);
 
-                $filteredLedgerData = $this->ledgerDataManupulation($ledgerData, "", $ac_head_names);
+                $filteredLedgerData = $this->ledgerDataManupulation($ledgerData, "", $ac_head_names, $startDate, $endDate);
                 $filteredLedgerData2 = [];
 
                 foreach ($filteredLedgerData as $item) {
@@ -2663,6 +2666,7 @@ class CoreAccountingController extends Controller
                         'cr_amount' => $crData,
                     ];
                 }
+                //dd($filteredLedgerData2);
 
                 $totals = [];
                 foreach ($ac_head_names as $name) {
@@ -2709,6 +2713,7 @@ class CoreAccountingController extends Controller
 
     public function acHeadLedgerView(Request $request)
     {
+        ini_set('max_execution_time', 3600);
         if (Auth::check()) {
             // Retrieve AC Head names for the dropdown
             $accounts = account_head::pluck('ac_head_name_eng')->toArray();
@@ -2721,7 +2726,7 @@ class CoreAccountingController extends Controller
                 $ledgerData = DB::table('voucher_entry')
                     ->whereBetween('voucher_date', [$startDate, $endDate])
                     ->select('voucher_no', 'description', 'voucher_date', 'dr_amount', 'cr_amount')
-                    ->whereIn('status', ['pending', 'Done'])
+                    ->whereIn('status', ['pending', 'Pending', 'Done'])
                     ->get();
                 // dd($ledgerData);
                 // dd($selectedAccountName);
@@ -2963,10 +2968,12 @@ class CoreAccountingController extends Controller
     }
     public function allPartyLedgerView(Request $request)
     {
+        ini_set('max_execution_time', 3600);
         if (Auth::check()) {
             if ($request->isMethod('post')) {
                 $start_date = $request->start_date;
                 $end_date = $request->end_date;
+
 
                 $parties = DB::table('party')
                     ->whereRaw("LOWER(name) like '%bills receivable%'")
@@ -3034,7 +3041,7 @@ class CoreAccountingController extends Controller
                     // if ($name === 'Hello There (Bills receivable of marine workshop)') {
                     //     dd($ledgerData);
                     // }
-                    $sortedLedgerData = $this->ledgerDataManupulation($ledgerData, $name, $selectedAccountName);
+                    $sortedLedgerData = $this->ledgerDataManupulation($ledgerData, $name, $selectedAccountName, $start_date, $end_date);
                     foreach ($sortedLedgerData as $item) {
                         $convertedItem = (object) $item; // Convert array to object
 
@@ -3154,6 +3161,7 @@ class CoreAccountingController extends Controller
     {
         $name = strtolower($name);
         $group_names = [
+            "Processing" => "Bills Receivables Of Processing",
             "Bill receivable of Processing" => "Bills Receivables Of Processing",
             "Bill Receivable Of Processing" => "Bills Receivables Of Processing",
             "Bill Receivables Of Processing" => "Bills Receivables Of Processing",
@@ -3311,7 +3319,7 @@ class CoreAccountingController extends Controller
                     "Bills receivable of Land and Lease"
                 ];
                 // dd($ledgerData);
-                $sortedLedgerData = $this->ledgerDataManupulation($ledgerData, $name, $selectedAccountName);
+                $sortedLedgerData = $this->ledgerDataManupulation($ledgerData, $name, $selectedAccountName, $start_date, $end_date);
                 $openingBalance = 0;
                 $dailyOpeningBalanceData = $this->getPartyOpeningBalanceData($start_date, $end_date);
                 foreach ($dailyOpeningBalanceData as $dailyOpeningBalance) {
@@ -3385,7 +3393,7 @@ class CoreAccountingController extends Controller
         return $data;
     }
 
-    public function ledgerDataManupulation($ledgerData, $name1, $selectedAccountName)
+    public function ledgerDataManupulation($ledgerData, $name1, $selectedAccountName, $startDate, $endDate)
     {
         $filteredData = [];
         foreach ($ledgerData as $key => $item) {
@@ -3405,12 +3413,14 @@ class CoreAccountingController extends Controller
                     if ($name1 != "") {
                         $r_data_table = DB::table('collection_entry')
                             ->whereIn('id', $numbers)
+                            ->whereBetween('collection_date', [$startDate, $endDate])
                             ->select('id', 'dr_amount', 'cr_amount', 'collection_date')
                             ->where('customer_name', $name1)
                             ->get();
                     } else {
                         $r_data_table = DB::table('collection_entry')
                             ->whereIn('id', $numbers)
+                            ->whereBetween('collection_date', [$startDate, $endDate])
                             ->select('id', 'dr_amount', 'cr_amount', 'collection_date')
                             ->get();
                         // dd($name1);
@@ -3519,12 +3529,14 @@ class CoreAccountingController extends Controller
                     if ($name1 != "") {
                         $r_data_table = DB::table('collection_entry')
                             ->whereIn('id', $numbers)
+                            ->whereBetween('collection_date', [$startDate, $endDate])
                             ->select('id', 'dr_amount', 'cr_amount', 'collection_date')
                             ->where('customer_name', $name1)
                             ->get();
                     } else {
                         $r_data_table = DB::table('collection_entry')
                             ->whereIn('id', $numbers)
+                            ->whereBetween('collection_date', [$startDate, $endDate])
                             ->select('id', 'dr_amount', 'cr_amount', 'collection_date')
                             ->get();
                     }
@@ -3615,6 +3627,7 @@ class CoreAccountingController extends Controller
                 // dd($item->voucher_no);
                 $a_data_table = DB::table('voucher_entry')
                     ->where('voucher_no', $item->voucher_no)
+                    ->whereBetween('voucher_date', [$startDate, $endDate])
                     ->select('voucher_no', 'dr_amount', 'cr_amount', 'description', 'voucher_date')
                     ->get();
 
