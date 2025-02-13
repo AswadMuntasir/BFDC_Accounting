@@ -1930,55 +1930,55 @@ class CoreAccountingController extends Controller
 
                 // --------------- Trial Fix End ---------------- //
 
-                while ($startDateTime <= $endDateTime) {
-                    $currentDate = $startDateTime->format('Y-m-d'); // Format the date as needed
+                // while ($startDateTime <= $endDateTime) {
+                //     $currentDate = $startDateTime->format('Y-m-d'); // Format the date as needed
 
-                    // Fetch voucher entries for the current date
-                    $voucher_entries = DB::table('voucher_entry')
-                        ->where('voucher_date', $currentDate)
-                        ->whereIn('status', ['pending', 'Pending', 'Done'])
-                        ->select('dr_amount', 'cr_amount', 'voucher_date')
-                        ->orderBy('voucher_date')
-                        ->get();
+                //     // Fetch voucher entries for the current date
+                //     $voucher_entries = DB::table('voucher_entry')
+                //         ->where('voucher_date', $currentDate)
+                //         ->whereIn('status', ['pending', 'Pending', 'Done'])
+                //         ->select('dr_amount', 'cr_amount', 'voucher_date')
+                //         ->orderBy('voucher_date')
+                //         ->get();
 
-                    $dr_cr_array = [];
+                //     $dr_cr_array = [];
 
-                    foreach ($voucher_entries as $items) {
-                        $array_items = (array) $items;
-                        $item_dr_amount = $array_items["dr_amount"];
-                        $dr_amount = json_decode($item_dr_amount);
-                        $item_cr_amount = $array_items["cr_amount"];
-                        $cr_amount = json_decode($item_cr_amount);
+                //     foreach ($voucher_entries as $items) {
+                //         $array_items = (array) $items;
+                //         $item_dr_amount = $array_items["dr_amount"];
+                //         $dr_amount = json_decode($item_dr_amount);
+                //         $item_cr_amount = $array_items["cr_amount"];
+                //         $cr_amount = json_decode($item_cr_amount);
 
-                        foreach ($dr_amount as $item) {
-                            $array_item = (array) $item;
-                            $dr_cr_array[] = [
-                                'name' => $array_item['name'],
-                                'amount' => floatval($array_item['amount']),
-                            ];
-                        }
+                //         foreach ($dr_amount as $item) {
+                //             $array_item = (array) $item;
+                //             $dr_cr_array[] = [
+                //                 'name' => $array_item['name'],
+                //                 'amount' => floatval($array_item['amount']),
+                //             ];
+                //         }
 
-                        foreach ($cr_amount as $item) {
-                            $array_item = (array) $item;
-                            $dr_cr_array[] = [
-                                'name' => $array_item['name'],
-                                'amount' => -floatval($array_item['amount']), // Make amounts negative
-                            ];
-                        }
-                    }
-                    $dailyOpeningData = $this->matchAndMerge($dr_cr_array, []);
-                    $final_data_for_Daily_Opening_Data =  json_encode(array_values($dailyOpeningData));
+                //         foreach ($cr_amount as $item) {
+                //             $array_item = (array) $item;
+                //             $dr_cr_array[] = [
+                //                 'name' => $array_item['name'],
+                //                 'amount' => -floatval($array_item['amount']), // Make amounts negative
+                //             ];
+                //         }
+                //     }
+                //     $dailyOpeningData = $this->matchAndMerge($dr_cr_array, []);
+                //     $final_data_for_Daily_Opening_Data =  json_encode(array_values($dailyOpeningData));
 
-                    // Move to the next date
-                    $final_date = $startDateTime->modify('+1 day');
+                //     // Move to the next date
+                //     $final_date = $startDateTime->modify('+1 day');
 
-                    $openingDailyData = new DailyOpeningBalance;
-                    $openingDailyData->date = $final_date;
-                    $openingDailyData->ac_head = $final_data_for_Daily_Opening_Data;
-                    $openingDailyData->save();
-                    // Process or store the fetched voucher entries as needed
+                //     $openingDailyData = new DailyOpeningBalance;
+                //     $openingDailyData->date = $final_date;
+                //     $openingDailyData->ac_head = $final_data_for_Daily_Opening_Data;
+                //     $openingDailyData->save();
+                //     // Process or store the fetched voucher entries as needed
 
-                }
+                // }
 
                 //  -------------------- Daily Opening Banalnce End ----------------- //
 
