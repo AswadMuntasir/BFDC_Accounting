@@ -4172,7 +4172,7 @@ class CoreAccountingController extends Controller
 
         // Create the new array using the totals
         foreach ($totals as $key => $amount) {
-            list($account_group, $subsidiary_account_name, $name) = explode('-', $key);
+            list($account_group, $subsidiary_account_name, $name) = explode('-_-', $key);
 
             $newArray[] = [
                 'account_group' => $account_group,
