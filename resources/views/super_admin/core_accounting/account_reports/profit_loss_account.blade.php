@@ -119,11 +119,11 @@
                                                         $expensesData = collect($data)->where('account_group',
                                                         'Expenses');
                                                         $administrativeExpenditureData =
-                                                        $expensesData->where('subsidiary_account_name', 'Administrative
-                                                        Expenditure');
+                                                        $expensesData->where('subsidiary_account_name',
+                                                        'Administrative Expenditure');
                                                         $nonOperatingExpenditureData =
-                                                        $expensesData->where('subsidiary_account_name', 'Non-operating
-                                                        Expenses');
+                                                        $expensesData->where('subsidiary_account_name',
+                                                        'Non-operating Expenses');
                                                         @endphp
                                                         <tr>
                                                             <td style="font-size: 14px;"><b>Less: Expenditure</b></td>
