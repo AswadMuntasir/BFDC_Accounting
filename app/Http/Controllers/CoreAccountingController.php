@@ -4025,7 +4025,7 @@ class CoreAccountingController extends Controller
                 $endDate = $request->input('end_date');
 
                 $final_data = $this->profitLossCalculation($startDate, $endDate);
-                // dd($final_data);
+                dd($final_data);
                 return view('super_admin.core_accounting.account_reports.profit_loss_account', [
                     'data' => $final_data,
                     'startDate' => $startDate,
