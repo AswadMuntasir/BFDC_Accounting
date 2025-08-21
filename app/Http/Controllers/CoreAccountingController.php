@@ -2998,6 +2998,7 @@ class CoreAccountingController extends Controller
                     "Bills Receivable Of Multichannel Slipway",
                     "Bills Receivable Of Water  ( T-head Jetty)",
                     "Bills Receivable Of Water T-head jetty",
+                    "bills receivable of water t head jetty",
                     "Bills Receivable Of Water  ( T-head Jetty)",
                     "Bills receivable of Land and Lease",
                     "Bills Receivable Of Water"
@@ -3227,6 +3228,9 @@ class CoreAccountingController extends Controller
             "Bills Receivables of Water T - head Jetty" => "Bills Receivables Of Water T-head Jetty",
             "Bills Receivables Water T-head Jetty" => "Bills Receivables Of Water T-head Jetty",
             "Bills Receivables Of Water T-head Jetty" => "Bills Receivables Of Water T-head Jetty",
+            "bills receivable of water t head jetty" => "Bills Receivables Of Water T-head Jetty",
+            "bills receivables of water t head jetty" => "Bills Receivables Of Water T-head Jetty",
+            "bill receivable of water t head jetty" => "Bills Receivables Of Water T-head Jetty",
             "Bill receivable of Water" => "Bills Receivables Of Water",
             "Bill Receivable Of Water " => "Bills Receivables Of Water",
             "Bills receivable of Water" => "Bills Receivables Of Water",
