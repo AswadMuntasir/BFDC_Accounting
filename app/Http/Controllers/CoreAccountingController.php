@@ -1926,7 +1926,7 @@ class CoreAccountingController extends Controller
 
                     // Move to the next date
                     $startDateTime->modify('+1 day');
-                // }
+                }
 
                 // --------------- Trial Fix End ---------------- //
 
